@@ -1,0 +1,125 @@
+{% extends 'dashboard_eleve/base_eleve.html' %}
+{% load static %}
+
+{% block page_title %}Mon espace{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard_eleve/eleve.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- Salutation -->
+<div class="eleve-welcome">
+  <div class="welcome-text">
+    <h1>Bonjour, <span>{{ eleve.prenom }} {{ eleve.nom }}</span> 👋</h1>
+    <p>{{ aujourd_hui|date:"l j F Y" }} &nbsp;·&nbsp; {{ eleve.classe }}</p>
+  </div>
+  <div class="welcome-badge">
+    <span class="badge-matricule">{{ eleve.matricule }}</span>
+  </div>
+</div>
+
+<!-- Stats rapides -->
+<div class="eleve-stats">
+  <div class="estat-card highlight">
+    <div class="estat-value">
+      {% if moyenne_generale is not None %}{{ moyenne_generale }}/20{% else %}—{% endif %}
+    </div>
+    <div class="estat-label">Moyenne {{ trimestre_actif }}</div>
+  </div>
+  <div class="estat-card">
+    <div class="estat-value">{{ eleve.classe.effectif }}</div>
+    <div class="estat-label">Élèves dans la classe</div>
+  </div>
+  <div class="estat-card">
+    <div class="estat-value">{{ nb_non_lus }}</div>
+    <div class="estat-label">Message(s) non lu(s)</div>
+  </div>
+</div>
+
+<!-- Grille principale -->
+<div class="eleve-main-grid">
+
+  <!-- Cours du jour -->
+  <div class="eleve-card">
+    <div class="eleve-card-header">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 3v3M16 3v3"/></svg>
+      <h2>Cours d'aujourd'hui</h2>
+    </div>
+    {% if prochains_cours %}
+      <div class="cours-list">
+        {% for emploi in prochains_cours %}
+          <div class="cours-item">
+            <span class="cours-heure">
+              {{ emploi.creneau.heure_debut|time:"H\hi" }}–{{ emploi.creneau.heure_fin|time:"H\hi" }}
+            </span>
+            <span class="cours-matiere">
+              {{ emploi.matiere.nom_matiere|default:"—" }}
+            </span>
+            <span class="cours-prof">
+              {% if emploi.enseignant %}{{ emploi.enseignant.last_name }}{% endif %}
+            </span>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="empty-mini">Aucun cours aujourd'hui.</p>
+    {% endif %}
+    <a href="{% url 'eleve_emploi' %}" class="card-link">Voir l'emploi du temps →</a>
+  </div>
+
+  <!-- Dernières notes -->
+  <div class="eleve-card">
+    <div class="eleve-card-header">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      <h2>Dernières notes</h2>
+    </div>
+    {% if dernieres_notes %}
+      <div class="notes-list">
+        {% for note in dernieres_notes %}
+          <div class="note-item">
+            <span class="note-matiere">{{ note.matiere.nom_matiere }}</span>
+            <span class="note-val {% if note.valeur >= 10 %}note-ok{% else %}note-fail{% endif %}">
+              {{ note.valeur }}/20
+            </span>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="empty-mini">Aucune note saisie.</p>
+    {% endif %}
+    <a href="{% url 'eleve_notes' %}" class="card-link">Voir toutes mes notes →</a>
+  </div>
+
+  <!-- Derniers messages -->
+  <div class="eleve-card">
+    <div class="eleve-card-header">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      <h2>Messages
+        {% if nb_non_lus > 0 %}
+          <span class="notif-dot">{{ nb_non_lus }}</span>
+        {% endif %}
+      </h2>
+    </div>
+    {% with msgs=request.user.messages_recus.all|slice:":4" %}
+      {% if msgs %}
+        <div class="msg-list">
+          {% for msg in msgs %}
+            <a href="{% url 'eleve_message_detail' msg.id %}" class="msg-item {% if not msg.lu %}msg-unread{% endif %}">
+              <span class="msg-type-badge msg-{{ msg.type_message }}">{{ msg.get_type_message_display }}</span>
+              <span class="msg-sujet">{{ msg.sujet }}</span>
+              <span class="msg-date">{{ msg.date_envoi|date:"d/m" }}</span>
+            </a>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="empty-mini">Aucun message.</p>
+      {% endif %}
+    {% endwith %}
+    <a href="{% url 'eleve_messages' %}" class="card-link">Voir tous mes messages →</a>
+  </div>
+
+</div>
+
+{% endblock %}

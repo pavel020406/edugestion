@@ -1,0 +1,13 @@
+/* ============================================================
+   messages/envoyer_message.css — formulaire d'envoi de message
+   ============================================================ */
+
+.form-grid-2 label {
+    background: var(--sec-blue-50);
+    border: 1px solid var(--sec-blue-100);
+    border-radius: .6rem;
+    padding: .7rem .9rem;
+}
+.form-grid-2 input[type="checkbox"] {
+    accent-color: var(--sec-blue-600);
+}

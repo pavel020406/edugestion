@@ -1,0 +1,121 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Accès de {{ eleve.nom }} {{ eleve.prenom }}{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard_enseignant/message.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="form-page-header">
+  <h1 class="form-page-title">
+    <span class="title-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <rect x="3" y="11" width="18" height="11" rx="2"/>
+        <path d="M7 11V7a5 5 0 0110 0v4"/>
+      </svg>
+    </span>
+    Accès — {{ eleve.nom }} {{ eleve.prenom }}
+  </h1>
+  <div class="header-actions">
+    <a href="{% url 'detail_eleve' eleve.id %}" class="btn btn-ghost btn-sm">
+      Fiche élève
+    </a>
+    <a href="{% url 'admin_envoyer_message_eleve' eleve.id %}" class="btn btn-primary btn-sm">
+      ✉ Envoyer un message
+    </a>
+  </div>
+</div>
+
+{% if messages %}
+  <div class="form-messages">
+    {% for message in messages %}
+      <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/>
+        </svg>
+        <span>{{ message }}</span>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<!-- Info élève -->
+<div class="acces-eleve-info">
+  <div class="aei-item">
+    <span class="aei-label">Classe</span>
+    <strong>{% if eleve.classe %}{{ eleve.classe }}{% else %}—{% endif %}</strong>
+  </div>
+  <div class="aei-item">
+    <span class="aei-label">Matricule</span>
+    <strong>{{ eleve.matricule }}</strong>
+  </div>
+  <div class="aei-item">
+    <span class="aei-label">Compte</span>
+    <strong>{% if eleve.compte %}{{ eleve.compte.username }}{% else %}Aucun{% endif %}</strong>
+  </div>
+</div>
+
+<!-- Grille des accès -->
+<div class="list-card">
+  <div class="list-card-header">
+    <h2>Contrôle des accès</h2>
+    <span class="list-card-count">{{ grille|length }} entrée(s)</span>
+  </div>
+  <div class="data-table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Type de contenu</th>
+          <th>Trimestre</th>
+          <th>Statut</th>
+          <th>Activé le</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for ligne in grille %}
+          <tr>
+            <td><strong>{{ ligne.type_libelle }}</strong></td>
+            <td>{{ ligne.trim_libelle }}</td>
+            <td>
+              {% if ligne.actif %}
+                <span class="badge badge-present">✓ Accessible</span>
+              {% else %}
+                <span class="badge badge-absent">🔒 Verrouillé</span>
+              {% endif %}
+            </td>
+            <td style="font-size:0.8rem; color:var(--gray-500);">
+              {% if ligne.date %}{{ ligne.date|date:"d/m/Y H:i" }}{% else %}—{% endif %}
+            </td>
+            <td>
+              <form method="post" action="{% url 'admin_publier_acces' eleve.id %}"
+                    style="display:inline;">
+                {% csrf_token %}
+                <input type="hidden" name="type_contenu" value="{{ ligne.type_code }}">
+                {% if ligne.trimestre %}
+                  <input type="hidden" name="trimestre" value="{{ ligne.trimestre }}">
+                {% endif %}
+                {% if ligne.actif %}
+                  <input type="hidden" name="action" value="revoquer">
+                  <button type="submit" class="btn-xs btn-xs-delete"
+                          onclick="return confirm('Révoquer cet accès ?')">
+                    🔒 Révoquer
+                  </button>
+                {% else %}
+                  <input type="hidden" name="action" value="accorder">
+                  <button type="submit" class="btn-xs btn-xs-primary">
+                    ✓ Accorder
+                  </button>
+                {% endif %}
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,90 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Créneaux horaires{% endblock %}
+
+{% block extra_css %}
+
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/creneaux/list.css' %}">
+
+
+{% endblock %}
+
+{% block content %}
+
+  <div class="form-page-header">
+    <h1 class="form-page-title">
+      <span class="title-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+      </span>
+      Créneaux horaires
+    </h1>
+    <a href="{% url 'add_creneau' %}" class="btn btn-primary btn-sm">+ Ajouter un créneau</a>
+  </div>
+
+  {% if messages %}
+    <div class="form-messages">
+      {% for message in messages %}
+        <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+          <span>{{ message }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="list-card">
+    <div class="list-card-header">
+      <h2>Liste des créneaux</h2>
+      <span class="list-card-count">{{ total }} créneau(x)</span>
+    </div>
+
+    {% if creneaux %}
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Jour</th>
+              <th>Début</th>
+              <th>Fin</th>
+              <th>Type</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for creneau in creneaux %}
+              <tr>
+                <td><strong>{{ creneau.get_jour_display }}</strong></td>
+                <td>{{ creneau.heure_debut|time:"H\hi" }}</td>
+                <td>{{ creneau.heure_fin|time:"H\hi" }}</td>
+                <td>
+                  {% if creneau.est_pause %}
+                    <span class="class-chip" style="background: rgba(217,119,6,0.1); color: var(--warning);">Pause</span>
+                  {% else %}
+                    <span class="class-chip">Cours</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <div class="action-buttons">
+                    <a href="{% url 'edit_creneau' creneau.id %}" class="btn-xs btn-xs-edit">Modifier</a>
+                    <form method="post" action="{% url 'delete_creneau' creneau.id %}" style="display:inline;" onsubmit="return confirm('Supprimer ce créneau ?');">
+                      {% csrf_token %}
+                      <button type="submit" class="btn-xs btn-xs-delete">Supprimer</button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <div class="empty-emoji" aria-hidden="true">🕐</div>
+        <p>Aucun créneau créé pour l'instant</p>
+        <a href="{% url 'add_creneau' %}" class="btn btn-primary">+ Créer le premier créneau</a>
+      </div>
+    {% endif %}
+  </div>
+
+{% endblock %}

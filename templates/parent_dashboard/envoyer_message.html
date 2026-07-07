@@ -1,0 +1,89 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Nouveau message{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/add_eleve.css' %}">
+<link rel="stylesheet" href="{% static 'css/parent/dashboard.css' %}">
+<link rel="stylesheet" href="{% static 'css/parent/messages.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/add_eleve.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/detail.css' %}">
+<link rel="stylesheet" href="{% static 'css/dashboard_enseignant/list.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/message.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="form-page-header">
+  <h1 class="form-page-title">
+    <span class="title-icon">✏</span>
+    Nouveau message
+  </h1>
+  <a href="{% url 'parent_messages' %}" class="btn btn-ghost btn-sm">← Retour</a>
+</div>
+
+{% if messages %}
+  <div class="form-messages">
+    {% for message in messages %}
+      <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span>{{ message }}</span>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<div class="compte-info-box" style="margin-bottom:1.25rem;">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+       style="width:1rem;height:1rem;flex-shrink:0;color:var(--blue-600);">
+    <circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/>
+  </svg>
+  <span>
+    Les échanges avec les enseignants transitent obligatoirement par l'administration.
+    Vous pouvez contacter l'administration ou le secrétariat directement.
+  </span>
+</div>
+
+<form method="post" class="form-card" novalidate>
+  {% csrf_token %}
+
+  <div class="form-field">
+    <label for="destinataire_id">Destinataire <span class="required">*</span></label>
+    <select id="destinataire_id" name="destinataire_id" required>
+      <option value="">— Choisir —</option>
+      {% for d in destinataires %}
+        <option value="{{ d.id }}">
+          {{ d.first_name }} {{ d.last_name }} ({{ d.get_role_display }})
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+
+  {% if enfant %}
+  <div class="form-field">
+    <label>Concerne l'élève</label>
+    <div class="compte-info-box">
+      <span>{{ enfant.nom }} {{ enfant.prenom }} — {{ enfant.classe|default:"Classe non assignée" }}</span>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="form-field">
+    <label for="sujet">Sujet <span class="required">*</span></label>
+    <input type="text" id="sujet" name="sujet" placeholder="Objet de votre message" required>
+  </div>
+
+  <div class="form-field">
+    <label for="contenu">Message</label>
+    <textarea id="contenu" name="contenu" rows="6"
+              placeholder="Rédigez votre message ici..."></textarea>
+  </div>
+
+  <div class="form-actions">
+    <a href="{% url 'parent_messages' %}" class="btn btn-ghost">Annuler</a>
+    <button type="submit" class="btn btn-primary">Envoyer le message</button>
+  </div>
+</form>
+
+{% endblock %}

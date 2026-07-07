@@ -1,0 +1,344 @@
+/* ============================================================
+   frais_niveaux.css — EduGestion / Espace Parent
+   Thème : Blanc & Bleu dynamique
+   Cible : page tarifs de l'établissement par niveau
+   ============================================================ */
+
+:root {
+  --blue-50:  #eff6ff;
+  --blue-100: #dbeafe;
+  --blue-200: #bfdbfe;
+  --blue-300: #93c5fd;
+  --blue-400: #60a5fa;
+  --blue-500: #3b82f6;
+  --blue-600: #2563eb;
+  --blue-700: #1d4ed8;
+  --blue-800: #1e40af;
+
+  --gray-50:  #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-900: #111827;
+
+  --green-50:  #f0fdf4;
+  --green-100: #dcfce7;
+  --green-300: #86efac;
+  --green-600: #16a34a;
+  --green-700: #15803d;
+
+  --amber-50:  #fffbeb;
+  --amber-300: #fcd34d;
+  --amber-700: #b45309;
+
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+
+  --shadow-sm:    0 1px 3px rgba(0,0,0,.06);
+  --shadow-md:    0 4px 16px rgba(37,99,235,.08), 0 1px 4px rgba(0,0,0,.05);
+  --shadow-hover: 0 14px 32px rgba(37,99,235,.18), 0 4px 10px rgba(0,0,0,.06);
+  --transition:   220ms cubic-bezier(.4,0,.2,1);
+}
+
+/* ══════════════════════════════════════════
+   EN-TÊTE
+══════════════════════════════════════════ */
+.form-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.4rem;
+  gap: 1rem;
+}
+
+.form-page-title {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--gray-900);
+  margin: 0;
+}
+
+.form-page-title .title-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  font-size: 1.25rem;
+  background: linear-gradient(135deg, var(--blue-500), var(--blue-700));
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 14px rgba(37,99,235,.35);
+  flex-shrink: 0;
+}
+
+/* ══════════════════════════════════════════
+   GRILLE DES NIVEAUX
+══════════════════════════════════════════ */
+.niveaux-parent-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 1.1rem;
+}
+
+/* ══════════════════════════════════════════
+   CARTE NIVEAU
+══════════════════════════════════════════ */
+.niveau-parent-card {
+  position: relative;
+  background: #ffffff;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius-xl);
+  padding: 1.25rem 1.4rem;
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+}
+
+.niveau-parent-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--blue-400), var(--blue-600));
+  opacity: 0.7;
+  transition: opacity var(--transition);
+}
+
+.niveau-parent-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-hover);
+  border-color: var(--blue-300);
+}
+
+.niveau-parent-card:hover::before { opacity: 1; }
+
+/* Carte du niveau de l'enfant connecté — mise en avant */
+.niveau-parent-card-mien {
+  border-color: var(--blue-400);
+  background: linear-gradient(180deg, var(--blue-50) 0%, #ffffff 18%);
+  box-shadow: 0 6px 22px rgba(37,99,235,.16);
+}
+
+.niveau-parent-card-mien::before {
+  background: linear-gradient(90deg, var(--blue-500), var(--blue-700));
+  opacity: 1;
+  height: 5px;
+}
+
+/* ── En-tête de carte ── */
+.niveau-parent-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin-bottom: 0.9rem;
+  flex-wrap: wrap;
+}
+
+.niveau-parent-top h3 {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--gray-900);
+  margin: 0;
+}
+
+.niveau-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.28rem 0.7rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.niveau-badge-mien {
+  background: linear-gradient(135deg, var(--blue-600), var(--blue-700));
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(37,99,235,.35);
+}
+
+/* ══════════════════════════════════════════
+   MONTANTS
+══════════════════════════════════════════ */
+.niveau-parent-montants {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-bottom: 0.9rem;
+}
+
+.niveau-parent-montants > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.55rem 0.85rem;
+  font-size: 0.85rem;
+  border-bottom: 1px solid var(--gray-100);
+  background: var(--gray-50);
+}
+
+.niveau-parent-montants > div:last-child { border-bottom: none; }
+
+.niveau-parent-montants > div span {
+  color: var(--gray-500);
+  font-weight: 600;
+}
+
+.niveau-parent-montants > div strong {
+  color: var(--gray-900);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Ligne total — mise en avant */
+.niveau-parent-total {
+  background: linear-gradient(135deg, var(--blue-600), var(--blue-700)) !important;
+  padding: 0.7rem 0.85rem !important;
+}
+
+.niveau-parent-total span {
+  color: rgba(255,255,255,.85) !important;
+  font-weight: 700 !important;
+  text-transform: uppercase;
+  font-size: 0.72rem !important;
+  letter-spacing: 0.04em;
+}
+
+.niveau-parent-total strong {
+  color: #ffffff !important;
+  font-size: 1.05rem !important;
+}
+
+/* ══════════════════════════════════════════
+   TABLEAU TRANCHES
+══════════════════════════════════════════ */
+.niveau-parent-tranches {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+  margin-top: 0.7rem;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.niveau-parent-tranches thead {
+  background: var(--blue-50);
+}
+
+.niveau-parent-tranches thead th {
+  padding: 0.5rem 0.65rem;
+  text-align: left;
+  font-size: 0.66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--blue-700);
+  border-bottom: 2px solid var(--blue-100);
+}
+
+.niveau-parent-tranches tbody tr {
+  border-bottom: 1px solid var(--gray-100);
+  transition: background var(--transition);
+}
+
+.niveau-parent-tranches tbody tr:last-child { border-bottom: none; }
+.niveau-parent-tranches tbody tr:hover { background: var(--blue-50); }
+
+.niveau-parent-tranches tbody td {
+  padding: 0.5rem 0.65rem;
+  color: var(--gray-700);
+}
+
+.niveau-parent-tranches tbody td:first-child {
+  font-weight: 600;
+  color: var(--gray-900);
+}
+
+.niveau-parent-tranches tbody td:last-child {
+  font-size: 0.74rem;
+  color: var(--amber-700);
+  background: var(--amber-50);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ══════════════════════════════════════════
+   ÉTAT VIDE (niveau non configuré)
+══════════════════════════════════════════ */
+.niveau-parent-vide {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--gray-50);
+  border: 1px dashed var(--gray-300);
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1rem;
+  font-size: 0.82rem;
+  color: var(--gray-400);
+  font-style: italic;
+  margin: 0;
+}
+
+.niveau-parent-vide::before {
+  content: '⏳';
+  font-style: normal;
+}
+
+/* ══════════════════════════════════════════
+   BOUTONS
+══════════════════════════════════════════ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1.2rem;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  text-decoration: none;
+  transition: background var(--transition), border-color var(--transition),
+              color var(--transition), box-shadow var(--transition), transform var(--transition);
+  white-space: nowrap;
+}
+
+.btn:active { transform: translateY(1px); }
+
+.btn-ghost {
+  background: #ffffff;
+  border-color: var(--gray-300);
+  color: var(--gray-700);
+}
+
+.btn-ghost:hover {
+  background: var(--blue-50);
+  border-color: var(--blue-400);
+  color: var(--blue-700);
+}
+
+.btn-sm { padding: 0.42rem 0.95rem; font-size: 0.8rem; }
+
+/* ══════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════ */
+@media (max-width: 640px) {
+  .form-page-header { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+  .niveaux-parent-grid { grid-template-columns: 1fr; }
+  .niveau-parent-tranches { font-size: 0.72rem; }
+}

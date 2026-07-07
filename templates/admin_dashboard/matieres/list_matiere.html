@@ -1,0 +1,120 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Gestion des matières{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/matieres/list_matiere.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/matieres/add_matiere.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/detail.css' %}">
+<link rel="stylesheet" href="{% static 'css/dashboard_enseignant/list.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/message.css' %}">
+
+{% endblock %}
+
+{% block content %}
+
+  <div class="form-page-header">
+    <h1 class="form-page-title">
+      <span class="title-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="12" rx="1.5"/><path d="M9 20h6M12 16v4"/></svg>
+      </span>
+      Gestion des matières
+    </h1>
+    <a href="{% url 'add_matiere' %}" class="btn btn-primary btn-sm">+ Ajouter une matière</a>
+  </div>
+
+  <!-- ---------- Messages ---------- -->
+  {% if messages %}
+    <div class="form-messages">
+      {% for message in messages %}
+        <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+          <span>{{ message }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- ---------- Cartes de résumé ---------- -->
+  <div class="summary-grid">
+    <div class="summary-card">
+      <span class="summary-icon tone-blue" aria-hidden="true">📘</span>
+      <div>
+        <div class="summary-value">{{ total }}</div>
+        <div class="summary-label">Total matières</div>
+      </div>
+    </div>
+    <div class="summary-card">
+      <span class="summary-icon tone-green" aria-hidden="true">📋</span>
+      <div>
+        <div class="summary-value">{{ matieres|length }}</div>
+        <div class="summary-label">Résultats affichés</div>
+      </div>
+    </div>
+    <div class="summary-card">
+      <span class="summary-icon tone-amber" aria-hidden="true">✏️</span>
+      <div>
+        <div class="summary-value">{{ matieres_avec_description }}</div>
+        <div class="summary-label">Avec description</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ---------- Barre de filtre ---------- -->
+  <form method="get" class="filter-bar">
+    <input type="search" name="search" placeholder="Rechercher une matière..." value="{{ request.GET.search }}">
+    <button type="submit" class="btn btn-primary btn-sm">Filtrer</button>
+    <a href="{% url 'list_matiere' %}" class="btn btn-ghost btn-sm">Réinitialiser</a>
+  </form>
+
+  <!-- ---------- Liste des matières ---------- -->
+  <div class="list-card">
+    <div class="list-card-header">
+      <h2>Liste des matières</h2>
+      <span class="list-card-count">{{ total }} matière(s)</span>
+    </div>
+
+    {% if matieres %}
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Nom de la matière</th>
+              <th>Description</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for matiere in matieres %}
+              <tr>
+                <td><strong>{{ matiere.nom_matiere }}</strong></td>
+                <td>
+                  {% if matiere.description %}
+                    {{ matiere.description }}
+                  {% else %}
+                    <span style="color: var(--text-faint);">— Aucune description —</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <div class="action-buttons">
+                    <a href="{% url 'detail_matiere' matiere.id %}" class="btn-xs btn-xs-view">Voir</a>
+                    <a href="{% url 'detail_matiere' matiere.id %}" class="btn-xs btn-xs-edit">Modifier</a>
+                    <a href="{% url 'detail_matiere' matiere.id %}" class="btn-xs btn-xs-delete">Supprimer</a>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <div class="empty-emoji" aria-hidden="true">📘</div>
+        <p>Aucune matière trouvée</p>
+        <a href="{% url 'add_matiere' %}" class="btn btn-primary">+ Ajouter la première matière</a>
+      </div>
+    {% endif %}
+  </div>
+
+{% endblock %}

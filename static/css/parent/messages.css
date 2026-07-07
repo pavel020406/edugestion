@@ -1,0 +1,86 @@
+/* ============================================================
+   parent/messages.css — messagerie parent
+   ============================================================ */
+
+/* ── Section header ── */
+.msg-section {
+  background: #fff;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg, 12px);
+  box-shadow: var(--shadow-md, 0 2px 8px rgba(0,0,0,.06));
+  overflow: hidden;
+}
+.msg-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .9rem 1.25rem;
+  border-bottom: 1px solid var(--gray-100);
+  background: var(--gray-50);
+}
+.msg-section-header h2 { font-size: .95rem; font-weight: 700; color: var(--gray-900); margin: 0; }
+.msg-count {
+  font-size: .72rem; font-weight: 700;
+  color: var(--blue-700); background: var(--blue-50);
+  border: 1px solid var(--blue-200); border-radius: 999px;
+  padding: .15rem .6rem;
+}
+
+/* ── Liste des messages ── */
+.msg-list { display: flex; flex-direction: column; }
+
+.msg-item {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--gray-100);
+}
+.msg-item:last-child { border-bottom: none; }
+.msg-item-nouveau { background: var(--blue-50); }
+
+.msg-item-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: .35rem;
+  flex-wrap: wrap;
+  gap: .4rem;
+}
+.msg-expediteur {
+  font-size: .85rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+}
+.msg-role-tag {
+  font-size: .65rem;
+  font-weight: 600;
+  color: var(--blue-700);
+  background: var(--blue-50);
+  border: 1px solid var(--blue-200);
+  border-radius: 999px;
+  padding: .1rem .5rem;
+}
+.msg-date { font-size: .75rem; color: var(--gray-400); white-space: nowrap; }
+
+.msg-sujet {
+  font-size: .88rem;
+  font-weight: 600;
+  color: var(--gray-900);
+  margin-bottom: .3rem;
+}
+.msg-contenu {
+  font-size: .82rem;
+  color: var(--gray-500);
+  line-height: 1.5;
+  white-space: pre-line;
+}
+
+/* ── Badges statut ── */
+.msg-statut {
+  display: inline-flex; align-items: center; gap: .3rem;
+  font-size: .7rem; font-weight: 600;
+  padding: .18rem .5rem; border-radius: 999px;
+}
+.msg-statut-lu { background: var(--green-100); color: var(--green-700); }
+.msg-statut-non-lu { background: var(--blue-50); color: var(--blue-700); }

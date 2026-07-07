@@ -1,0 +1,127 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Emploi du temps{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/emploi_classes.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="form-page-header">
+  <h1 class="form-page-title">
+    <span class="title-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 3v3M16 3v3"/>
+      </svg>
+    </span>
+    Emploi du temps
+  </h1>
+  <div class="header-actions" style="display:flex;gap:.5rem;flex-wrap:wrap;">
+    <a href="{% url 'historique_semaines' %}" class="btn btn-ghost btn-sm">📅 Historique</a>
+    <a href="{% url 'list_creneau' %}" class="btn btn-ghost btn-sm">Gérer les créneaux</a>
+  </div>
+</div>
+
+{% if messages %}
+  <div class="form-messages">
+    {% for message in messages %}
+      <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/>
+        </svg>
+        <span>{{ message }}</span>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<!-- ── Bandeau semaine en cours ── -->
+<div class="semaine-bandeau {% if semaine.cloturee %}semaine-cloturee{% endif %}">
+  <div class="semaine-info">
+    <span class="semaine-icon">{% if semaine.cloturee %}🔒{% else %}📆{% endif %}</span>
+    <div>
+      <strong>
+        Semaine du {{ semaine.date_debut|date:"d/m" }} au {{ semaine.date_fin|date:"d/m/Y" }}
+      </strong>
+      <span class="semaine-statut">
+        {% if semaine.cloturee %}
+          Clôturée le {{ semaine.cloturee_le|date:"d/m/Y à H:i" }}
+        {% else %}
+          En cours — modifiable
+        {% endif %}
+      </span>
+    </div>
+  </div>
+
+  {% if not semaine.cloturee %}
+    <a href="{% url 'cloturer_semaine' semaine.id %}" class="btn btn-danger btn-sm">
+      🔒 Clôturer la semaine
+    </a>
+  {% endif %}
+</div>
+
+<p class="bulletin-breadcrumb-hint">Choisissez une classe pour voir ou modifier son emploi du temps.</p>
+
+{% if classes %}
+  <div class="bulletin-grid">
+    {% for classe in classes %}
+      <a href="{% url 'emploi_du_temps_grille' classe.id %}?semaine_id={{ semaine.id }}" class="bulletin-card">
+        <span class="avatar-chip" aria-hidden="true">{{ classe.get_niveau_display|first|upper }}</span>
+        <div>
+          <strong>{{ classe }}</strong>
+          <small>{{ classe.effectif }} élève(s)</small>
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="empty-state">
+    <div class="empty-emoji" aria-hidden="true">🏫</div>
+    <p>Aucune classe pour l'instant</p>
+  </div>
+{% endif %}
+
+<style>
+.semaine-bandeau {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--blue-50);
+  border: 1.5px solid var(--blue-200);
+  border-radius: 14px;
+  padding: 0.9rem 1.25rem;
+  margin-bottom: 1.25rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.semaine-bandeau.semaine-cloturee {
+  background: var(--red-50);
+  border-color: var(--red-300);
+}
+
+.semaine-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.semaine-icon { font-size: 1.5rem; }
+
+.semaine-info strong {
+  display: block;
+  font-size: 0.92rem;
+  color: var(--gray-900);
+}
+
+.semaine-statut {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--gray-500);
+  margin-top: 2px;
+}
+</style>
+
+{% endblock %}

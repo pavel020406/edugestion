@@ -1,0 +1,152 @@
+/* ============================================================
+   admin_dashboard/classes/list_classe.css
+   Pour le template "Gestion des classes" (liste des classes)
+   ============================================================ */
+
+/* ── Carte conteneur de la liste ── */
+.list-card {
+  background: #ffffff;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.list-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.list-card-header h2 {
+  font-size: .95rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin: 0;
+}
+
+.list-card-count {
+  font-size: .75rem;
+  font-weight: 700;
+  color: var(--blue-700);
+  background: var(--blue-50);
+  border: 1px solid var(--blue-200);
+  border-radius: 999px;
+  padding: .2rem .65rem;
+}
+
+/* ── Table ── */
+.data-table-wrap { overflow-x: auto; }
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table thead th {
+  text-align: left;
+  font-size: .72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  color: var(--gray-500);
+  background: var(--gray-50);
+  padding: .7rem 1.25rem;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.data-table tbody td {
+  padding: .75rem 1.25rem;
+  font-size: .85rem;
+  color: var(--gray-900);
+  border-bottom: 1px solid var(--gray-100);
+  vertical-align: middle;
+}
+
+.data-table tbody tr:last-child td { border-bottom: none; }
+.data-table tbody tr:hover { background: var(--blue-50); }
+
+/* ── Chip matière ── */
+.class-chip {
+  display: inline-flex;
+  align-items: center;
+  font-size: .72rem;
+  font-weight: 600;
+  color: var(--blue-700);
+  background: var(--blue-50);
+  border: 1px solid var(--blue-200);
+  border-radius: 999px;
+  padding: .15rem .55rem;
+  margin: .1rem .25rem .1rem 0;
+}
+
+/* ── Boutons d'action ── */
+.action-buttons {
+  display: flex;
+  gap: .4rem;
+  flex-wrap: wrap;
+}
+
+.btn-xs {
+  display: inline-flex;
+  align-items: center;
+  font-size: .75rem;
+  font-weight: 600;
+  padding: .35rem .7rem;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  line-height: 1.2;
+}
+
+.btn-xs-view {
+  background: var(--blue-50);
+  color: var(--blue-700);
+  border-color: var(--blue-200);
+}
+.btn-xs-view:hover { background: var(--blue-100); }
+
+.btn-xs-edit {
+  background: var(--gray-50);
+  color: var(--gray-700, var(--gray-900));
+  border-color: var(--gray-300);
+}
+.btn-xs-edit:hover { background: var(--gray-100); }
+
+.btn-xs-delete {
+  background: var(--red-100);
+  color: var(--red-700);
+  border-color: var(--red-300);
+}
+.btn-xs-delete:hover { background: var(--red-100); filter: brightness(0.97); }
+
+/* ── État vide ── */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .6rem;
+  padding: 3rem 1.5rem;
+  text-align: center;
+}
+
+.empty-emoji {
+  font-size: 2.4rem;
+  line-height: 1;
+}
+
+.empty-state p {
+  font-size: .9rem;
+  color: var(--gray-500);
+  margin: 0;
+}
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .list-card-header { flex-direction: column; align-items: flex-start; gap: .4rem; }
+  .data-table thead th, .data-table tbody td { padding: .6rem .9rem; }
+  .action-buttons { gap: .3rem; }
+}

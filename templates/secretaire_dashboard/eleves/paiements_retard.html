@@ -1,0 +1,79 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Paiements en retard{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/add_eleve.css' %}">
+<link rel="stylesheet" href="{% static 'css/secretaire/eleves/paiements_retard.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="form-page-header">
+  <h1 class="form-page-title">
+    <span class="title-icon" aria-hidden="true">⚠️</span>
+    Élèves en retard de paiement
+  </h1>
+</div>
+
+{% if messages %}
+  <div class="form-messages">
+    {% for message in messages %}
+      <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span>{{ message }}</span>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+{% if retards %}
+  <div class="list-card">
+    <div class="list-card-header">
+      <h2>Liste des élèves concernés</h2>
+      <span class="list-card-count">{{ retards|length }} élève{{ retards|length|pluralize }}</span>
+    </div>
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Élève</th>
+            <th>Classe</th>
+            <th>Tranche(s) en retard</th>
+            <th>Solde restant</th>
+            <th style="text-align:right;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for r in retards %}
+          <tr>
+            <td class="sec-row-name">
+              <span class="sec-avatar">{{ r.eleve.nom|first|upper }}{{ r.eleve.prenom|first|upper }}</span>
+              {{ r.eleve.nom }} {{ r.eleve.prenom }}
+            </td>
+            <td>{{ r.eleve.classe|default:"—" }}</td>
+            <td>
+              {% for t in r.tranches_en_retard %}
+                <span class="tag-retard">{{ t.tranche.libelle }} — {{ t.tranche.date_limite|date:"d/m/Y" }}</span>
+              {% endfor %}
+            </td>
+            <td><strong>{{ r.solde }} FCFA</strong></td>
+            <td style="text-align:right;">
+              <a href="{% url 'secretaire_detail_eleve' r.eleve.id %}" class="btn-xs btn-xs-view">Voir la fiche</a>
+              <a href="{% url 'secretaire_envoyer_message_eleve' r.eleve.id %}" class="btn-xs btn-xs-edit">Relancer</a>
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% else %}
+  <div class="empty-state">
+    <div class="empty-emoji">🎉</div>
+    <p>Aucun élève en retard de paiement pour le moment.</p>
+  </div>
+{% endif %}
+
+{% endblock %}

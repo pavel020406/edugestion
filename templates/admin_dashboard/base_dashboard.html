@@ -1,0 +1,329 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block page_title %}Tableau de bord{% endblock %} — EduGestion</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/dashboard.css' %}">
+<style>
+  /* ============================================================
+     Topbar (profil + cloche de messages) — rôles admin & secrétaire
+     ============================================================ */
+  :root {
+    --sec-blue-50:  #eff6ff;
+    --sec-blue-100: #dbeafe;
+    --sec-blue-200: #bfdbfe;
+    --sec-blue-600: #2563eb;
+    --sec-blue-700: #1d4ed8;
+    --sec-blue-900: #1e3a8a;
+    --sec-gray-100: #f1f5f9;
+    --sec-gray-300: #cbd5e1;
+    --sec-gray-500: #64748b;
+    --sec-gray-700: #334155;
+  }
+
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: .8rem;
+    margin-bottom: 1.4rem;
+  }
+
+  .topbar-bell {
+    position: relative;
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: 50%;
+    background: #fff;
+    border: 1px solid var(--sec-blue-100);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--sec-blue-700);
+    text-decoration: none;
+  }
+  .topbar-bell svg { width: 1.15rem; height: 1.15rem; }
+
+  .topbar-bell-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: #dc2626;
+    color: #fff;
+    font-size: .65rem;
+    font-weight: 700;
+    min-width: 1.1rem;
+    height: 1.1rem;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 .25rem;
+  }
+</style>
+{% block extra_css %}{% endblock %}
+</head>
+<body class="dashboard-page">
+
+<div class="dashboard-layout">
+
+  <!-- ============ SIDEBAR (unique, partagée par toutes les pages) ============ -->
+  <aside class="sidebar">
+
+    <div class="sidebar-brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 6.5L12 3l9 3.5-9 3.5-9-3.5z" stroke="#ffffff" stroke-width="1.6" stroke-linejoin="round"/>
+          <path d="M6.5 10v5.2c0 .5 2.4 2.3 5.5 2.3s5.5-1.8 5.5-2.3V10" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <div class="sidebar-brand-text">
+        <strong>EduGestion</strong>
+        <span>
+          {% if request.user.role == 'admin' %}Administration
+          {% elif request.user.role == 'enseignant' %}Espace enseignant
+          {% elif request.user.role == 'secretaire' %}Secrétariat
+          {% elif request.user.role == 'parent' %}Espace parent
+          {% else %}Espace{% endif %}
+        </span>
+      </div>
+    </div>
+
+    <div class="sidebar-user">
+      <div class="avatar-chip" aria-hidden="true">{{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}</div>
+      <span>{{ request.user.get_role_display }}</span>
+    </div>
+
+    <nav class="sidebar-nav" aria-label="Navigation du tableau de bord">
+
+      <p class="sidebar-group-label">Principal</p>
+      <a href="{% if request.user.role == 'enseignant' %}{% url 'dashboard_enseignant' %}{% elif request.user.role == 'secretaire' %}{% url 'dashboard_secretaire' %}{% elif request.user.role == 'parent' %}{% url 'dashboard_parent' %}{% else %}{% url 'dashboard' %}{% endif %}"
+         class="sidebar-link {% if active_page == 'dashboard' %}active{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Tableau de bord
+      </a>
+
+      {% if request.user.role == 'admin' %}
+      <p class="sidebar-group-label">Gestion</p>
+      <a href="{% url 'list_eleve' %}" class="sidebar-link {% if active_page == 'eleves' %}active{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.2 2.7-5.5 6-5.5s6 2.3 6 5.5"/><circle cx="17" cy="9" r="2.4"/><path d="M15.5 14.2c2.6.2 4.5 2.2 4.5 4.8"/></svg>
+        Élèves
+      </a>
+      <a href="{% url 'list_enseignant' %}" class="sidebar-link {% if active_page == 'enseignants' %}active{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6"/></svg>
+        Enseignants
+      </a>
+      <a href="{% url 'list_classe' %}" class="sidebar-link {% if active_page == 'classes' %}active{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 11l8-6 8 6"/><path d="M6 10v9h12v-9"/><path d="M10 19v-5h4v5"/></svg>
+        Classes
+      </a>
+      <a href="{% url 'add_matiere' %}" class="sidebar-link {% if active_page == 'matieres' %}active{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="4" width="16" height="12" rx="1.5"/><path d="M9 20h6M12 16v4"/></svg>
+        Matières
+      </a>
+      <a href="{% url 'list_salle' %}" class="sidebar-link {% if active_page == 'salles' %}active{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="5" width="18" height="12" rx="1.5"/><path d="M8 20h8"/></svg>
+        Salles
+      </a>
+      {% endif %}
+
+      {% if request.user.role == 'admin' %}
+      <p class="sidebar-group-label">Académique</p>
+      <a href="{% url 'notes_niveaux' %}" class="sidebar-link {% if active_page == 'notes' %}active{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 20V10M11 20V4M17 20v-7"/></svg>
+        Notes
+      </a>
+      <a href="{% url 'bulletin_classes' %}" class="sidebar-link {% if active_page == 'bulletins' %}active{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 3h7l4 4v13a1 1 0 01-1 1H7a1 1 0 01-1-1V4a1 1 0 011-1z"/><path d="M9 12h6M9 16h6M9 8h3"/></svg>
+        Bulletins
+      </a>
+      <a href="{% url 'emploi_du_temps_classes' %}" class="sidebar-link {% if active_page == 'emploi' %}active{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 3v3M16 3v3"/></svg>
+        Emplois du temps
+      </a>
+      <a href="{% url 'list_creneau' %}" class="sidebar-link {% if active_page == 'creneaux' %}active{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        Créneaux horaires
+      </a>
+      {% endif %}
+
+      {% if request.user.role == 'admin' %}
+      <p class="sidebar-group-label">Administration</p>
+      <a href="{% url 'frais_niveaux' %}" class="sidebar-link {% if active_page == 'frais' %}active{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 9.5h4.5a1.5 1.5 0 010 3H10a1.5 1.5 0 000 3h4.5"/></svg>
+        Frais &amp; Paiements
+      </a>
+      <a href="{% url 'secretaire_paiements_retard' %}" class="sidebar-link {% if active_page == 'retard' %}active{% endif %}" style="display:flex; align-items:center; justify-content:space-between;">
+        <span style="display:flex; align-items:center; gap:.6rem;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Paiements en retard
+        </span>
+        {% if admin_retard_count %}<span class="topbar-bell-badge" style="position:static;">{{ admin_retard_count }}</span>{% endif %}
+      </a>
+      <a href="#" class="sidebar-link {% if active_page == 'historiques' %}active{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 12a9 9 0 109-9"/><path d="M3 4v8h8"/><path d="M12 8v4l3 2"/></svg>
+        Historiques
+      </a>
+       <a href="{% url 'admin_messages' %}" class="sidebar-link {% if active_page == 'messages' %}active{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 12a9 9 0 109-9"/><path d="M3 4v8h8"/><path d="M12 8v4l3 2"/></svg>
+        Message
+      </a>
+      {% endif %}
+
+      {% if request.user.role == 'enseignant' %}
+      <p class="sidebar-group-label">Enseignement</p>
+      <a href="{% url 'enseignant_mes_classes' %}" class="sidebar-link {% if active_page == 'mes_classes' %}active{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 11l8-6 8 6"/><path d="M6 10v9h12v-9"/><path d="M10 19v-5h4v5"/></svg>
+        Mes classes
+      </a>
+      <a href="{% url 'enseignant_notes_classes' %}" class="sidebar-link {% if active_page == 'mes_notes' %}active{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 20V10M11 20V4M17 20v-7"/></svg>
+        Saisir des notes
+      </a>
+      <a href="{% url 'enseignant_presences_classes' %}" class="sidebar-link {% if active_page == 'mes_presences' %}active{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        Faire l'appel
+      </a>
+      <a href="{% url 'enseignant_profil' %}" class="sidebar-link {% if active_page == 'profil' %}active{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6"/></svg>
+        Mon profil
+      </a>
+      {% endif %}
+
+      {% if request.user.role == 'secretaire' %}
+      <p class="sidebar-group-label">Secrétariat</p>
+      <a href="{% url 'secretaire_list_eleve' %}" class="sidebar-link {% if active_page == 'eleves' %}active{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.2 2.7-5.5 6-5.5s6 2.3 6 5.5"/><circle cx="17" cy="9" r="2.4"/><path d="M15.5 14.2c2.6.2 4.5 2.2 4.5 4.8"/></svg>
+        Élèves
+      </a>
+      <a href="{% url 'bulletin_classes' %}" class="sidebar-link {% if active_page == 'bulletins' %}active{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 3h7l4 4v13a1 1 0 01-1 1H7a1 1 0 01-1-1V4a1 1 0 011-1z"/><path d="M9 12h6M9 16h6M9 8h3"/></svg>
+        Bulletins
+      </a>
+      <a href="{% url 'frais_niveaux' %}" class="sidebar-link {% if active_page == 'frais' %}active{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 9.5h4.5a1.5 1.5 0 010 3H10a1.5 1.5 0 000 3h4.5"/></svg>
+        Frais par niveau
+      </a>
+      <a href="{% url 'secretaire_paiements_retard' %}" class="sidebar-link {% if active_page == 'retard' %}active{% endif %}" style="display:flex; align-items:center; justify-content:space-between;">
+        <span style="display:flex; align-items:center; gap:.6rem;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Paiements en retard
+        </span>
+        {% if secretaire_retard_count %}<span class="topbar-bell-badge" style="position:static;">{{ secretaire_retard_count }}</span>{% endif %}
+      </a>
+      <a href="{% url 'secretaire_messages' %}" class="sidebar-link {% if active_page == 'messages' %}active{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        Messages
+      </a>
+      <a href="{% url 'secretaire_profil' %}" class="sidebar-link {% if active_page == 'profil' %}active{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6"/></svg>
+        Mon profil
+      </a>
+      {% endif %}
+
+      {% if request.user.role == 'parent' %}
+      <p class="sidebar-group-label">Espace parent</p>
+      <a href="{% url 'dashboard_parent' %}" class="sidebar-link {% if active_page == 'dashboard' %}active{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.2 2.7-5.5 6-5.5s6 2.3 6 5.5"/></svg>
+        Mon enfant
+      </a>
+      <a href="{% url 'parent_notes' %}" class="sidebar-link {% if active_page == 'notes' %}active{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 20V10M11 20V4M17 20v-7"/></svg>
+        Notes &amp; Bulletins
+      </a>
+      <a href="{% url 'parent_emploi_du_temps' %}" class="sidebar-link {% if active_page == 'emploi' %}active{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 3v3M16 3v3"/></svg>
+        Emploi du temps
+      </a>
+      <a href="{% url 'parent_messages' %}" class="sidebar-link {% if active_page == 'messages' %}active{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        Messagerie
+      </a>
+      <a href="{% url 'parent_frais_niveaux' %}" class="sidebar-link {% if active_page == 'frais' %}active{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 9.5h4.5a1.5 1.5 0 010 3H10a1.5 1.5 0 000 3h4.5"/></svg>
+        Tarifs de l'établissement
+      </a>
+      {% endif %}
+
+    </nav>
+    
+    <div class="sidebar-footer">
+      <a href="{% url 'deconnexion' %}" class="sidebar-link sidebar-logout">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+        Déconnexion
+      </a>
+    </div>
+  </aside>
+
+  <!-- ============ ZONE PRINCIPALE (remplie par chaque page) ============ -->
+  <main class="dashboard-main">
+
+    {% if request.user.role == 'enseignant' %}
+      <div class="topbar-profil">
+        <a href="{% url 'enseignant_profil' %}" class="topbar-profil-link">
+          {% if request.user.photo_profil %}
+            <img src="{{ request.user.photo_profil.url }}" alt="Photo de profil" class="topbar-avatar">
+          {% else %}
+            <span class="topbar-avatar-placeholder">{{ request.user.first_name|first|upper }}</span>
+          {% endif %}
+          <span class="topbar-profil-text">
+            <strong>{{ request.user.first_name }} {{ request.user.last_name }}</strong>
+            <small>Mon profil</small>
+          </span>
+        </a>
+      </div>
+    {% elif request.user.role == 'secretaire' %}
+      <div class="topbar-right">
+        <a href="{% url 'secretaire_messages' %}" class="topbar-bell" aria-label="Messages">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+          {% if secretaire_non_lus %}<span class="topbar-bell-badge">{{ secretaire_non_lus }}</span>{% endif %}
+        </a>
+        <a href="{% url 'secretaire_profil' %}" class="topbar-profil-link">
+          {% if request.user.photo_profil %}
+            <img src="{{ request.user.photo_profil.url }}" alt="Photo de profil" class="topbar-avatar">
+          {% else %}
+            <span class="topbar-avatar-placeholder">{{ request.user.first_name|first|upper }}</span>
+          {% endif %}
+          <span class="topbar-profil-text">
+            <strong>{{ request.user.first_name }} {{ request.user.last_name }}</strong>
+            <small>Mon profil</small>
+          </span>
+        </a>
+      </div>
+    {% elif request.user.role == 'admin' %}
+      <div class="topbar-right">
+        <a href="{% url 'admin_messages' %}" class="topbar-bell" aria-label="Messages">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+          {% if admin_non_lus %}<span class="topbar-bell-badge">{{ admin_non_lus }}</span>{% endif %}
+        </a>
+        <a href="{% url 'admin_profil' %}" class="topbar-profil-link">
+          {% if request.user.photo_profil %}
+            <img src="{{ request.user.photo_profil.url }}" alt="Photo de profil" class="topbar-avatar">
+          {% else %}
+            <span class="topbar-avatar-placeholder">{{ request.user.first_name|first|upper }}</span>
+          {% endif %}
+          <span class="topbar-profil-text">
+            <strong>{{ request.user.first_name }} {{ request.user.last_name }}</strong>
+            <small>Mon profil</small>
+          </span>
+        </a>
+      </div>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+</div>
+
+{% block extra_js %}{% endblock %}
+
+</body>
+</html>

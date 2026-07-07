@@ -1,0 +1,97 @@
+{% extends 'secretaire_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Élèves{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/add_eleve.css' %}">
+<link rel="stylesheet" href="{% static 'css/secretaire/eleves/list_eleve.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="form-page-header">
+  <h1 class="form-page-title">
+    <span class="title-icon" aria-hidden="true">🎓</span>
+    Élèves <span style="color: var(--sec-gray-500); font-weight:500; font-size:.95rem;">({{ total }})</span>
+  </h1>
+  <a href="{% url 'secretaire_add_eleve' %}" class="btn btn-primary btn-sm">➕ Inscrire un élève</a>
+</div>
+
+{% if messages %}
+  <div class="form-messages">
+    {% for message in messages %}
+      <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span>{{ message }}</span>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<form method="get" style="display:flex; gap:.6rem; margin-bottom: 1rem; flex-wrap: wrap;">
+  <input type="text" name="search" value="{{ request.GET.search }}" placeholder="Rechercher un nom ou prénom..."
+         style="flex:1; min-width: 220px; padding:.6rem .9rem; border:1px solid var(--sec-gray-300); border-radius:.6rem;">
+  <select name="classe" onchange="this.form.submit()"
+          style="padding:.6rem .9rem; border:1px solid var(--sec-gray-300); border-radius:.6rem;">
+    <option value="">Toutes les classes</option>
+    {% for c in classes %}
+      <option value="{{ c.id }}" {% if classe_filtree and classe_filtree.id == c.id %}selected{% endif %}>{{ c }}</option>
+    {% endfor %}
+  </select>
+  <button type="submit" class="btn btn-ghost btn-sm">Filtrer</button>
+</form>
+
+<div class="sec-table-wrap">
+  <table class="sec-table">
+    <thead>
+      <tr>
+        <th>Élève</th>
+        <th>Classe</th>
+        <th>Parent / tuteur</th>
+        <th>Téléphone</th>
+        <th style="text-align:right;">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for e in eleves %}
+      <tr>
+        <td class="sec-row-name">
+          <span class="sec-avatar">{{ e.nom|first|upper }}{{ e.prenom|first|upper }}</span>
+          <div>
+            <div style="font-weight:600;">{{ e.nom }} {{ e.prenom }}</div>
+            <div style="color: var(--sec-gray-500); font-size:.78rem;">{{ e.matricule }}</div>
+          </div>
+        </td>
+        <td>{{ e.classe|default:"—" }}</td>
+        <td>{{ e.nom_parent }}</td>
+        <td>{{ e.telephone_parent }}</td>
+        <td>
+          <div class="sec-actions">
+            <a href="{% url 'secretaire_detail_eleve' e.id %}" class="sec-icon-btn" title="Voir la fiche">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </a>
+            <a href="{% url 'secretaire_edit_eleve' e.id %}" class="sec-icon-btn" title="Modifier">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 113 3L7 19l-4 1 1-4z"/></svg>
+            </a>
+            <a href="{% url 'secretaire_envoyer_message_eleve' e.id %}" class="sec-icon-btn" title="Envoyer un message">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+            </a>
+            <form method="post" action="{% url 'secretaire_delete_eleve' e.id %}" style="display:inline;"
+                  onsubmit="return confirm('Supprimer définitivement {{ e.nom }} {{ e.prenom }} ?');">
+              {% csrf_token %}
+              <button type="submit" class="sec-icon-btn danger" title="Supprimer">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H7a2 2 0 01-2-2L4 6"/></svg>
+              </button>
+            </form>
+          </div>
+        </td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="5" style="color:var(--sec-gray-500); padding: 1.2rem;">Aucun élève trouvé.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

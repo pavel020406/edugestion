@@ -1,0 +1,67 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Tarifs de l'établissement{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/parent/frais_niveaux.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/add_eleve.css' %}">
+<link rel="stylesheet" href="{% static 'css/parent/dashboard.css' %}">
+
+{% endblock %}
+
+{% block content %}
+
+<div class="form-page-header">
+  <h1 class="form-page-title">
+    <span class="title-icon" aria-hidden="true">💰</span>
+    Tarifs de l'établissement
+  </h1>
+  <a href="{% url 'dashboard_parent' %}" class="btn btn-ghost btn-sm">← Retour au tableau de bord</a>
+</div>
+
+<p style="color: var(--gray-500); font-size: .88rem; margin-bottom: 1.25rem;">
+  Frais d'inscription, de scolarité et échéancier de paiement, pour tous les niveaux de l'établissement.
+</p>
+
+<div class="niveaux-parent-grid">
+  {% for n in niveaux %}
+    <div class="niveau-parent-card {% if enfant.classe.niveau == n.code %}niveau-parent-card-mien{% endif %}">
+      <div class="niveau-parent-top">
+        <h3>{{ n.libelle }}</h3>
+        {% if enfant.classe.niveau == n.code %}
+          <span class="niveau-badge niveau-badge-mien">Le niveau de {{ enfant.prenom }}</span>
+        {% endif %}
+      </div>
+
+      {% if n.configure %}
+        <div class="niveau-parent-montants">
+          <div><span>Inscription</span><strong>{{ n.frais.montant_inscription }} FCFA</strong></div>
+          <div><span>Scolarité</span><strong>{{ n.frais.montant_scolarite }} FCFA</strong></div>
+          <div class="niveau-parent-total"><span>Total</span><strong>{{ n.frais.total }} FCFA</strong></div>
+        </div>
+
+        {% if n.tranches %}
+          <table class="niveau-parent-tranches">
+            <thead><tr><th>Tranche</th><th>Montant</th><th>Date limite</th></tr></thead>
+            <tbody>
+            {% for t in n.tranches %}
+              <tr><td>{{ t.libelle }}</td><td>{{ t.montant }} FCFA</td><td>{{ t.date_limite|date:"d/m/Y" }}</td></tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        {% endif %}
+
+        {% if n.frais.fichier_pdf %}
+          <a href="{{ n.frais.fichier_pdf.url }}" target="_blank" class="btn btn-ghost btn-sm" style="margin-top:.6rem;">
+            📄 Programme scolaire (PDF)
+          </a>
+        {% endif %}
+      {% else %}
+        <p class="niveau-parent-vide">Tarifs non encore communiqués pour ce niveau.</p>
+      {% endif %}
+    </div>
+  {% endfor %}
+</div>
+
+{% endblock %}

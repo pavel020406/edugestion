@@ -1,0 +1,114 @@
+{% extends 'secretaire_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Mon profil{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/add_eleve.css' %}">
+<link rel="stylesheet" href="{% static 'css/secretaire/profil/profil.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="form-page-header">
+  <h1 class="form-page-title">
+    <span class="title-icon" aria-hidden="true">👤</span>
+    Mon profil
+  </h1>
+</div>
+
+{% if messages %}
+  <div class="form-messages">
+    {% for message in messages %}
+      <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span>{{ message }}</span>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+
+  <div class="profil-layout">
+
+    <!-- ── Colonne gauche : résumé ── -->
+    <div class="profil-card-resume">
+      {% if request.user.photo_profil %}
+        <img src="{{ request.user.photo_profil.url }}" alt="Photo de profil" class="profil-avatar-lg">
+      {% else %}
+        <div class="profil-avatar-lg-placeholder">
+          {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
+        </div>
+      {% endif %}
+      <h3>{{ request.user.first_name }} {{ request.user.last_name }}</h3>
+      <span class="role-tag">{{ request.user.get_role_display }}</span>
+
+      <div style="text-align:left; margin-top: 1.4rem; border-top: 1px solid var(--sec-gray-100, #f1f5f9); padding-top: 1rem;">
+        <div class="detail-field" style="margin-bottom: .8rem;">
+          <label>Nom d'utilisateur</label>
+          <div class="detail-value">{{ request.user.username }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Colonne droite : formulaires ── -->
+    <div style="display:flex; flex-direction:column; gap: 1rem;">
+
+      <div class="profil-card-form">
+        <h4>📷 Photo de profil</h4>
+        <div class="form-field">
+          <input type="file" name="photo_profil" accept="image/*">
+          <small style="color: var(--sec-gray-500, #64748b);">JPG, PNG — max 2 Mo</small>
+        </div>
+      </div>
+
+      <div class="profil-card-form">
+        <h4>Informations personnelles</h4>
+        <div class="form-grid-2">
+          <div class="form-field">
+            <label for="first_name">Prénom</label>
+            <input type="text" id="first_name" name="first_name" value="{{ request.user.first_name }}">
+          </div>
+          <div class="form-field">
+            <label for="last_name">Nom</label>
+            <input type="text" id="last_name" name="last_name" value="{{ request.user.last_name }}">
+          </div>
+        </div>
+        <div class="form-field">
+          <label for="email">Adresse e-mail</label>
+          <input type="email" id="email" name="email" value="{{ request.user.email }}">
+        </div>
+      </div>
+
+      <div class="profil-card-form">
+        <h4>🔒 Changer le mot de passe</h4>
+        <div class="compte-info-box" style="margin-bottom: .9rem;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+               style="width:1rem;height:1rem;flex-shrink:0;color:var(--blue-600);">
+            <circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/>
+          </svg>
+          <span>Laissez ce champ vide pour conserver votre mot de passe actuel.</span>
+        </div>
+        <div class="form-grid-2">
+          <div class="form-field">
+            <label for="password">Nouveau mot de passe</label>
+            <input type="password" id="password" name="password" placeholder="Nouveau mot de passe" autocomplete="new-password">
+          </div>
+          <div class="form-field">
+            <label for="password_confirm">Confirmer le mot de passe</label>
+            <input type="password" id="password_confirm" name="password_confirm" placeholder="Répétez le nouveau mot de passe" autocomplete="new-password">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">💾 Enregistrer</button>
+      </div>
+
+    </div>
+  </div>
+</form>
+
+{% endblock %}

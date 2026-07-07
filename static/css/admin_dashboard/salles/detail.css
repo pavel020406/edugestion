@@ -1,0 +1,122 @@
+/* ============================================================
+   EduGestion — detail.css
+   Styles pour les pages de détail en lecture seule
+   (fiche élève, fiche classe, fiche matière, fiche salle...)
+   ============================================================ */
+
+.detail-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  max-width: 760px;
+}
+
+.detail-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.detail-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #ffffff;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 1.3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.detail-header h2 {
+  font-size: 1.25rem;
+  color: var(--text);
+}
+
+.detail-header p {
+  font-size: 0.88rem;
+  color: var(--text-faint);
+  margin-top: 0.2rem;
+}
+
+.detail-section {
+  padding: var(--space-lg);
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.detail-section:last-of-type {
+  border-bottom: none;
+}
+
+.detail-section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: var(--space-md);
+}
+
+.detail-section-title svg {
+  width: 16px;
+  height: 16px;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+}
+
+.detail-field label {
+  display: block;
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-faint);
+  margin-bottom: 0.25rem;
+}
+
+.detail-field .detail-value {
+  font-size: 0.95rem;
+  color: var(--text);
+}
+
+.detail-field .detail-value.empty {
+  color: var(--text-faint);
+  font-style: italic;
+}
+
+.detail-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-lg);
+  background: var(--bg-soft);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+}
+
+.detail-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+@media (max-width: 640px) {
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+  .detail-header,
+  .detail-section,
+  .detail-actions {
+    padding: var(--space-md);
+  }
+}

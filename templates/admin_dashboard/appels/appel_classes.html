@@ -1,0 +1,43 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Appels{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/appels/appel.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/emploi_classes.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="form-page-header">
+  <h1 class="form-page-title">
+    <span class="title-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+    </span>
+    Appels
+  </h1>
+</div>
+
+<p class="bulletin-breadcrumb-hint">Choisissez une classe pour accéder aux appels du jour.</p>
+
+{% if classes %}
+  <div class="bulletin-grid">
+    {% for classe in classes %}
+      <a href="{% url 'appel_creneaux' classe.id %}" class="bulletin-card">
+        <span class="avatar-chip" aria-hidden="true">{{ classe.get_niveau_display|first|upper }}</span>
+        <div>
+          <strong>{{ classe }}</strong>
+          <small>{{ classe.effectif }} élève(s)</small>
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="empty-state">
+    <div class="empty-emoji">🏫</div>
+    <p>Aucune classe enregistrée.</p>
+  </div>
+{% endif %}
+
+{% endblock %}

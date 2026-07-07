@@ -1,0 +1,73 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Appel — {{ classe }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/appels/appel.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="form-page-header">
+  <h1 class="form-page-title">
+    <span class="title-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+    </span>
+    Appel — {{ classe }}
+  </h1>
+  <div class="header-actions">
+    <a href="{% url 'appel_historique' classe.id %}" class="btn btn-ghost btn-sm">Historique</a>
+    <a href="{% url 'appel_classes' %}" class="btn btn-ghost btn-sm">Changer de classe</a>
+  </div>
+</div>
+
+<p class="bulletin-breadcrumb-hint">
+  Cours du <strong>{{ aujourd_hui|date:"l j F Y" }}</strong> — sélectionnez un créneau pour faire l'appel.
+</p>
+
+{% if messages %}
+  <div class="form-messages">
+    {% for message in messages %}
+      <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span>{{ message }}</span>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+{% if cours %}
+  <div class="appel-creneau-list">
+    {% for item in cours %}
+      <div class="appel-creneau-card {% if item.verrouille %}verrouille{% endif %}">
+        <div class="appel-creneau-heure">
+          {{ item.emploi.creneau.heure_debut|time:"H\hi" }} – {{ item.emploi.creneau.heure_fin|time:"H\hi" }}
+        </div>
+        <div class="appel-creneau-info">
+          <strong>{{ item.emploi.matiere.nom_matiere }}</strong>
+          {% if item.emploi.enseignant %}
+            <small>{{ item.emploi.enseignant.first_name }} {{ item.emploi.enseignant.last_name }}</small>
+          {% endif %}
+        </div>
+        <div class="appel-creneau-status">
+          {% if item.verrouille %}
+            <span class="badge badge-locked">✓ Appel fait</span>
+            <a href="{% url 'appel_saisie' classe.id item.emploi.creneau.id %}" class="btn btn-xs btn-xs-edit">Voir</a>
+          {% else %}
+            <span class="badge badge-pending">En attente</span>
+            <a href="{% url 'appel_saisie' classe.id item.emploi.creneau.id %}" class="btn btn-xs btn-primary-xs">Faire l'appel</a>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="empty-state">
+    <div class="empty-emoji">📅</div>
+    <p>Aucun cours programmé aujourd'hui pour cette classe.</p>
+    <a href="{% url 'emploi_du_temps_grille' classe.id %}" class="btn btn-ghost btn-sm">Voir l'emploi du temps</a>
+  </div>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,350 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Bulletin — {{ eleve.nom }} {{ eleve.prenom }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/bulletin/bulletin.css' %}">
+{% endblock %}
+
+{% block content %}
+
+  <div class="form-page-header">
+    <h1 class="form-page-title">
+      <span class="title-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 3h7l4 4v13a1 1 0 01-1 1H7a1 1 0 01-1-1V4a1 1 0 011-1z"/><path d="M9 12h6M9 16h6M9 8h3"/></svg>
+      </span>
+      Bulletin de notes
+    </h1>
+    <a href="{% url 'bulletin_eleves' classe.id %}" class="btn btn-ghost btn-sm">Retour aux élèves</a>
+  </div>
+
+  {% if messages %}
+    <div class="form-messages">
+      {% for message in messages %}
+        <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+          <span>{{ message }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+<!-- ── Onglets trimestre ── -->
+<div class="trim-tabs">
+  {% for st in statut_trimestres %}
+    {% if st.accessible %}
+      <a href="?trimestre={{ st.code }}"
+         class="trim-tab {% if st.actif %}actif{% endif %} {% if st.verrouille %}verrouille{% endif %}">
+        {{ st.libelle }}
+        {% if st.verrouille %}<span class="trim-lock-icon">🔒</span>
+        {% else %}<span class="trim-lock-icon">🔓</span>{% endif %}
+      </a>
+    {% else %}
+      <span class="trim-tab bloque"
+            title="Verrouillez le bulletin précédent d'abord">
+        {{ st.libelle }}
+        <span class="trim-lock-icon">🔒</span>
+      </span>
+    {% endif %}
+  {% endfor %}
+</div>
+
+<!-- ── Avertissement notes incomplètes ── -->
+{% if notes_incompletes %}
+  <div class="verrou-warning" style="margin-bottom:1rem;">
+    ⚠ Certaines notes ne sont pas encore saisies.
+    Le bulletin ne peut pas être verrouillé tant que toutes les notes ne sont pas complètes.
+  </div>
+{% endif %}
+
+<!-- ── Barre verrou ── -->
+{% if est_verrouille %}
+  <div class="verrou-bar verrouille">
+    <div class="verrou-bar-text">
+      🔒 Bulletin {{ trimestre }} verrouillé
+      {% if verrou_info.verrouille_le %}
+        <small>
+          le {{ verrou_info.verrouille_le|date:"d/m/Y à H:i" }}
+          {% if verrou_info.verrouille_par %}
+            par {{ verrou_info.verrouille_par.get_full_name }}
+          {% endif %}
+        </small>
+      {% endif %}
+    </div>
+    <div class="verrou-bar-actions">
+      {% if est_admin %}
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="trimestre" value="{{ trimestre }}">
+          <input type="hidden" name="action"    value="deverrouiller">
+          <button type="submit" class="btn btn-ghost btn-sm"
+                  onclick="return confirm('Déverrouiller ce bulletin ?')">
+            🔓 Déverrouiller (admin)
+          </button>
+        </form>
+      {% else %}
+        <span style="font-size:.78rem;color:var(--red-600);font-style:italic;">
+          Contactez l'administrateur.
+        </span>
+      {% endif %}
+    </div>
+  </div>
+
+{% else %}
+  <div class="verrou-bar ouvert">
+    <div class="verrou-bar-text">🔓 Bulletin {{ trimestre }} ouvert</div>
+    <div class="verrou-bar-actions">
+      {% if peut_verrouiller %}
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="trimestre" value="{{ trimestre }}">
+          <input type="hidden" name="action"    value="verrouiller">
+          <button type="submit" class="btn btn-danger btn-sm"
+                  onclick="return confirm('Verrouiller le bulletin {{ trimestre }} de {{ eleve.nom }} {{ eleve.prenom }} ?\n\nSeul l\'administrateur pourra le modifier ensuite.')">
+            🔒 Verrouiller le bulletin
+          </button>
+        </form>
+      {% else %}
+        <div class="verrou-warning">
+          ⚠ Complétez toutes les notes avant de verrouiller
+        </div>
+      {% endif %}
+    </div>
+  </div>
+{% endif %}
+
+
+
+  <!-- ---------- Onglets trimestre ---------- -->
+  <div class="bulletin-tabs">
+    <a href="?trimestre=T1" class="bulletin-tab {% if trimestre == 'T1' %}active{% endif %}">Trimestre 1</a>
+    <a href="?trimestre=T2" class="bulletin-tab {% if trimestre == 'T2' %}active{% endif %}">Trimestre 2</a>
+    <a href="?trimestre=T3" class="bulletin-tab {% if trimestre == 'T3' %}active{% endif %}">Trimestre 3</a>
+  </div>
+
+  <!-- ---------- En-tête identité élève ---------- -->
+  <div class="bulletin-header">
+    <div class="bulletin-header-top">
+      <div>
+        <h2>{{ eleve.nom }} {{ eleve.prenom }}</h2>
+        <span class="matricule">{{ eleve.matricule }}</span>
+      </div>
+      <div style="text-align: right;">
+        <strong style="display:block; color: var(--text);">{{ classe }}</strong>
+        <span style="font-size: 0.82rem; color: var(--text-faint);">Effectif : {{ effectif }}</span>
+      </div>
+    </div>
+
+    <div class="bulletin-meta-grid">
+      <div class="bulletin-meta-item">
+        <label>Date de naissance</label>
+        <div class="value">{{ eleve.date_naissance }}</div>
+      </div>
+      <div class="bulletin-meta-item">
+        <label>Sexe</label>
+        <div class="value">{{ eleve.get_sexe_display }}</div>
+      </div>
+      <div class="bulletin-meta-item">
+        <label>Moyenne générale</label>
+        <div class="value">{% if moyenne_generale != None %}{{ moyenne_generale }}/20{% else %}—{% endif %}</div>
+      </div>
+      <div class="bulletin-meta-item">
+        <label>Rang</label>
+        <div class="value">{% if rang %}{{ rang }}{% if effectif %}<sup>e</sup> / {{ effectif }}{% endif %}{% else %}—{% endif %}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ---------- Sections de matières groupées ---------- -->
+  {% for section in sections %}
+    <div class="bulletin-section">
+      <div class="bulletin-section-header">
+        <h3>{{ section.libelle }}</h3>
+        <span class="bulletin-section-moyenne">
+          {% if section.moyenne_groupe != None %}{{ section.moyenne_groupe }}/20{% else %}—{% endif %}
+        </span>
+      </div>
+
+      <div class="data-table-wrap">
+        <table class="bulletin-table">
+          <thead>
+            <tr>
+              <th>Matière</th>
+              <th>Note</th>
+              <th>Coef</th>
+              <th>N × C</th>
+              <th>Min classe</th>
+              <th>Moy. classe</th>
+              <th>Max classe</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for ligne in section.matieres %}
+              <tr>
+                <td>
+                  <span class="bulletin-matiere-name">{{ ligne.matiere.nom_matiere }}</span>
+                  {% if ligne.enseignant %}
+                    <span class="bulletin-matiere-prof">{{ ligne.enseignant.first_name }} {{ ligne.enseignant.last_name }}</span>
+                  {% endif %}
+                </td>
+                <td>{% if ligne.moyenne != None %}{{ ligne.moyenne }}{% else %}—{% endif %}</td>
+                <td>{{ ligne.coefficient }}</td>
+                <td>{% if ligne.moyenne_ponderee != None %}{{ ligne.moyenne_ponderee }}{% else %}—{% endif %}</td>
+                <td>{% if ligne.stats_classe.min != None %}{{ ligne.stats_classe.min }}{% else %}—{% endif %}</td>
+                <td>{% if ligne.stats_classe.moy != None %}{{ ligne.stats_classe.moy }}{% else %}—{% endif %}</td>
+                <td>{% if ligne.stats_classe.max != None %}{{ ligne.stats_classe.max }}{% else %}—{% endif %}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  {% endfor %}
+
+  <!-- ---------- Résultats globaux ---------- -->
+  <div class="bulletin-results-grid">
+    <div class="bulletin-result-card">
+      <div class="big-value">{% if moyenne_generale != None %}{{ moyenne_generale }}{% else %}—{% endif %}</div>
+      <div class="label">Moyenne de l'élève</div>
+    </div>
+    <div class="bulletin-result-card">
+      <div class="big-value">{% if rang %}{{ rang }}{% else %}—{% endif %}</div>
+      <div class="label">Rang de l'élève</div>
+    </div>
+    <div class="bulletin-result-card">
+      <div class="big-value">{% if moyenne_premier != None %}{{ moyenne_premier }}{% else %}—{% endif %}</div>
+      <div class="label">Moyenne du premier</div>
+    </div>
+    <div class="bulletin-result-card">
+      <div class="big-value">{% if moyenne_dernier != None %}{{ moyenne_dernier }}{% else %}—{% endif %}</div>
+      <div class="label">Moyenne du dernier</div>
+    </div>
+  </div>
+
+  <!-- ---------- Absences et appréciation (modifiable) ---------- -->
+  <form method="post" class="bulletin-form-card">
+    {% csrf_token %}
+
+    <h2 class="form-section-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+      Absences et appréciation du conseil
+    </h2>
+
+    <div class="form-grid-2">
+      
+     <div class="bulletin-absences-section">
+  <h3 class="absences-titre">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+         style="width:1rem;height:1rem;">
+      <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>
+    </svg>
+    Absences — {{ trimestre }}
+  </h3>
+ 
+  {% if periode_configuree %}
+    <div class="absences-grid">
+      <div class="absence-card absence-justifiee">
+        <div class="absence-val">{{ absences.justifiees }}h</div>
+        <div class="absence-lbl">Justifiées</div>
+      </div>
+      <div class="absence-card absence-non-justifiee">
+        <div class="absence-val">{{ absences.non_justifiees }}h</div>
+        <div class="absence-lbl">Non justifiées</div>
+      </div>
+      <div class="absence-card absence-total">
+        <div class="absence-val">{{ absences.total }}h</div>
+        <div class="absence-lbl">Total</div>
+      </div>
+    </div>
+    <p style="font-size:.72rem;color:var(--gray-400);margin-top:.4rem;">
+      Calculées automatiquement du {{ absences.periode.date_debut|date:"d/m/Y" }}
+      au {{ absences.periode.date_fin|date:"d/m/Y" }}
+    </p>
+  {% else %}
+    <div style="background:var(--amber-50);border:1px solid var(--amber-300);
+                border-radius:8px;padding:.65rem .9rem;font-size:.8rem;color:var(--amber-700);">
+      ⚠ Les périodes de trimestres ne sont pas encore configurées.
+      <a href="{% url 'admin_periodes_trimestres' %}"
+         style="color:var(--blue-600);font-weight:600;text-decoration:underline;">
+        Configurer maintenant
+      </a>
+    </div>
+  {% endif %}
+</div>
+
+
+    <div class="form-field">
+      <label for="decision_conseil">Décision du conseil</label>
+      <input type="text" id="decision_conseil" name="decision_conseil" value="{{ appreciation.decision_conseil }}" placeholder="Ex. Admis(e), Travail insuffisant...">
+    </div>
+
+    <form method="post" {% if est_verrouille and not est_admin %}style="pointer-events:none;opacity:.7;"{% endif %}>
+  {% csrf_token %}
+  <input type="hidden" name="trimestre" value="{{ trimestre }}">
+  <input type="hidden" name="action"    value="enregistrer">
+ 
+  <div class="form-field" style="margin-bottom:.85rem;">
+    <label for="appreciation_conseil">Appréciation du conseil de classe</label>
+    <textarea id="appreciation_conseil" name="appreciation_conseil"
+              rows="3" style="resize:vertical;">{{ appreciation.appreciation_conseil }}</textarea>
+  </div>
+ 
+  
+ 
+  {% if not est_verrouille or est_admin %}
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary btn-sm">
+        Enregistrer l'appréciation
+      </button>
+    </div>
+  {% endif %}
+</form>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">Enregistrer</button>
+    </div>
+
+    {% if notes_incompletes and not est_verrouille %}
+  <div class="verrou-warning">
+    ⚠ Certaines notes ne sont pas encore saisies.
+    Le bulletin ne peut pas être verrouillé tant que toutes les notes ne sont pas complètes.
+  </div>
+{% endif %}
+ 
+{% if est_verrouille %}
+  <div class="verrou-bar verrouille">
+    <div class="verrou-bar-text">🔒 Bulletin verrouillé</div>
+    <div class="verrou-bar-actions">
+      {% if est_admin %}
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="trimestre" value="{{ trimestre }}">
+          <input type="hidden" name="action"    value="deverrouiller">
+          <button type="submit" class="btn btn-ghost btn-sm"
+                  onclick="return confirm('Déverrouiller ce bulletin ?')">
+            🔓 Déverrouiller (admin)
+          </button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+{% else %}
+  {% if peut_verrouiller %}
+    <form method="post" style="margin-bottom:1rem;">
+      {% csrf_token %}
+      <input type="hidden" name="trimestre" value="{{ trimestre }}">
+      <input type="hidden" name="action"    value="verrouiller">
+      <button type="submit" class="btn btn-danger btn-sm"
+              onclick="return confirm('Verrouiller ce bulletin ? Seul l\'admin pourra le modifier.')">
+        🔒 Verrouiller le bulletin
+      </button>
+    </form>
+  {% endif %}
+{% endif %}
+  </form>
+    <a href="{% url 'bulletin_pdf' classe.id eleve.id %}?trimestre={{ trimestre }}"
+   class="btn btn-danger">
+    <i class="fas fa-file-pdf"></i> Télécharger le PDF
+</a>
+{% endblock %}

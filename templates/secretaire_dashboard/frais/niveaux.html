@@ -1,0 +1,68 @@
+{% extends 'secretaire_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Frais par niveau{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/add_eleve.css' %}">
+<link rel="stylesheet" href="{% static 'css/secretaire/frais/niveaux.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="form-page-header">
+  <h1 class="form-page-title">
+    <span class="title-icon" aria-hidden="true">💰</span>
+    Frais par niveau
+  </h1>
+</div>
+
+{% if messages %}
+  <div class="form-messages">
+    {% for message in messages %}
+      <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span>{{ message }}</span>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<p style="color: var(--sec-gray-500); margin-bottom: .5rem;">Choisissez un niveau pour saisir ses frais d'inscription, de scolarité, ses tranches de paiement et son document PDF.</p>
+
+<div class="niveaux-frais-grid">
+  {% for l in lignes %}
+    <a href="{% url 'frais_niveau_detail' l.code %}" class="niveau-frais-card">
+      <div class="niveau-frais-top">
+        <div class="niveau-card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 11l8-6 8 6"/><path d="M6 10v9h12v-9"/><path d="M10 19v-5h4v5"/></svg>
+        </div>
+        {% if l.configure %}
+          <span class="niveau-badge niveau-badge-ok">✓ Configuré</span>
+        {% else %}
+          <span class="niveau-badge niveau-badge-vide">À configurer</span>
+        {% endif %}
+      </div>
+      <h3>{{ l.libelle }}</h3>
+      <div class="niveau-meta">{{ l.nb_classes }} classe{{ l.nb_classes|pluralize }}</div>
+
+      {% if l.frais and l.configure %}
+        <div class="niveau-frais-montants">
+          <div><span>Inscription</span><strong>{{ l.frais.montant_inscription }} FCFA</strong></div>
+          <div><span>Scolarité</span><strong>{{ l.frais.montant_scolarite }} FCFA</strong></div>
+        </div>
+      {% endif %}
+
+      <div class="niveau-frais-footer">
+        <span>{{ l.nb_tranches }} tranche{{ l.nb_tranches|pluralize }}</span>
+        {% if l.frais and l.frais.fichier_pdf %}
+          <span class="niveau-badge niveau-badge-ok">📄 PDF</span>
+        {% else %}
+          <span class="niveau-badge niveau-badge-vide">Sans PDF</span>
+        {% endif %}
+      </div>
+    </a>
+  {% endfor %}
+</div>
+
+{% endblock %}

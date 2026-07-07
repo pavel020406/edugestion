@@ -1,0 +1,32 @@
+/* ============================================================
+   messages/list_messages.css — messagerie : statut lu / non lu
+   ============================================================ */
+
+.sec-table-wrap {
+    background: #fff; border: 1px solid var(--sec-blue-100);
+    border-radius: 0.9rem; overflow: hidden; margin-top: 1rem;
+}
+.sec-table { width: 100%; border-collapse: collapse; }
+.sec-table thead { background: var(--sec-blue-900); }
+.sec-table thead th {
+    color: #fff; text-align: left; font-size: .78rem; letter-spacing: .03em;
+    text-transform: uppercase; padding: .85rem 1rem; font-weight: 600;
+}
+.sec-table tbody tr { border-top: 1px solid var(--sec-gray-100); }
+.sec-table tbody tr:hover { background: var(--sec-blue-50); }
+.sec-table td { padding: .8rem 1rem; font-size: .9rem; color: var(--sec-gray-700); vertical-align: middle; }
+
+.sec-avatar {
+    width: 2.2rem; height: 2.2rem; border-radius: 50%;
+    background: var(--sec-blue-600); color: #fff;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: .8rem; margin-right: .6rem;
+}
+.sec-row-name { display: flex; align-items: center; }
+
+.msg-statut {
+    display: inline-flex; align-items: center; gap: .3rem;
+    font-size: .72rem; font-weight: 600; padding: .2rem .55rem; border-radius: 999px;
+}
+.msg-statut-lu     { background: #dcfce7; color: #15803d; }
+.msg-statut-non-lu { background: var(--sec-blue-50); color: var(--sec-blue-700); }

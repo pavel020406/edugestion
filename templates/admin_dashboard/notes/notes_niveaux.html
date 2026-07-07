@@ -1,0 +1,37 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Saisir des notes{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/notes/note.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/list.css' %}">
+
+{% endblock %}
+
+{% block content %}
+
+  <div class="form-page-header">
+    <h1 class="form-page-title">
+      <span class="title-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 20V10M11 20V4M17 20v-7"/></svg>
+      </span>
+      Saisir des notes
+    </h1>
+  </div>
+
+  <p class="notes-breadcrumb-hint">Étape 1 sur 3 — Choisissez un niveau pour voir ses classes.</p>
+
+  <div class="notes-grid">
+    {% for niveau in niveaux %}
+      <a href="{% url 'notes_classes' niveau.code %}" class="notes-card">
+        <span class="notes-card-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 11l8-6 8 6"/><path d="M6 10v9h12v-9"/><path d="M10 19v-5h4v5"/></svg>
+        </span>
+        <strong>{{ niveau.libelle }}</strong>
+        <small>{{ niveau.nb_classes }} classe(s)</small>
+      </a>
+    {% endfor %}
+  </div>
+
+{% endblock %}

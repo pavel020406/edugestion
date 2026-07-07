@@ -1,0 +1,268 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+{% load dict_filters %}
+
+{% block page_title %}{{ classe }}{% endblock %}
+
+{% block extra_css %}
+
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/classes/detail.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/detail.css' %}">
+<link rel="stylesheet" href="{% static 'css/dashboard_enseignant/list.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/message.css' %}">
+
+{% endblock %}
+
+{% block content %}
+
+<!-- ── En-tête ── -->
+<div class="form-page-header">
+  <h1 class="form-page-title">
+    <span class="title-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+      </svg>
+    </span>
+    {{ classe }}
+  </h1>
+  <div class="header-actions" style="display:flex;gap:.5rem;flex-wrap:wrap;">
+    <a href="{% url 'edit_classe' classe.id %}"   class="btn btn-primary btn-sm">✏ Modifier</a>
+    <a href="{% url 'list_classe' %}"             class="btn btn-ghost btn-sm">← Liste</a>
+  </div>
+</div>
+
+{% if messages %}
+  <div class="form-messages">
+    {% for message in messages %}
+      <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/>
+        </svg>
+        <span>{{ message }}</span>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<!-- ── Grille infos + matières ── -->
+<div style="display:grid;grid-template-columns:260px 1fr;gap:1rem;align-items:start;margin-bottom:1rem;">
+
+  <!-- Infos classe -->
+  <div class="list-card">
+    <div class="list-card-header">
+      <h2>Informations</h2>
+    </div>
+    <div style="padding:.85rem 1.25rem;display:flex;flex-direction:column;gap:.5rem;font-size:.85rem;">
+      <div style="display:flex;justify-content:space-between;">
+        <span style="color:var(--gray-500);font-weight:600;">Niveau</span>
+        <span>{{ classe.get_niveau_display }}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;">
+        <span style="color:var(--gray-500);font-weight:600;">Salle</span>
+        <span>{% if classe.salle %}{{ classe.salle }}{% else %}—{% endif %}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;">
+        <span style="color:var(--gray-500);font-weight:600;">Effectif</span>
+        <strong>{{ classe.effectif }} élève(s)</strong>
+      </div>
+      <div style="display:flex;justify-content:space-between;">
+        <span style="color:var(--gray-500);font-weight:600;">Prof. principal</span>
+        <span>
+          {% if classe.enseignant_principal %}
+            {{ classe.enseignant_principal.first_name }} {{ classe.enseignant_principal.last_name }}
+          {% else %}—{% endif %}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Matières -->
+  <div class="list-card">
+    <div class="list-card-header">
+      <h2>Matières</h2>
+      <span class="list-card-count">{{ classe_matieres|length }} matière(s)</span>
+    </div>
+    {% if classe_matieres %}
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Matière</th>
+              <th>Coef.</th>
+              <th>H/sem</th>
+              <th>Enseignant</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for cm in classe_matieres %}
+              <tr>
+                <td><strong>{{ cm.matiere.nom_matiere }}</strong></td>
+                <td style="text-align:center;">{{ cm.coefficient }}</td>
+                <td style="text-align:center;">{{ cm.heures_semaine }}h</td>
+                <td style="font-size:.8rem;">
+                  {% if cm.enseignant %}
+                    {{ cm.enseignant.first_name }} {{ cm.enseignant.last_name }}
+                  {% else %}—{% endif %}
+                </td>
+                <td>
+                  <a href="{% url 'notes_saisie' classe.id cm.matiere.id %}"
+                     class="btn-xs btn-xs-edit">Saisir</a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="empty-state" style="padding:1.5rem;">
+        <p>Aucune matière assignée.</p>
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+
+<!-- ── Liste des élèves ── -->
+<div class="list-card" style="margin-bottom:1rem;">
+  <div class="list-card-header">
+    <h2>Élèves de la classe</h2>
+    <span class="list-card-count">{{ eleves|length }} élève(s)</span>
+  </div>
+  {% if eleves %}
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Matricule</th>
+            <th>Nom et Prénom</th>
+            <th>Sexe</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for eleve in eleves %}
+            <tr>
+              <td style="color:var(--gray-400);font-size:.75rem;text-align:center;">
+                {{ forloop.counter }}
+              </td>
+              <td>
+                <span class="list-card-count" style="font-size:.68rem;">
+                  {{ eleve.matricule }}
+                </span>
+              </td>
+              <td>
+                <div style="display:flex;align-items:center;gap:.5rem;">
+                  <span style="width:1.75rem;height:1.75rem;border-radius:50%;
+                               background:var(--blue-600);color:#fff;
+                               font-size:.62rem;font-weight:800;
+                               display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    {{ eleve.prenom|first|upper }}{{ eleve.nom|first|upper }}
+                  </span>
+                  <strong>{{ eleve.nom }} {{ eleve.prenom }}</strong>
+                </div>
+              </td>
+              <td>{{ eleve.get_sexe_display }}</td>
+              <td>
+                <div class="action-buttons">
+                  <a href="{% url 'detail_eleve' eleve.id %}" class="btn-xs btn-xs-edit">Voir</a>
+                  <a href="{% url 'admin_gestion_acces' eleve.id %}" class="btn-xs btn-xs-edit">Accès</a>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="empty-state" style="padding:2rem;">
+      <div class="empty-emoji">🎒</div>
+      <p>Aucun élève dans cette classe.</p>
+    </div>
+  {% endif %}
+</div>
+
+<!-- ── Partage des notes ── -->
+<!-- ══════════════════════════════════════════
+     SECTION PARTAGE NOTES
+     Remplace le bloc partage dans detail_classe.html
+══════════════════════════════════════════ -->
+
+<div class="list-card">
+  <div class="list-card-header">
+    <h2>📤 Partager les notes aux élèves</h2>
+    <span class="list-card-count">{{ eleves|length }} élève(s)</span>
+  </div>
+
+  <div class="partage-hint">
+    Les notes d'un trimestre ne peuvent être partagées que si
+    <strong>toutes les matières</strong> sont verrouillées pour ce trimestre.
+    Les élèves verront leurs notes dans leur espace personnel.
+  </div>
+
+  <div class="partage-body">
+    {% for t_code, t_libelle in trimestres %}
+      {% with partage=acces_notes_statut|get_item:t_code peutpart=peut_partager|get_item:t_code %}
+
+        <div class="partage-row {% if partage %}partage-actif{% endif %}">
+
+          <!-- Gauche : titre + badges -->
+          <div class="partage-row-left">
+            <span class="partage-row-title">{{ t_libelle }}</span>
+
+            {% if partage %}
+              <span class="badge-partage badge-partage-oui">✓ Partagé</span>
+            {% else %}
+              <span class="badge-partage badge-partage-non">Non partagé</span>
+            {% endif %}
+
+            {% if not peutpart %}
+              <span class="badge-partage badge-partage-warn">⚠ Matières non verrouillées</span>
+            {% endif %}
+          </div>
+
+          <!-- Droite : boutons -->
+          <div class="partage-row-actions">
+
+            <!-- Bouton Partager -->
+            <form method="post" action="{% url 'notes_partager_classe' classe.id %}">
+              {% csrf_token %}
+              <input type="hidden" name="trimestre" value="{{ t_code }}">
+              <input type="hidden" name="action"    value="accorder">
+              {% if peutpart %}
+                <button type="submit" class="btn-xs btn-xs-success"
+                        onclick="return confirm('Partager les notes du {{ t_libelle }} à tous les élèves ?')">
+                  📤 Partager
+                </button>
+              {% else %}
+                <button type="button" class="btn-xs btn-xs-disabled" disabled>
+                  📤 Partager
+                </button>
+              {% endif %}
+            </form>
+
+            <!-- Bouton Masquer (visible seulement si déjà partagé) -->
+            {% if partage %}
+              <form method="post" action="{% url 'notes_partager_classe' classe.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="trimestre" value="{{ t_code }}">
+                <input type="hidden" name="action"    value="revoquer">
+                <button type="submit" class="btn-xs btn-xs-delete"
+                        onclick="return confirm('Masquer les notes du {{ t_libelle }} pour tous les élèves ?')">
+                  🔒 Masquer
+                </button>
+              </form>
+            {% endif %}
+
+          </div>
+        </div>
+
+      {% endwith %}
+    {% endfor %}
+  </div>
+</div>
+
+{% endblock %}

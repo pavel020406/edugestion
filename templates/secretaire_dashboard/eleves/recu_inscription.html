@@ -1,0 +1,94 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Reçu d'inscription{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/add_eleve.css' %}">
+<link rel="stylesheet" href="{% static 'css/secretaire/eleves/recu_inscription.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="form-page-header">
+  <h1 class="form-page-title">
+    <span class="title-icon" aria-hidden="true">✅</span>
+    Élève inscrit avec succès
+  </h1>
+  <a href="{% url 'secretaire_list_eleve' %}" class="btn btn-ghost btn-sm">Retour à la liste</a>
+</div>
+
+{% if messages %}
+  <div class="form-messages">
+    {% for message in messages %}
+      <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span>{{ message }}</span>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<div class="recu-card">
+
+  <div class="recu-eleve-header">
+    <div class="sec-avatar" style="width:3rem;height:3rem;font-size:1rem;">
+      {{ eleve.nom|first|upper }}{{ eleve.prenom|first|upper }}
+    </div>
+    <div>
+      <h2>{{ eleve.nom }} {{ eleve.prenom }}</h2>
+      <span class="recu-matricule">{{ eleve.matricule }}</span>
+      {% if eleve.classe %}<span class="class-chip">{{ eleve.classe }}</span>{% endif %}
+    </div>
+  </div>
+
+  {% if frais %}
+    <div class="recu-montants">
+      <div class="recu-montant-bloc">
+        <span>Frais d'inscription</span>
+        <strong>{{ frais.montant_inscription }} FCFA</strong>
+      </div>
+      <div class="recu-montant-bloc">
+        <span>Frais de scolarité ({{ frais.annee_scolaire }})</span>
+        <strong>{{ frais.montant_scolarite }} FCFA</strong>
+      </div>
+      <div class="recu-montant-bloc recu-montant-total">
+        <span>Total dû</span>
+        <strong>{{ frais.total }} FCFA</strong>
+      </div>
+    </div>
+
+    {% if tranches %}
+      <h3 class="recu-tranches-title">Échéancier de paiement</h3>
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>Tranche</th><th>Montant</th><th>Date limite</th></tr>
+          </thead>
+          <tbody>
+          {% for t in tranches %}
+            <tr>
+              <td>{{ t.libelle }}</td>
+              <td>{{ t.montant }} FCFA</td>
+              <td>{{ t.date_limite|date:"d/m/Y" }}</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% endif %}
+  {% else %}
+    <div class="recu-aucun-tarif">
+      ⚠ Aucun tarif n'est encore configuré pour le niveau « {{ eleve.classe.get_niveau_display }} ».
+      <a href="{% url 'frais_niveaux' %}">Configurer les frais de ce niveau</a>
+    </div>
+  {% endif %}
+
+  <div class="form-actions" style="margin-top: 1.5rem;">
+    <a href="{% url 'secretaire_recu_inscription_pdf' eleve.id %}" class="btn btn-primary">📄 Télécharger le reçu (PDF)</a>
+    <a href="{% url 'secretaire_add_eleve' %}" class="btn btn-ghost">➕ Inscrire un autre élève</a>
+  </div>
+
+</div>
+
+{% endblock %}

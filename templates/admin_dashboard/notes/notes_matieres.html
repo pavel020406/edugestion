@@ -1,0 +1,46 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Matières — {{ classe }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/notes/note.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/list.css' %}">
+
+{% endblock %}
+
+{% block content %}
+
+  <div class="form-page-header">
+    <h1 class="form-page-title">
+      <span class="title-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="12" rx="1.5"/><path d="M9 20h6M12 16v4"/></svg>
+      </span>
+      Matières — {{ classe }}
+    </h1>
+    <a href="{% url 'notes_classes' classe.niveau %}" class="btn btn-ghost btn-sm">Retour aux classes</a>
+  </div>
+
+  <p class="notes-breadcrumb-hint">Étape 3 sur 3 — Choisissez une matière pour saisir les notes.</p>
+
+  {% if matieres %}
+    <div class="notes-grid">
+      {% for matiere in matieres %}
+        <a href="{% url 'notes_saisie' classe.id matiere.id %}" class="notes-card">
+          <span class="notes-card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 3h7l4 4v13a1 1 0 01-1 1H7a1 1 0 01-1-1V4a1 1 0 011-1z"/><path d="M9 12h6M9 16h6M9 8h3"/></svg>
+          </span>
+          <strong>{{ matiere.nom_matiere }}</strong>
+          <small>Saisir les notes</small>
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-emoji" aria-hidden="true">📘</div>
+      <p>Aucune matière assignée à cette classe</p>
+      <a href="{% url 'edit_classe' classe.id %}" class="btn btn-primary">+ Assigner des matières</a>
+    </div>
+  {% endif %}
+
+{% endblock %}

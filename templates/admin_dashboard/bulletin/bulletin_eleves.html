@@ -1,0 +1,43 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Élèves — {{ classe }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/bulletin/bulletin.css' %}">
+{% endblock %}
+
+{% block content %}
+
+  <div class="form-page-header">
+    <h1 class="form-page-title">
+      <span class="title-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.2 2.7-5.5 6-5.5s6 2.3 6 5.5"/></svg>
+      </span>
+      Élèves — {{ classe }}
+    </h1>
+    <a href="{% url 'bulletin_classes' %}" class="btn btn-ghost btn-sm">Retour aux classes</a>
+  </div>
+
+  <p class="bulletin-breadcrumb-hint">Étape 2 sur 2 — Choisissez un élève pour générer son bulletin.</p>
+
+  {% if eleves %}
+    <div class="bulletin-grid">
+      {% for eleve in eleves %}
+        <a href="{% url 'bulletin_generer' classe.id eleve.id %}" class="bulletin-card">
+          <span class="avatar-chip" aria-hidden="true">{{ eleve.nom|first|upper }}{{ eleve.prenom|first|upper }}</span>
+          <div>
+            <strong>{{ eleve.nom }} {{ eleve.prenom }}</strong>
+            <small>{{ eleve.matricule }}</small>
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-emoji" aria-hidden="true">🎓</div>
+      <p>Aucun élève dans cette classe</p>
+    </div>
+  {% endif %}
+
+{% endblock %}

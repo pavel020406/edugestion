@@ -1,0 +1,331 @@
+/* ============================================================
+   EduGestion — forms.css
+   Styles pour les pages de formulaire du tableau de bord
+   (inscription élève, enseignant, classe, etc.)
+   ============================================================ */
+
+.form-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-lg);
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.form-page-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 1.4rem;
+  color: var(--text);
+}
+
+.form-page-title .title-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.form-page-title .title-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ---------- Messages (succès / erreur) ---------- */
+.form-messages {
+  margin-bottom: var(--space-md);
+}
+
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.8rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  margin-bottom: 0.6rem;
+}
+
+.alert svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.alert-error {
+  background: rgba(216, 71, 63, 0.08);
+  border: 1px solid rgba(216, 71, 63, 0.25);
+  color: var(--danger);
+}
+
+.alert-success {
+  background: rgba(28, 157, 111, 0.08);
+  border: 1px solid rgba(28, 157, 111, 0.25);
+  color: var(--success);
+}
+
+/* ---------- Carte de formulaire ---------- */
+.form-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-lg) var(--space-lg) var(--space-md);
+  max-width: 760px;
+}
+
+.form-card-wide {
+  max-width: 920px;
+}
+
+/* ---------- Tableau de sélection des matières (coef + heures) ---------- */
+.matieres-table-wrap {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.matieres-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.matieres-table thead th {
+  text-align: left;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  padding: 0.65rem 0.9rem;
+  background: var(--bg-soft);
+  border-bottom: 1px solid var(--border);
+}
+
+.matieres-table thead th.col-check {
+  width: 40px;
+}
+
+.matieres-table tbody td {
+  padding: 0.55rem 0.9rem;
+  border-bottom: 1px solid var(--border-soft);
+  vertical-align: middle;
+}
+
+.matieres-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.matieres-table tbody tr:hover {
+  background: var(--bg-soft);
+}
+
+.matiere-row-active {
+  background: var(--accent-soft);
+}
+
+.matiere-row-active:hover {
+  background: var(--accent-soft);
+}
+
+.matiere-label {
+  font-weight: 500;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.matieres-table input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.matiere-num-input {
+  width: 80px;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 0.88rem;
+  color: var(--text);
+  background: var(--bg);
+  text-align: center;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.matiere-num-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.matiere-num-input::placeholder {
+  color: var(--text-faint);
+}
+
+.matiere-select-input {
+  width: 100%;
+  min-width: 140px;
+  padding: 0.45rem 2rem 0.45rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 0.85rem;
+  color: var(--text);
+  background: var(--bg);
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2351607e' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.6rem center;
+  background-size: 14px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.matiere-select-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.form-section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--accent);
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--border-soft);
+  margin-bottom: var(--space-md);
+}
+
+.form-section-title:not(:first-child) {
+  margin-top: var(--space-lg);
+}
+
+.form-section-title svg {
+  width: 17px;
+  height: 17px;
+}
+
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+}
+
+.form-field {
+  margin-bottom: var(--space-md);
+}
+
+.form-field label {
+  display: block;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 0.4rem;
+}
+
+.form-field label .required {
+  color: var(--danger);
+}
+
+.form-field input,
+.form-field select,
+.form-field textarea {
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: var(--text);
+  background: var(--bg);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  appearance: none;
+}
+
+.form-field textarea {
+  resize: vertical;
+  min-height: 90px;
+  line-height: 1.5;
+}
+
+.form-field select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2351607e' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.8rem center;
+  background-size: 16px;
+  padding-right: 2.4rem;
+}
+
+.form-field input::placeholder,
+.form-field textarea::placeholder {
+  color: var(--text-faint);
+}
+
+.form-field input:focus,
+.form-field select:focus,
+.form-field textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.form-field input[type="date"] {
+  color: var(--text);
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+  padding-top: var(--space-md);
+  margin-top: var(--space-sm);
+  border-top: 1px solid var(--border-soft);
+}
+
+@media (max-width: 640px) {
+  .form-grid-2 {
+    grid-template-columns: 1fr;
+  }
+  .form-card {
+    padding: var(--space-md);
+  }
+}
+
+/* ---------- Sélection multiple de matières (sans JS) ---------- */
+.form-field select[multiple] {
+  height: auto;
+  min-height: 160px;
+  padding: 0.4rem;
+  background-image: none;
+}
+
+.form-field select[multiple] option {
+  padding: 0.5rem 0.6rem;
+  border-radius: 4px;
+}
+
+.form-field select[multiple] option:checked {
+  background: var(--accent-soft) linear-gradient(0deg, var(--accent-soft) 0%, var(--accent-soft) 100%);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.field-hint {
+  font-size: 0.78rem;
+  color: var(--text-faint);
+  margin-top: 0.4rem;
+}
+

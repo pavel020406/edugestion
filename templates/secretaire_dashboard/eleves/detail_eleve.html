@@ -1,0 +1,137 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}{{ eleve.nom }} {{ eleve.prenom }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/add_eleve.css' %}">
+<link rel="stylesheet" href="{% static 'css/secretaire/eleves/detail_eleve.css' %}">
+<link rel="stylesheet" href="{% static 'css/secretaire/eleves/paiement_form.css' %}">
+{% endblock %}
+
+{% block content %}
+
+  <div class="form-page-header">
+    <h1 class="form-page-title">
+      <span class="title-icon" aria-hidden="true">🎓</span>
+      Fiche élève
+    </h1>
+    <a href="{% url 'secretaire_list_eleve' %}" class="btn btn-ghost btn-sm">Retour à la liste</a>
+  </div>
+
+  {% if messages %}
+    <div class="form-messages">
+      {% for message in messages %}
+        <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+          <span>{{ message }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="detail-card">
+
+    <div class="detail-header">
+      <div class="detail-avatar" aria-hidden="true">{{ eleve.nom|first|upper }}{{ eleve.prenom|first|upper }}</div>
+      <div>
+        <h2>{{ eleve.nom }} {{ eleve.prenom }}</h2>
+        <p>Matricule : {{ eleve.matricule }}</p>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <h3 class="detail-section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.2 2.7-5.5 6-5.5s6 2.3 6 5.5"/></svg>
+        Informations de l'élève
+      </h3>
+      <div class="detail-grid">
+        <div class="detail-field">
+          <label>Sexe</label>
+          <div class="detail-value">{{ eleve.get_sexe_display }}</div>
+        </div>
+        <div class="detail-field">
+          <label>Date de naissance</label>
+          <div class="detail-value">{{ eleve.date_naissance }}</div>
+        </div>
+        <div class="detail-field">
+          <label>Classe</label>
+          <div class="detail-value">
+            {% if eleve.classe %}{{ eleve.classe }}{% else %}<span class="empty">— Non assignée —</span>{% endif %}
+          </div>
+        </div>
+        <div class="detail-field">
+          <label>Date d'inscription</label>
+          <div class="detail-value">{{ eleve.date_inscription }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <h3 class="detail-section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6"/></svg>
+        Parent / Tuteur
+      </h3>
+      <div class="detail-grid">
+        <div class="detail-field">
+          <label>Nom complet</label>
+          <div class="detail-value">{{ eleve.nom_parent }}</div>
+        </div>
+        <div class="detail-field">
+          <label>Téléphone</label>
+          <div class="detail-value">{{ eleve.telephone_parent }}</div>
+        </div>
+        <div class="detail-field">
+          <label>Email</label>
+          <div class="detail-value">
+            {% if eleve.email_parent %}{{ eleve.email_parent }}{% else %}<span class="empty">— Non renseigné —</span>{% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <h3 class="detail-section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 9.5h4.5a1.5 1.5 0 010 3H10a1.5 1.5 0 000 3h4.5"/></svg>
+        Frais de scolarité
+        {% if statut.en_retard %}<span class="tag-retard" style="margin-left:.5rem;">En retard</span>{% endif %}
+      </h3>
+
+      {% if statut.frais %}
+        <div class="paiement-statut-grid">
+          <div class="paiement-statut-bloc">
+            <span>Total dû</span><strong>{{ statut.total_du }} FCFA</strong>
+          </div>
+          <div class="paiement-statut-bloc">
+            <span>Total payé</span><strong>{{ statut.total_paye }} FCFA</strong>
+          </div>
+          <div class="paiement-statut-bloc {% if statut.solde > 0 %}paiement-statut-restant{% else %}paiement-statut-ok{% endif %}">
+            <span>Solde restant</span><strong>{{ statut.solde }} FCFA</strong>
+          </div>
+        </div>
+
+        <div style="margin-top:.75rem; display:flex; gap:.5rem; flex-wrap:wrap;">
+          <a href="{% url 'secretaire_paiement_ajouter' eleve.id %}" class="btn btn-primary btn-sm">💵 Enregistrer un paiement</a>
+          {% if statut.paiements %}
+            <a href="{% url 'secretaire_recu_paiement' statut.paiements.0.id %}" class="btn btn-ghost btn-sm">🧾 Voir le dernier reçu</a>
+          {% endif %}
+        </div>
+      {% else %}
+        <p class="detail-empty">Aucun tarif configuré pour le niveau de cet élève.</p>
+      {% endif %}
+    </div>
+
+    <div class="detail-actions">
+      <form method="post" action="{% url 'secretaire_delete_eleve' eleve.id %}" style="display:inline;" onsubmit="return confirm('Supprimer définitivement {{ eleve.nom }} {{ eleve.prenom }} ? Cette action est irréversible.');">
+        {% csrf_token %}
+        <button type="submit" class="btn-xs btn-xs-delete" style="padding: 0.6rem 1.2rem; font-size: 0.85rem;">Supprimer</button>
+      </form>
+      <a href="{% url 'secretaire_edit_eleve' eleve.id %}" class="btn btn-primary">Modifier</a>
+      <a href="{% url 'secretaire_envoyer_message_eleve' eleve.id %}" class="btn btn-primary btn-sm">
+        ✉ Envoyer un message
+      </a>
+    </div>
+
+  </div>
+
+{% endblock %}

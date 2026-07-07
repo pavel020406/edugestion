@@ -1,0 +1,31 @@
+/* ============================================================
+   profil/profil.css — page Mon profil (secrétariat)
+   ============================================================ */
+
+.profil-layout { display: grid; grid-template-columns: 280px 1fr; gap: 1.5rem; align-items: start; }
+@media (max-width: 900px) { .profil-layout { grid-template-columns: 1fr; } }
+
+.profil-card-resume {
+    background: #fff; border: 1px solid var(--sec-blue-100); border-radius: .9rem;
+    padding: 1.6rem; text-align: center;
+}
+.profil-avatar-lg {
+    width: 6rem; height: 6rem; border-radius: 50%; object-fit: cover;
+    margin: 0 auto .9rem; display: block; border: 3px solid var(--sec-blue-100);
+}
+.profil-avatar-lg-placeholder {
+    width: 6rem; height: 6rem; border-radius: 50%; margin: 0 auto .9rem;
+    background: var(--sec-blue-600); color: #fff; font-size: 1.8rem; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+}
+.profil-card-resume h3 { margin: 0; color: var(--sec-blue-900); }
+.profil-card-resume .role-tag {
+    display: inline-block; margin-top: .4rem; background: var(--sec-blue-50);
+    color: var(--sec-blue-700); font-size: .75rem; font-weight: 600;
+    padding: .2rem .6rem; border-radius: 999px;
+}
+
+.profil-card-form {
+    background: #fff; border: 1px solid var(--sec-blue-100); border-radius: .9rem; padding: 1.6rem;
+}
+.profil-card-form h4 { color: var(--sec-blue-900); margin: 0 0 1rem; font-size: 1rem; }

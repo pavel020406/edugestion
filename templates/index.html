@@ -1,0 +1,284 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduGestion — Plateforme de gestion scolaire</title>
+<meta name="description" content="EduGestion centralise élèves, classes, présences et notes dans un seul registre numérique.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+<!-- ============ HERO avec image de fond + en-tête superposé ============ -->
+<section class="hero">
+
+  <header class="site-header">
+    <div class="container nav">
+      <a href="#" class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 6.5L12 3l9 3.5-9 3.5-9-3.5z" stroke="#ffffff" stroke-width="1.6" stroke-linejoin="round"/>
+            <path d="M6.5 10v5.2c0 .5 2.4 2.3 5.5 2.3s5.5-1.8 5.5-2.3V10" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        EduGestion
+      </a>
+
+      <nav class="nav-links" aria-label="Navigation principale">
+        <a href="#accueil">Accueil</a>
+        <a href="#fonctionnalites">Fonctionnalités</a>
+        <a href="#a-propos">À propos</a>
+      </nav>
+
+      <div class="nav-actions">
+        <a href="{% url 'connexion' %}" class="btn btn-outline-light btn-sm">Connexion</a>
+        <button class="nav-toggle" aria-label="Ouvrir le menu">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="hero-content" id="accueil">
+      <span class="eyebrow">Registre numérique de l'établissement</span>
+      <h1>Le carnet de bord de votre école, <em>tenu à jour tout seul</em>.</h1>
+      <p>EduGestion réunit élèves, classes, présences et notes dans un seul espace clair — pensé pour les directions, les enseignants et les secrétariats.</p>
+
+      <div class="hero-actions">
+        <a href="#fonctionnalites" class="btn btn-primary btn-lg">Découvrir la plateforme</a>
+        <a href="#a-propos" class="btn btn-outline-light btn-lg">En savoir plus</a>
+      </div>
+
+      <div class="hero-stats">
+        <div>
+          <span class="stat-num">340<span>+</span></span>
+          <span class="stat-label">établissements actifs</span>
+        </div>
+        <div>
+          <span class="stat-num">98<span>%</span></span>
+          <span class="stat-label">présence saisie en &lt;5 sec</span>
+        </div>
+        <div>
+          <span class="stat-num">4.8<span>/5</span></span>
+          <span class="stat-label">note moyenne des directions</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FONCTIONNALITÉS ============ -->
+<section class="section" id="fonctionnalites">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Les registres de l'école, réunis</span>
+      <h2>Chaque registre que gère un établissement, en un seul endroit</h2>
+      <p>Pas de cahiers qui se perdent ni de tableurs qui se contredisent.</p>
+    </div>
+
+    <div class="registers">
+
+      <article class="register-card">
+        <div class="register-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 12a4 4 0 100-8 4 4 0 000 8z"/><path d="M4 20c0-3.3 3.6-6 8-6s8 2.7 8 6"/></svg>
+        </div>
+        <h3>Dossiers élèves</h3>
+        <p>Coordonnées, contacts d'urgence et historique scolaire centralisés dans une fiche unique par élève.</p>
+      </article>
+
+      <article class="register-card">
+        <div class="register-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M3 9h18"/></svg>
+        </div>
+        <h3>Classes &amp; emplois du temps</h3>
+        <p>Composez les classes et générez les emplois du temps sans conflit de salle ou d'horaire.</p>
+      </article>
+
+      <article class="register-card">
+        <div class="register-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>
+        </div>
+        <h3>Présence &amp; absences</h3>
+        <p>Appel en un clic et alertes automatiques aux parents en cas d'absence ou de retard.</p>
+      </article>
+
+      <article class="register-card">
+        <div class="register-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 3h7l4 4v13a1 1 0 01-1 1H7a1 1 0 01-1-1V4a1 1 0 011-1z"/><path d="M9 12h6M9 16h6M9 8h3"/></svg>
+        </div>
+        <h3>Notes &amp; bulletins</h3>
+        <p>Saisie des notes par matière et génération automatique des bulletins de fin de trimestre.</p>
+      </article>
+
+      <article class="register-card">
+        <div class="register-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 9.5h4.5a1.5 1.5 0 010 3H10a1.5 1.5 0 000 3h4.5"/></svg>
+        </div>
+        <h3>Frais de scolarité</h3>
+        <p>Suivez les paiements et relancez automatiquement les retards depuis la plateforme.</p>
+      </article>
+
+      <article class="register-card">
+        <div class="register-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z"/></svg>
+        </div>
+        <h3>Communication parents</h3>
+        <p>Messages et notifications de notes envoyés directement aux familles par SMS ou application.</p>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============ À PROPOS ============ -->
+<section class="section section-soft" id="a-propos">
+  <div class="container">
+    <div class="about-grid">
+      <div class="about-copy">
+        <span class="eyebrow">Notre mission</span>
+        <h2 style="margin: 0.75rem 0 1rem;">Bâtie avec des directions d'école, pour des directions d'école</h2>
+        <p>EduGestion est née d'un constat simple : les secrétariats passaient plus de temps à recopier des données qu'à accompagner les élèves. Nous avons conçu une plateforme qui suit le fonctionnement réel d'un établissement, pas l'inverse.</p>
+        <p>Aujourd'hui, EduGestion accompagne des écoles, collèges et lycées dans leur gestion quotidienne, avec une attention particulière portée à la simplicité d'usage et à la fiabilité des données.</p>
+      </div>
+
+      <div class="about-values">
+        <div class="value-card">
+          <h4>Simplicité</h4>
+          <p>Une interface prise en main en moins de 30 minutes, sans formation lourde.</p>
+        </div>
+        <div class="value-card">
+          <h4>Fiabilité</h4>
+          <p>Des données sauvegardées et cohérentes, sans doublons ni pertes de cahiers.</p>
+        </div>
+        <div class="value-card">
+          <h4>Proximité</h4>
+          <p>Un support en français, à l'écoute des réalités du terrain scolaire.</p>
+        </div>
+        <div class="value-card">
+          <h4>Confidentialité</h4>
+          <p>Les données de chaque établissement restent strictement cloisonnées.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CTA FINAL ============ -->
+<div class="container">
+  <div class="cta">
+    <span class="eyebrow">Prêt pour la rentrée</span>
+    <h2>Donnez à votre école un registre qui ne se perd jamais</h2>
+    <p>Découvrez comment EduGestion peut accompagner votre établissement au quotidien.</p>
+    <div class="cta-actions">
+      <a href="#fonctionnalites" class="btn btn-primary btn-lg">Découvrir la plateforme</a>
+      <a href="#a-propos" class="btn btn-ghost btn-lg">À propos</a>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PIED DE PAGE ============ -->
+<!-- ============ PIED DE PAGE ============ -->
+<footer class="site-footer">
+  <div class="container">
+
+    <div class="footer-grid">
+
+      <div class="footer-col">
+        <a href="#" class="footer-brand">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3 6.5L12 3l9 3.5-9 3.5-9-3.5z" stroke="#ffffff" stroke-width="1.6" stroke-linejoin="round"/>
+              <path d="M6.5 10v5.2c0 .5 2.4 2.3 5.5 2.3s5.5-1.8 5.5-2.3V10" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          EduGestion
+        </a>
+        <p>Le registre numérique qui réunit élèves, classes, présences et notes pour les écoles, collèges et lycées.</p>
+
+        <div class="footer-social">
+          <a href="#" aria-label="Facebook">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 9h3V6h-3a4 4 0 00-4 4v2H7v3h3v6h3v-6h3l1-3h-4v-2a1 1 0 011-1z"/></svg>
+          </a>
+          <a href="#" aria-label="LinkedIn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 10v7M7 7v.01M12 17v-4.5a2 2 0 014 0V17M12 10v7"/></svg>
+          </a>
+          <a href="#" aria-label="WhatsApp">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12a9 9 0 11-9-9 9 9 0 019 9z"/><path d="M8.5 9.5c.3 3 2.5 5.2 5.5 5.5"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h5>Navigation</h5>
+        <ul>
+          <li><a href="#accueil">Accueil</a></li>
+          <li><a href="#fonctionnalites">Fonctionnalités</a></li>
+          <li><a href="#a-propos">À propos</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h5>Ressources</h5>
+        <ul>
+          <li><a href="#">Centre d'aide</a></li>
+          <li><a href="#">Guide de démarrage</a></li>
+          <li><a href="#">Confidentialité</a></li>
+          <li><a href="#">Conditions d'utilisation</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h5>Contact</h5>
+        <div class="footer-contact-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z"/></svg>
+          <span>Paveldrashe86@gmail.com</span>
+        </div>
+        <div class="footer-contact-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+          <span>+237 6 91 48 61 25</span>
+        </div>
+        <div class="footer-contact-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 1118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span>Douala, Cameroun</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="footer-bottom">
+      <p>© 2026 EduGestion. Tous droits réservés.</p>
+      <div class="footer-bottom-links">
+        <a href="#">Confidentialité</a>
+        <a href="#">Conditions</a>
+        <a href="#">Cookies</a>
+      </div>
+    </div>
+
+   
+    <details class="realisateur-toggle">
+      <summary class="btn btn-ghost btn-sm">À propos du réalisateur</summary>
+
+      <div class="realisateur-box">
+        <div class="realisateur-inner">
+          <div class="realisateur-avatar" aria-hidden="true">RD</div>
+          <div class="realisateur-text">
+            <h4>Réalisé par Sonkoue Pavel</h4>
+            <p>Développeur web — conception et intégration de la plateforme EduGestion.</p>
+            <p class="realisateur-contact">Paveldrashe86@mail.com · +237 691486125</p>
+          </div>
+        </div>
+      </div>
+    </details>
+
+  </div>
+</footer>
+
+</body>
+</html>

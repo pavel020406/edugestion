@@ -1,0 +1,151 @@
+/* ============================================================
+   EduGestion — login.css
+   Styles spécifiques à la page de connexion
+   ============================================================ */
+
+/* ---------- En-tête en version "fond clair" ----------
+   Sur l'accueil, .site-header est transparent et posé sur une
+   image sombre (texte blanc). Ici il n'y a pas d'image derrière,
+   donc on bascule la nav en version sombre-sur-clair. */
+.site-header-light {
+  position: sticky;
+  top: 0;
+  background: #ffffff;
+  border-bottom: 1px solid var(--border);
+}
+
+.site-header-light .brand {
+  color: var(--text);
+}
+
+.site-header-light .brand-mark {
+  background: var(--accent-soft);
+  border: 1px solid var(--border);
+}
+
+.site-header-light .brand-mark svg path {
+  stroke: var(--accent);
+}
+
+.site-header-light .nav-links a {
+  color: var(--text-muted);
+}
+
+.site-header-light .nav-links a:hover {
+  color: var(--text);
+}
+
+.site-header-light .nav-toggle {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+/* ---------- Mise en page de la page de connexion ---------- */
+body.login-page {
+  background: var(--bg-soft);
+}
+
+.login-main {
+  min-height: calc(100vh - 73px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-xl) var(--space-md);
+}
+
+.login-wrap {
+  width: 100%;
+  max-width: 420px;
+}
+
+.login-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-xl) var(--space-lg);
+  text-align: center;
+}
+
+.login-card .eyebrow {
+  justify-content: center;
+}
+
+.login-card h1 {
+  font-size: 1.7rem;
+  color: var(--text);
+  margin: var(--space-sm) 0 0.4rem;
+}
+
+.login-card > p {
+  color: var(--text-muted);
+  font-size: 0.92rem;
+  margin-bottom: var(--space-lg);
+}
+
+.login-card form {
+  text-align: left;
+}
+
+.form-group {
+  margin-bottom: var(--space-md);
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 0.4rem;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: var(--text);
+  background: var(--bg);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.btn-block {
+  width: 100%;
+}
+
+.form-message {
+  text-align: center;
+  font-size: 0.85rem;
+  margin: 0 0 var(--space-md);
+}
+
+.form-message.error {
+  color: var(--danger);
+}
+
+.login-footer {
+  text-align: center;
+  margin-top: var(--space-lg);
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+
+.login-footer a {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+@media (max-width: 480px) {
+  .login-card {
+    padding: var(--space-lg) var(--space-md);
+  }
+}

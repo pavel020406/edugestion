@@ -1,0 +1,139 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Messages{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/add_eleve.css' %}">
+<link rel="stylesheet" href="{% static 'css/secretaire/messages/list_messages.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="form-page-header">
+  <h1 class="form-page-title">
+    <span class="title-icon" aria-hidden="true">✉</span>
+    Messagerie
+  </h1>
+  <a href="{% url 'secretaire_envoyer_message' %}" class="btn btn-primary btn-sm">➕ Nouveau message</a>
+</div>
+
+{% if messages %}
+  <div class="form-messages">
+    {% for message in messages %}
+      <div class="alert {% if message.tags == 'error' %}alert-error{% elif message.tags == 'warning' %}alert-error{% else %}alert-success{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span>{{ message }}</span>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+{% if notifications_recues %}
+  <div class="sec-table-wrap" style="margin-bottom: 1.5rem;">
+    <div style="padding: .9rem 1.1rem; border-bottom: 1px solid var(--sec-gray-100); font-weight: 700; color: var(--sec-blue-900); font-size: .9rem;">
+      🔔 Notifications reçues
+    </div>
+    <table class="sec-table">
+      <thead>
+        <tr><th>Expéditeur</th><th>Sujet</th><th>Date</th></tr>
+      </thead>
+      <tbody>
+      {% for n in notifications_recues %}
+        <tr>
+          <td>{{ n.expediteur|default:"Système" }}</td>
+          <td>
+            <strong>{{ n.sujet }}</strong>
+            <div style="color: var(--sec-gray-500); font-size:.78rem; white-space:pre-line; margin-top:.2rem;">{{ n.contenu|truncatewords:25 }}</div>
+          </td>
+          <td style="white-space:nowrap;">{{ n.date_envoi|date:"d/m/Y H:i" }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endif %}
+
+
+{% if messages_recus_parents %}
+  <div class="list-card" style="margin-bottom: 1.25rem;">
+    <div class="list-card-header">
+      <h2>📨 Messages des parents</h2>
+      <span class="list-card-count" style="background:var(--blue-50);color:var(--blue-700);border-color:var(--blue-200);">
+        {{ messages_recus_parents.count }} message(s)
+      </span>
+    </div>
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Parent</th>
+            <th>Élève concerné</th>
+            <th>Sujet</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for m in messages_recus_parents %}
+          <tr>
+            <td>
+              <strong>{{ m.expediteur.first_name }} {{ m.expediteur.last_name }}</strong>
+            </td>
+            <td>
+              {% if m.eleve %}
+                {{ m.eleve.nom }} {{ m.eleve.prenom }}
+                {% if m.eleve.classe %}<span class="class-chip">{{ m.eleve.classe }}</span>{% endif %}
+              {% else %}—{% endif %}
+            </td>
+            <td>
+              <strong>{{ m.sujet }}</strong>
+              {% if m.contenu %}
+                <div style="font-size:.78rem;color:var(--gray-500);margin-top:.2rem;">{{ m.contenu|truncatewords:20 }}</div>
+              {% endif %}
+            </td>
+            <td style="white-space:nowrap;font-size:.8rem;">{{ m.date_envoi|date:"d/m/Y H:i" }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endif %}
+<div class="sec-table-wrap">
+  <div style="padding: .9rem 1.1rem; border-bottom: 1px solid var(--sec-gray-100); font-weight: 700; color: var(--sec-blue-900); font-size: .9rem;">
+    Messages envoyés
+  </div>
+  <table class="sec-table">
+    <thead>
+      <tr>
+        <th>Élève</th>
+        <th>Sujet</th>
+        <th>Date d'envoi</th>
+        <th>Statut</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for msg in messages_envoyes %}
+      <tr>
+        <td class="sec-row-name">
+          <span class="sec-avatar">{{ msg.eleve.nom|first|upper }}{{ msg.eleve.prenom|first|upper }}</span>
+          {{ msg.eleve.nom }} {{ msg.eleve.prenom }}
+        </td>
+        <td>{{ msg.sujet }}</td>
+        <td>{{ msg.date_envoi|date:"d/m/Y H:i" }}</td>
+        <td>
+          {% if msg.lu %}
+            <span class="msg-statut msg-statut-lu">✓ Lu</span>
+          {% else %}
+            <span class="msg-statut msg-statut-non-lu">● Non lu</span>
+          {% endif %}
+        </td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="4" style="color:var(--sec-gray-500); padding: 1.2rem;">Aucun message envoyé encore.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

@@ -1,0 +1,80 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Connexion — EduGestion</title>
+<meta name="description" content="Connectez-vous à votre espace de gestion EduGestion.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+<link rel="stylesheet" href="{% static 'css/login/login.css' %}">
+</head>
+<body class="login-page">
+
+<!-- ============ EN-TÊTE (identique à l'accueil) ============ -->
+<header class="site-header site-header-light">
+  <div class="container nav">
+    <a href="{% url 'accueil' %}" class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 6.5L12 3l9 3.5-9 3.5-9-3.5z" stroke="#ffffff" stroke-width="1.6" stroke-linejoin="round"/>
+          <path d="M6.5 10v5.2c0 .5 2.4 2.3 5.5 2.3s5.5-1.8 5.5-2.3V10" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      EduGestion
+    </a>
+
+    <nav class="nav-links" aria-label="Navigation principale">
+      <a href="{% url 'accueil' %}#accueil">Accueil</a>
+      <a href="{% url 'accueil' %}#fonctionnalites">Fonctionnalités</a>
+      <a href="{% url 'accueil' %}#a-propos">À propos</a>
+    </nav>
+
+    <div class="nav-actions">
+      <button class="nav-toggle" aria-label="Ouvrir le menu">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ============ FORMULAIRE DE CONNEXION ============ -->
+<main class="login-main">
+  <div class="login-wrap">
+    <div class="login-card">
+      <span class="eyebrow">Espace de gestion</span>
+      <h1>Connexion</h1>
+      <p>Accédez au registre numérique de votre établissement.</p>
+
+      <form method="post" action="{% url 'connexion' %}">
+        {% csrf_token %}
+
+        <div class="form-group">
+          <label for="username">Nom d'utilisateur</label>
+          <input type="text" id="username" name="username" placeholder="Votre identifiant" required autofocus>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Mot de passe</label>
+          <input type="password" id="password" name="password" placeholder="••••••••" required>
+        </div>
+
+        {% if form.errors %}
+          <p class="form-message error">Nom d'utilisateur ou mot de passe incorrect.</p>
+        {% endif %}
+
+        <button type="submit" class="btn btn-primary btn-block">Se connecter</button>
+      </form>
+
+      <p class="login-footer">Besoin d'aide ? <a href="#">Contactez l'administration</a></p>
+    </div>
+  </div>
+</main>
+
+</body>
+</html>

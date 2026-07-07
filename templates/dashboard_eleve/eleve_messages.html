@@ -1,0 +1,69 @@
+{% extends 'dashboard_eleve/base_eleve.html' %}
+{% load static %}
+
+{% block page_title %}Mes messages{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard_eleve/eleve.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="form-page-header">
+  <h1 class="form-page-title">
+    <span class="title-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+    </span>
+    Mes messages
+    {% if nb_non_lus > 0 %}
+      <span class="notif-dot">{{ nb_non_lus }} non lu(s)</span>
+    {% endif %}
+  </h1>
+</div>
+
+{% if messages_list %}
+  <div class="list-card">
+    <div class="list-card-header">
+      <h2>Boîte de réception</h2>
+      <span class="list-card-count">{{ messages_list|length }} message(s)</span>
+    </div>
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Sujet</th>
+            <th>De</th>
+            <th>Date</th>
+            <th>PJ</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for msg in messages_list %}
+            <tr class="{% if not msg.lu %}row-unread{% endif %}">
+              <td><span class="badge-type msg-{{ msg.type_message }}">{{ msg.get_type_message_display }}</span></td>
+              <td><strong>{% if not msg.lu %}📩 {% endif %}{{ msg.sujet }}</strong></td>
+              <td style="font-size:0.8rem; color:var(--gray-500);">
+                {% if msg.expediteur %}{{ msg.expediteur.first_name }} {{ msg.expediteur.last_name }}{% else %}Admin{% endif %}
+              </td>
+              <td style="font-size:0.8rem; white-space:nowrap;">{{ msg.date_envoi|date:"d/m/Y H:i" }}</td>
+              <td>
+                {% if msg.fichier_pdf %}
+                  <a href="{% url 'eleve_message_pdf' msg.id %}" class="btn-xs btn-xs-edit" title="Télécharger PDF">📎 PDF</a>
+                {% else %}—{% endif %}
+              </td>
+              <td>
+                <a href="{% url 'eleve_message_detail' msg.id %}" class="btn-xs btn-xs-primary">Lire</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% else %}
+  <div class="empty-state">
+    <div class="empty-emoji">📭</div>
+    <p>Aucun message reçu pour l'instant.</p>
+  </div>
+{% endif %}
+{% endblock %}

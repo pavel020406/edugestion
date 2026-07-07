@@ -1,0 +1,141 @@
+/* ============================================================
+   admin_dashboard/eleves/list_eleve.css
+   Pour le template "Élèves" (liste des élèves, admin)
+   Note : .eleve-avatar et .badge-compte restent dans le <style>
+   inline de votre template — pas redéfinis ici pour éviter les doublons.
+   ============================================================ */
+
+/* ── Carte conteneur de la liste ── */
+.list-card {
+  background: #ffffff;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.list-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.list-card-header h2 {
+  font-size: .95rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin: 0;
+}
+
+.list-card-count {
+  font-size: .75rem;
+  font-weight: 700;
+  color: var(--blue-700);
+  background: var(--blue-50);
+  border: 1px solid var(--blue-200);
+  border-radius: 999px;
+  padding: .2rem .65rem;
+  white-space: nowrap;
+}
+
+/* ── Table ── */
+.data-table-wrap { overflow-x: auto; }
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table thead th {
+  text-align: left;
+  font-size: .72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  color: var(--gray-500);
+  background: var(--gray-50);
+  padding: .7rem 1.1rem;
+  border-bottom: 1px solid var(--gray-200);
+  white-space: nowrap;
+}
+
+.data-table tbody td {
+  padding: .7rem 1.1rem;
+  font-size: .85rem;
+  color: var(--gray-900);
+  border-bottom: 1px solid var(--gray-100);
+  vertical-align: middle;
+}
+
+.data-table tbody tr:last-child td { border-bottom: none; }
+.data-table tbody tr:hover { background: var(--blue-50); }
+
+/* ── Chip classe ── */
+.class-chip {
+  display: inline-flex;
+  align-items: center;
+  font-size: .72rem;
+  font-weight: 600;
+  color: var(--blue-700);
+  background: var(--blue-50);
+  border: 1px solid var(--blue-200);
+  border-radius: 999px;
+  padding: .15rem .55rem;
+  white-space: nowrap;
+}
+
+/* ── Actions en icônes ── */
+.sec-actions {
+  display: flex;
+  gap: .35rem;
+  justify-content: flex-end;
+  flex-wrap: nowrap;
+}
+
+.sec-icon-btn {
+  width: 2rem;
+  height: 2rem;
+  border-radius: .5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--gray-300);
+  background: #fff;
+  color: var(--gray-500);
+  text-decoration: none;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.sec-icon-btn svg { width: 1rem; height: 1rem; }
+.sec-icon-btn:hover { border-color: var(--blue-600); color: var(--blue-600); background: var(--blue-50); }
+.sec-icon-btn.danger:hover { border-color: var(--red-600, #dc2626); color: var(--red-600, #dc2626); background: var(--red-100); }
+
+/* ── État vide ── */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .6rem;
+  padding: 3rem 1.5rem;
+  text-align: center;
+}
+
+.empty-emoji {
+  font-size: 2.4rem;
+  line-height: 1;
+}
+
+.empty-state p {
+  font-size: .9rem;
+  color: var(--gray-500);
+  margin: 0;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .list-card-header { flex-direction: column; align-items: flex-start; gap: .4rem; }
+  .data-table thead th, .data-table tbody td { padding: .55rem .75rem; }
+  .sec-actions { justify-content: flex-start; }
+}

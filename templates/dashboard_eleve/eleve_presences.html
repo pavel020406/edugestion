@@ -1,0 +1,102 @@
+{% extends 'dashboard_eleve/base_eleve.html' %}
+{% load static %}
+{% block page_title %}Mes présences{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard_eleve/eleve.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="form-page-header">
+  <h1 class="form-page-title">
+    <span class="title-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <circle cx="12" cy="12" r="9"/>
+        <path d="M12 7v5l3 2"/>
+      </svg>
+    </span>
+    Mes présences
+  </h1>
+</div>
+
+{% if not a_acces %}
+  <!-- ── État verrouillé ── -->
+  <div class="acces-locked">
+    <div class="locked-icon">🔒</div>
+    <h2>Présences non disponibles</h2>
+    <p>
+      Vos données de présence ne sont pas encore disponibles.<br>
+      L'administration vous informera dès qu'elles seront publiées.
+    </p>
+    <a href="{% url 'eleve_messages' %}" class="btn btn-ghost btn-sm">
+      Voir mes messages
+    </a>
+  </div>
+
+{% else %}
+
+  <!-- Statistiques rapides -->
+  <div class="presence-stats">
+    <div class="pstat-card pstat-absent">
+      <div class="pstat-val">{{ nb_absences }}</div>
+      <div class="pstat-lbl">Absence(s)</div>
+    </div>
+    <div class="pstat-card pstat-retard">
+      <div class="pstat-val">{{ nb_retards }}</div>
+      <div class="pstat-lbl">Retard(s)</div>
+    </div>
+    <div class="pstat-card pstat-present">
+      <div class="pstat-val">{{ presences|length }}</div>
+      <div class="pstat-lbl">Enregistrement(s)</div>
+    </div>
+  </div>
+
+  <div class="list-card">
+    <div class="list-card-header">
+      <h2>Historique des présences</h2>
+      <span class="list-card-count">{{ presences|length }} entrée(s)</span>
+    </div>
+
+    {% if presences %}
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Créneau</th>
+              <th>Statut</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for p in presences %}
+              <tr class="statut-row statut-{{ p.statut }}">
+                <td><strong>{{ p.date|date:"d/m/Y" }}</strong></td>
+                <td>
+                  {{ p.creneau.heure_debut|time:"H\hi" }} –
+                  {{ p.creneau.heure_fin|time:"H\hi" }}
+                </td>
+                <td>
+                  {% if p.statut == 'present' %}
+                    <span class="badge badge-present">✓ Présent</span>
+                  {% elif p.statut == 'absent' %}
+                    <span class="badge badge-absent">✗ Absent</span>
+                  {% else %}
+                    <span class="badge badge-retard">⏱ Retard</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <div class="empty-emoji">📋</div>
+        <p>Aucune présence enregistrée.</p>
+      </div>
+    {% endif %}
+  </div>
+
+{% endif %}
+
+{% endblock %}

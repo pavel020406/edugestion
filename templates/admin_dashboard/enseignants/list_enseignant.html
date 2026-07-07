@@ -1,0 +1,106 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Gestion des enseignants{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/enseignants/add.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/enseignants/list.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/detail.css' %}">
+<link rel="stylesheet" href="{% static 'css/dashboard_enseignant/list.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/message.css' %}">
+{% endblock %}
+
+{% block content %}
+
+  <div class="form-page-header">
+    <h1 class="form-page-title">
+      <span class="title-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6"/></svg>
+      </span>
+      Gestion des enseignants
+    </h1>
+    <a href="{% url 'add_enseignant' %}" class="btn btn-primary btn-sm">+ Ajouter un enseignant</a>
+  </div>
+
+  <!-- ---------- Messages ---------- -->
+  {% if messages %}
+    <div class="form-messages">
+      {% for message in messages %}
+        <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+          <span>{{ message }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- ---------- Barre de filtre ---------- -->
+  <form method="get" class="filter-bar">
+    <input type="search" name="search" placeholder="Rechercher un enseignant..." value="{{ request.GET.search }}">
+    <button type="submit" class="btn btn-primary btn-sm">Filtrer</button>
+    <a href="{% url 'list_enseignant' %}" class="btn btn-ghost btn-sm">Réinitialiser</a>
+  </form>
+
+  <!-- ---------- Liste des enseignants ---------- -->
+  <div class="list-card">
+    <div class="list-card-header">
+      <h2>Liste des enseignants</h2>
+      <span class="list-card-count">{{ total }} enseignant(s)</span>
+    </div>
+
+    {% if enseignants %}
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Enseignant</th>
+              <th>Domaine</th>
+              <th>Téléphone</th>
+              <th>Classe principale</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for enseignant in enseignants %}
+              <tr>
+                <td>
+                  <div class="eleve-cell">
+                    <span class="gender-emoji" aria-hidden="true">{% if enseignant.sexe == 'M' %}👨{% else %}👩{% endif %}</span>
+                    <strong>{{ enseignant.first_name }} {{ enseignant.last_name }}</strong>
+                  </div>
+                </td>
+                <td>{% if enseignant.domaine_enseignement %}{{ enseignant.domaine_enseignement }}{% else %}<span style="color: var(--text-faint);">—</span>{% endif %}</td>
+                <td>{{ enseignant.telephone|default:"—" }}</td>
+                <td>
+                  {% if enseignant.classe_principale %}
+                    <span class="class-chip">{{ enseignant.classe_principale }}</span>
+                  {% else %}
+                    <span style="color: var(--text-faint);">— Aucune —</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <div class="action-buttons">
+                    <a href="{% url 'detail_enseignant' enseignant.id %}" class="btn-xs btn-xs-view">Voir</a>
+                    <a href="{% url 'edit_enseignant' enseignant.id %}" class="btn-xs btn-xs-edit">Modifier</a>
+                    <form method="post" action="{% url 'delete_enseignant' enseignant.id %}" style="display:inline;" onsubmit="return confirm('Supprimer {{ enseignant.first_name }} {{ enseignant.last_name }} ?');">
+                      {% csrf_token %}
+                      <button type="submit" class="btn-xs btn-xs-delete">Supprimer</button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <div class="empty-emoji" aria-hidden="true">👨‍🏫</div>
+        <p>Aucun enseignant trouvé</p>
+        <a href="{% url 'add_enseignant' %}" class="btn btn-primary">+ Ajouter le premier enseignant</a>
+      </div>
+    {% endif %}
+  </div>
+
+{% endblock %}

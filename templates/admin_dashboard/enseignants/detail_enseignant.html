@@ -1,0 +1,123 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}{{ enseignant.first_name }} {{ enseignant.last_name }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/enseignants/add.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/enseignants/list.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/enseignants/detail.css' %}">
+{% endblock %}
+
+{% block content %}
+
+  <div class="form-page-header">
+    <h1 class="form-page-title">
+      <span class="title-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6"/></svg>
+      </span>
+      Fiche enseignant
+    </h1>
+    <a href="{% url 'list_enseignant' %}" class="btn btn-ghost btn-sm">Retour à la liste</a>
+  </div>
+
+  {% if messages %}
+    <div class="form-messages">
+      {% for message in messages %}
+        <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+          <span>{{ message }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="detail-card">
+
+    <div class="detail-header">
+      <div class="detail-avatar" aria-hidden="true">{{ enseignant.first_name|first|upper }}{{ enseignant.last_name|first|upper }}</div>
+      <div>
+        <h2>{{ enseignant.first_name }} {{ enseignant.last_name }}</h2>
+        <p>{{ enseignant.username }}</p>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <h3 class="detail-section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6"/></svg>
+        Informations personnelles
+      </h3>
+      <div class="detail-grid">
+        <div class="detail-field">
+          <label>Sexe</label>
+          <div class="detail-value">{{ enseignant.get_sexe_display }}</div>
+        </div>
+        <div class="detail-field">
+          <label>Téléphone</label>
+          <div class="detail-value {% if not enseignant.telephone %}empty{% endif %}">{{ enseignant.telephone|default:"— Non renseigné —" }}</div>
+        </div>
+        <div class="detail-field">
+          <label>Email</label>
+          <div class="detail-value {% if not enseignant.email %}empty{% endif %}">{{ enseignant.email|default:"— Non renseigné —" }}</div>
+        </div>
+        <div class="detail-field">
+          <label>Domaine d'enseignement</label>
+          <div class="detail-value {% if not enseignant.domaine_enseignement %}empty{% endif %}">{{ enseignant.domaine_enseignement|default:"— Non renseigné —" }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <h3 class="detail-section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 11l8-6 8 6"/><path d="M6 10v9h12v-9"/><path d="M10 19v-5h4v5"/></svg>
+        Classe principale
+      </h3>
+      <div class="detail-value {% if not enseignant.classe_principale %}empty{% endif %}">
+        {% if enseignant.classe_principale %}{{ enseignant.classe_principale }}{% else %}— Aucune classe principale assignée —{% endif %}
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <h3 class="detail-section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="12" rx="1.5"/><path d="M9 20h6M12 16v4"/></svg>
+        Matières enseignées
+      </h3>
+      {% if matieres_enseignees %}
+        <div class="data-table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Matière</th>
+                <th>Classe</th>
+                <th>Coefficient</th>
+                <th>Heures / semaine</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for cm in matieres_enseignees %}
+                <tr>
+                  <td><strong>{{ cm.matiere.nom_matiere }}</strong></td>
+                  <td>{{ cm.classe }}</td>
+                  <td>{{ cm.coefficient }}</td>
+                  <td>{{ cm.heures_semaine }} h</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="detail-value empty">— Aucune matière assignée pour l'instant —</p>
+      {% endif %}
+    </div>
+
+    <div class="detail-actions">
+      <form method="post" action="{% url 'delete_enseignant' enseignant.id %}" style="display:inline;" onsubmit="return confirm('Supprimer définitivement {{ enseignant.first_name }} {{ enseignant.last_name }} ?');">
+        {% csrf_token %}
+        <button type="submit" class="btn-xs btn-xs-delete" style="padding: 0.6rem 1.2rem; font-size: 0.85rem;">Supprimer</button>
+      </form>
+      <a href="{% url 'edit_enseignant' enseignant.id %}" class="btn btn-primary">Modifier</a>
+    </div>
+
+  </div>
+
+{% endblock %}

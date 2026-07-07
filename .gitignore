@@ -1,0 +1,24 @@
+# Environnement virtuel
+venv/
+
+# Cache Python
+__pycache__/
+*.py[cod]
+
+# Base de données SQLite
+db.sqlite3
+
+# Fichiers médias
+media/
+
+# Fichiers statiques générés
+staticfiles/
+
+# Variables d'environnement
+.env
+
+# VS Code
+.vscode/
+
+# PyCharm
+.idea/

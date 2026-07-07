@@ -1,0 +1,202 @@
+/* ============================================================
+   frais/detail.css — page détail des frais d'une classe
+   ============================================================ */
+
+.pdf-current {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--sec-blue-50);
+  border: 1px solid var(--sec-blue-100);
+  border-radius: .6rem;
+  padding: .7rem .9rem;
+  margin-bottom: .9rem;
+  font-size: .85rem;
+  color: var(--sec-blue-900);
+}
+
+/* ── Carte liste (tranches) ── */
+.list-card {
+  background: #ffffff;
+  border: 1px solid var(--sec-blue-100);
+  border-radius: .9rem;
+  overflow: hidden;
+}
+
+.list-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--sec-gray-100);
+}
+.list-card-header h2 { font-size: .95rem; font-weight: 700; color: var(--sec-blue-900); margin: 0; }
+
+.data-table-wrap { overflow-x: auto; }
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table thead th {
+  text-align: left; font-size: .72rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .03em; color: var(--sec-gray-500); background: var(--sec-gray-100);
+  padding: .7rem 1.1rem;
+}
+.data-table tbody td {
+  padding: .7rem 1.1rem; font-size: .85rem; color: var(--sec-gray-700);
+  border-bottom: 1px solid var(--sec-gray-100);
+}
+.data-table tbody tr:last-child td { border-bottom: none; }
+.data-table tbody tr:hover { background: var(--sec-blue-50); }
+
+.action-buttons { display: flex; gap: .4rem; }
+
+.tranches-total {
+  padding: .9rem 1.25rem;
+  font-size: .85rem;
+  color: var(--sec-gray-700);
+  border-top: 1px solid var(--sec-gray-100);
+}
+.tranches-warning {
+  display: inline-block;
+  margin-left: .6rem;
+  color: #b45309;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 999px;
+  padding: .1rem .6rem;
+  font-size: .72rem;
+  font-weight: 600;
+}
+
+/* ── État vide ── */
+.empty-state {
+  display: flex; flex-direction: column; align-items: center; gap: .6rem;
+  padding: 2.5rem 1.5rem; text-align: center;
+}
+.empty-emoji { font-size: 2.2rem; }
+.empty-state p { font-size: .9rem; color: var(--sec-gray-500); margin: 0; }
+/* ============================================================
+   À AJOUTER à la fin de detail_classe.css
+   Corrections : bouton disabled + styles partage propres
+   ============================================================ */
+
+/* ── Bouton désactivé ── */
+.btn-xs-disabled {
+  background: var(--gray-100);
+  border-color: var(--gray-200);
+  color: var(--gray-400);
+  cursor: not-allowed;
+  opacity: 0.6;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.26rem 0.65rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1.5px solid transparent;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+/* ── Section partage ── */
+.partage-hint {
+  font-size: 0.82rem;
+  color: var(--gray-500);
+  line-height: 1.6;
+  padding: 0.85rem 1.25rem 0;
+}
+
+.partage-body {
+  padding: 0.85rem 1.25rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.partage-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.8rem 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--gray-200);
+  background: var(--gray-50);
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  transition: border-color var(--transition), background var(--transition);
+}
+
+.partage-row.partage-actif {
+  background: var(--green-50);
+  border-color: var(--green-300);
+}
+
+.partage-row-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.partage-row-title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--gray-900);
+}
+
+.partage-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.badge-partage {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.badge-partage-oui  {
+  background: var(--green-100);
+  color: var(--green-700);
+  border-color: var(--green-300);
+}
+
+.badge-partage-non  {
+  background: var(--gray-100);
+  color: var(--gray-500);
+  border-color: var(--gray-300);
+}
+
+.badge-partage-warn {
+  background: var(--amber-100);
+  color: var(--amber-700);
+  border-color: var(--amber-300);
+}
+
+/* ── Bouton success ── */
+.btn-xs-success {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.26rem 0.65rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1.5px solid var(--green-600);
+  background: var(--green-600);
+  color: #ffffff;
+  text-decoration: none;
+  transition: background var(--transition), border-color var(--transition);
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+.btn-xs-success:hover {
+  background: var(--green-700);
+  border-color: var(--green-700);
+}

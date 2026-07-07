@@ -1,0 +1,276 @@
+{% extends 'dashboard_eleve/base_eleve.html' %}
+{% load static %}
+
+{% block page_title %}Mon profil{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard_eleve/eleve.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="form-page-header">
+  <h1 class="form-page-title">
+    <span class="title-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <circle cx="12" cy="8" r="4"/>
+        <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+      </svg>
+    </span>
+    Mon profil
+  </h1>
+</div>
+
+{% if messages %}
+  <div class="form-messages">
+    {% for message in messages %}
+      <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/>
+        </svg>
+        <span>{{ message }}</span>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<div class="profil-grid">
+
+  <!-- ── Carte identité ── -->
+  <div class="profil-identity-card">
+    <div class="profil-avatar">
+      {% if request.user.photo_profil %}
+        <img src="{{ request.user.photo_profil.url }}" alt="Photo de profil">
+      {% else %}
+        <span class="profil-avatar-initials">
+          {{ eleve.prenom|first|upper }}{{ eleve.nom|first|upper }}
+        </span>
+      {% endif %}
+    </div>
+
+    <div class="profil-name">{{ eleve.prenom }} {{ eleve.nom }}</div>
+    <div class="profil-matricule">{{ eleve.matricule }}</div>
+
+    {% if eleve.classe %}
+      <span class="profil-classe-badge">{{ eleve.classe }}</span>
+    {% endif %}
+
+    <div class="profil-info-list">
+      <div class="profil-info-item">
+        <span class="profil-info-label">Date de naissance</span>
+        <span class="profil-info-value">{{ eleve.date_naissance|date:"d/m/Y" }}</span>
+      </div>
+      <div class="profil-info-item">
+        <span class="profil-info-label">Sexe</span>
+        <span class="profil-info-value">{{ eleve.get_sexe_display }}</span>
+      </div>
+      <div class="profil-info-item">
+        <span class="profil-info-label">Date d'inscription</span>
+        <span class="profil-info-value">{{ eleve.date_inscription|date:"d/m/Y" }}</span>
+      </div>
+      <div class="profil-info-item">
+        <span class="profil-info-label">Nom d'utilisateur</span>
+        <span class="profil-info-value">{{ request.user.username }}</span>
+      </div>
+    </div>
+
+    <!-- Parent / tuteur -->
+    <div class="profil-section-title">Parent / Tuteur</div>
+    <div class="profil-info-list">
+      <div class="profil-info-item">
+        <span class="profil-info-label">Nom</span>
+        <span class="profil-info-value">{{ eleve.nom_parent }}</span>
+      </div>
+      <div class="profil-info-item">
+        <span class="profil-info-label">Téléphone</span>
+        <span class="profil-info-value">{{ eleve.telephone_parent }}</span>
+      </div>
+      {% if eleve.email_parent %}
+        <div class="profil-info-item">
+          <span class="profil-info-label">Email</span>
+          <span class="profil-info-value">{{ eleve.email_parent }}</span>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ── Formulaire modification ── -->
+  <div class="profil-form-card">
+
+    <form method="post" enctype="multipart/form-data" novalidate>
+      {% csrf_token %}
+
+      <!-- Photo de profil -->
+      <div class="profil-form-section">
+        <h2 class="profil-form-section-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <path d="M21 15l-5-5L5 21"/>
+          </svg>
+          Photo de profil
+        </h2>
+        <div class="profil-photo-upload">
+          <div class="profil-photo-preview" id="photoPreview">
+            {% if request.user.photo_profil %}
+              <img src="{{ request.user.photo_profil.url }}" alt="Photo actuelle" id="previewImg">
+            {% else %}
+              <span class="photo-placeholder" id="photoPlaceholder">
+                {{ eleve.prenom|first|upper }}{{ eleve.nom|first|upper }}
+              </span>
+              <img src="" alt="" id="previewImg" style="display:none;">
+            {% endif %}
+          </div>
+          <div class="profil-photo-actions">
+            <label for="photo_profil" class="btn btn-ghost btn-sm" style="cursor:pointer;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:.9rem;height:.9rem;">
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+              </svg>
+              Changer la photo
+            </label>
+            <input type="file" id="photo_profil" name="photo_profil"
+                   accept="image/*" style="display:none;"
+                   onchange="previewPhoto(this)">
+            <small style="color:var(--gray-400); font-size:0.72rem;">
+              JPG, PNG — max 2 Mo
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div class="profil-form-section">
+        <h2 class="profil-form-section-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+            <path d="M22 6l-10 7L2 6"/>
+          </svg>
+          Adresse email
+        </h2>
+        <div class="profil-form-field">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email"
+                 value="{{ request.user.email|default:'' }}"
+                 placeholder="votre@email.com">
+        </div>
+      </div>
+
+      <!-- Mot de passe -->
+      <div class="profil-form-section">
+        <h2 class="profil-form-section-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <rect x="3" y="11" width="18" height="11" rx="2"/>
+            <path d="M7 11V7a5 5 0 0110 0v4"/>
+          </svg>
+          Changer le mot de passe
+        </h2>
+
+        <div class="profil-info-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+               style="width:1rem;height:1rem;flex-shrink:0;color:var(--blue-600);">
+            <circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/>
+          </svg>
+          <span>Laissez ce champ vide pour conserver votre mot de passe actuel.</span>
+        </div>
+
+        <div class="profil-form-field">
+          <label for="password">Nouveau mot de passe</label>
+          <div class="password-wrap">
+            <input type="password" id="password" name="password"
+                   placeholder="Nouveau mot de passe (vide = inchangé)"
+                   autocomplete="new-password">
+            <button type="button" class="toggle-password"
+                    onclick="togglePwd('password', 'eye1')"
+                    title="Afficher / Masquer">
+              <svg id="eye1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="profil-form-field">
+          <label for="password_confirm">Confirmer le mot de passe</label>
+          <div class="password-wrap">
+            <input type="password" id="password_confirm" name="password_confirm"
+                   placeholder="Répétez le nouveau mot de passe"
+                   autocomplete="new-password">
+            <button type="button" class="toggle-password"
+                    onclick="togglePwd('password_confirm', 'eye2')"
+                    title="Afficher / Masquer">
+              <svg id="eye2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
+          </div>
+          <small id="mdp-error" style="color:var(--red-600); display:none; font-size:0.75rem;">
+            Les mots de passe ne correspondent pas.
+          </small>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <a href="{% url 'dashboard_eleve' %}" class="btn btn-ghost">Annuler</a>
+        <button type="submit" class="btn btn-primary" id="submitBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               style="width:1rem;height:1rem;">
+            <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v14a2 2 0 01-2 2z"/>
+            <path d="M17 21v-8H7v8M7 3v5h8"/>
+          </svg>
+          Enregistrer les modifications
+        </button>
+      </div>
+
+    </form>
+  </div>
+
+</div>
+
+<script>
+// Prévisualisation photo
+function previewPhoto(input) {
+  if (input.files && input.files[0]) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var img = document.getElementById('previewImg');
+      var placeholder = document.getElementById('photoPlaceholder');
+      img.src = e.target.result;
+      img.style.display = 'block';
+      if (placeholder) placeholder.style.display = 'none';
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+// Toggle password
+function togglePwd(inputId, iconId) {
+  var input = document.getElementById(inputId);
+  var icon  = document.getElementById(iconId);
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+  } else {
+    input.type = 'password';
+    icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+  }
+}
+
+// Validation confirmation mot de passe
+document.getElementById('submitBtn').addEventListener('click', function(e) {
+  var pwd1  = document.getElementById('password').value;
+  var pwd2  = document.getElementById('password_confirm').value;
+  var error = document.getElementById('mdp-error');
+
+  if (pwd1 && pwd1 !== pwd2) {
+    e.preventDefault();
+    error.style.display = 'block';
+    document.getElementById('password_confirm').focus();
+  } else {
+    error.style.display = 'none';
+  }
+});
+</script>
+
+{% endblock %}

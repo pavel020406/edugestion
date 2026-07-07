@@ -1,0 +1,166 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Tableau de bord{% endblock %}
+
+{% block extra_css %}
+
+<link rel="stylesheet" href="{% static 'css/parent/dashboard.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/add_eleve.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/detail.css' %}">
+<link rel="stylesheet" href="{% static 'css/dashboard_enseignant/list.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/message.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="form-page-header">
+  <h1 class="form-page-title">
+    <span class="title-icon" aria-hidden="true">👨‍👩‍👧</span>
+    Tableau de bord parent
+  </h1>
+</div>
+
+{% if messages %}
+  <div class="form-messages">
+    {% for message in messages %}
+      <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span>{{ message }}</span>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+{% if enfants.count > 1 %}
+  <div class="enfant-selector">
+    <span class="enfant-selector-label">Mes enfants :</span>
+    {% for e in enfants %}
+      <a href="{% url 'parent_choisir_enfant' e.id %}"
+         class="enfant-chip {% if enfant.id == e.id %}enfant-chip-actif{% endif %}">
+        <span class="enfant-chip-avatar">{{ e.nom|first|upper }}{{ e.prenom|first|upper }}</span>
+        {{ e.nom }} {{ e.prenom }}
+      </a>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<div class="enfant-card">
+  <div class="enfant-card-header">
+    <div class="enfant-card-avatar">{{ enfant.nom|first|upper }}{{ enfant.prenom|first|upper }}</div>
+    <div>
+      <h2>{{ enfant.nom }} {{ enfant.prenom }}</h2>
+      <span class="recu-matricule">{{ enfant.matricule }}</span>
+      {% if enfant.classe %}<span class="class-chip">{{ enfant.classe }}</span>{% endif %}
+    </div>
+  </div>
+
+  <div class="enfant-card-info-grid">
+    <div class="enfant-card-info">
+      <span>Date de naissance</span>
+      <strong>{{ enfant.date_naissance|date:"d/m/Y" }}</strong>
+    </div>
+    <div class="enfant-card-info">
+      <span>Sexe</span>
+      <strong>{{ enfant.get_sexe_display }}</strong>
+    </div>
+    <div class="enfant-card-info">
+      <span>Classe</span>
+      <strong>{% if enfant.classe %}{{ enfant.classe }}{% else %}Non assignée{% endif %}</strong>
+    </div>
+    <div class="enfant-card-info">
+      <span>Date d'inscription</span>
+      <strong>{{ enfant.date_inscription|date:"d/m/Y" }}</strong>
+    </div>
+  </div>
+</div>
+
+<div class="parent-frais-section">
+  <h3 class="recu-tranches-title">
+    💰 Frais — {{ enfant.classe.get_niveau_display|default:"Niveau non assigné" }}
+  </h3>
+
+  {% if statut.frais %}
+    <div class="paiement-statut-grid">
+      <div class="paiement-statut-bloc">
+        <span>Total dû</span><strong>{{ statut.total_du }} FCFA</strong>
+      </div>
+      <div class="paiement-statut-bloc">
+        <span>Total payé</span><strong>{{ statut.total_paye }} FCFA</strong>
+      </div>
+      <div class="paiement-statut-bloc {% if statut.solde > 0 %}paiement-statut-restant{% else %}paiement-statut-ok{% endif %}">
+        <span>Solde restant</span><strong>{{ statut.solde }} FCFA</strong>
+      </div>
+    </div>
+
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr><th>Échéance</th><th>Montant</th><th>Date limite</th><th>Statut</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Frais d'inscription</td>
+            <td>{{ statut.frais.montant_inscription }} FCFA</td>
+            <td>—</td>
+            <td>
+              {% if statut.inscription_payee %}
+                <span class="msg-statut msg-statut-lu">✓ Payé</span>
+              {% else %}
+                <span class="msg-statut msg-statut-non-lu">En attente</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% for t in statut.tranches_statut %}
+            <tr>
+              <td>{{ t.tranche.libelle }}</td>
+              <td>{{ t.tranche.montant }} FCFA</td>
+              <td>{{ t.tranche.date_limite|date:"d/m/Y" }}</td>
+              <td>
+                {% if t.payee %}
+                  <span class="msg-statut msg-statut-lu">✓ Payé</span>
+                {% elif t.en_retard %}
+                  <span class="tag-retard">En retard</span>
+                {% else %}
+                  <span class="msg-statut msg-statut-non-lu">En attente</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% if statut.frais.fichier_pdf %}
+      <a href="{{ statut.frais.fichier_pdf.url }}" target="_blank" class="btn btn-ghost btn-sm">
+        📄 Consulter le programme scolaire (PDF)
+      </a>
+    {% endif %}
+  {% else %}
+    <p style="color: var(--gray-500); font-size:.85rem;">Aucun tarif n'a encore été configuré pour ce niveau.</p>
+  {% endif %}
+
+  <div style="margin-top: 1rem;">
+    <a href="{% url 'parent_frais_niveaux' %}" class="btn btn-ghost btn-sm">📋 Voir les tarifs de tous les niveaux</a>
+  </div>
+</div>
+
+<div class="parent-bientot-grid">
+  <a href="{% url 'parent_notes' %}" class="parent-bientot-card parent-bientot-card-actif">
+    <div class="parent-bientot-icon">📊</div>
+    <strong>Notes &amp; Bulletins</strong>
+    <span>Consulter les notes et télécharger les bulletins</span>
+  </a>
+  <a href="{% url 'parent_emploi_du_temps' %}" class="parent-bientot-card parent-bientot-card-actif">
+    <div class="parent-bientot-icon">🗓️</div>
+    <strong>Emploi du temps</strong>
+    <span>Voir la grille hebdomadaire</span>
+  </a>
+  <a href="{% url 'parent_messages' %}" class="parent-bientot-card parent-bientot-card-actif">
+    <div class="parent-bientot-icon">✉️</div>
+    <strong>Messagerie</strong>
+    <span>Envoyer et recevoir des messages</span>
+  </a>
+</div>
+
+{% endblock %}

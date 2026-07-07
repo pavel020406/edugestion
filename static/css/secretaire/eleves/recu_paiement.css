@@ -1,0 +1,155 @@
+/* ============================================================
+   eleves/recu_paiement.css — CSS complet et autonome
+   pour la page "Reçu de paiement" (paiement actuel + historique)
+   ============================================================ */
+
+/* ── Carte principale ── */
+.recu-card {
+  background: #fff;
+  border: 1px solid var(--sec-blue-100);
+  border-radius: .9rem;
+  padding: 1.5rem;
+  max-width: 760px;
+}
+
+/* ── En-tête élève ── */
+.recu-eleve-header {
+  display: flex;
+  align-items: center;
+  gap: .9rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--sec-gray-100);
+  margin-bottom: 1.1rem;
+}
+.recu-eleve-header h2 { margin: 0 0 .3rem; color: var(--sec-blue-900); font-size: 1.1rem; }
+
+.sec-avatar {
+  width: 2.2rem; height: 2.2rem; border-radius: 50%;
+  background: var(--sec-blue-600); color: #fff;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: .8rem; flex-shrink: 0;
+}
+
+.recu-matricule {
+  font-size: .7rem; font-weight: 700; color: var(--sec-blue-700);
+  background: var(--sec-blue-50); border: 1px solid var(--sec-blue-200);
+  border-radius: 999px; padding: .1rem .55rem; margin-right: .5rem;
+}
+
+.class-chip {
+  display: inline-flex; align-items: center;
+  font-size: .72rem; font-weight: 600; color: var(--sec-blue-700);
+  background: var(--sec-blue-50); border: 1px solid var(--sec-blue-200);
+  border-radius: 999px; padding: .15rem .55rem;
+}
+
+/* ── Titres de section ── */
+.recu-tranches-title {
+  font-size: .92rem;
+  font-weight: 700;
+  color: var(--sec-blue-900);
+  margin: 1.3rem 0 .6rem;
+}
+
+/* ── Bloc paiement actuel ── */
+.recu-montants {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+.recu-montant-bloc {
+  flex: 1; min-width: 160px;
+  background: var(--sec-blue-50);
+  border: 1px solid var(--sec-blue-100);
+  border-radius: .6rem;
+  padding: .8rem .9rem;
+  display: flex; flex-direction: column; gap: .3rem;
+}
+.recu-montant-bloc span { font-size: .72rem; color: var(--sec-gray-500); }
+.recu-montant-bloc strong { font-size: 1.05rem; color: var(--sec-blue-900); }
+.recu-montant-total { background: var(--sec-blue-900); border-color: var(--sec-blue-900); }
+.recu-montant-total span, .recu-montant-total strong { color: #fff; }
+
+/* ── État global (total dû / payé / solde) ── */
+.paiement-statut-grid {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.1rem;
+}
+.paiement-statut-bloc {
+  flex: 1; min-width: 140px;
+  background: var(--sec-gray-100);
+  border-radius: .6rem;
+  padding: .8rem .9rem;
+  display: flex; flex-direction: column; gap: .3rem;
+}
+.paiement-statut-bloc span { font-size: .72rem; color: var(--sec-gray-500); }
+.paiement-statut-bloc strong { font-size: 1.05rem; color: var(--sec-blue-900); }
+.paiement-statut-restant { background: #fef2f2; }
+.paiement-statut-restant strong { color: #b91c1c; }
+.paiement-statut-ok { background: #f0fdf4; }
+.paiement-statut-ok strong { color: #15803d; }
+
+/* ── Tableaux (échéances + historique) ── */
+.data-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--sec-blue-100);
+  border-radius: .7rem;
+  margin-bottom: 1.1rem;
+}
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.data-table thead th {
+  text-align: left;
+  font-size: .72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  color: #fff;
+  background: var(--sec-blue-900);
+  padding: .7rem 1rem;
+}
+.data-table tbody td {
+  padding: .65rem 1rem;
+  font-size: .85rem;
+  color: var(--sec-gray-700);
+  border-bottom: 1px solid var(--sec-gray-100);
+}
+.data-table tbody tr:last-child td { border-bottom: none; }
+.data-table tbody tr:nth-child(even) { background: var(--sec-blue-50); }
+.data-table tbody tr:hover { background: var(--sec-blue-100); }
+
+/* ── Badges de statut ── */
+.msg-statut {
+  display: inline-flex; align-items: center; gap: .3rem;
+  font-size: .72rem; font-weight: 600; padding: .2rem .55rem; border-radius: 999px;
+}
+.msg-statut-lu     { background: #dcfce7; color: #15803d; }
+.msg-statut-non-lu { background: var(--sec-blue-50); color: var(--sec-blue-700); }
+
+.tag-retard {
+  display: inline-flex; align-items: center;
+  font-size: .68rem; font-weight: 700;
+  color: #b91c1c; background: #fee2e2; border: 1px solid #fecaca;
+  border-radius: 999px; padding: .1rem .5rem;
+}
+
+/* ── Boutons d'action en bas de page ── */
+.form-actions {
+  display: flex;
+  gap: .6rem;
+  flex-wrap: wrap;
+  margin-top: 1.3rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--sec-gray-100);
+}
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .recu-card { padding: 1.1rem; }
+  .recu-montants, .paiement-statut-grid { flex-direction: column; }
+}

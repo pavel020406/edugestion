@@ -1,0 +1,188 @@
+/* ============================================================
+   EduGestion — notes.css
+   Parcours Niveau → Classes → Matières → Saisie des notes
+   ============================================================ */
+
+.notes-breadcrumb-hint {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  margin-bottom: var(--space-md);
+}
+
+/* ---------- Cartes de navigation (niveau / classe / matière) ---------- */
+.notes-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-md);
+}
+
+.notes-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.notes-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.notes-card-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notes-card-icon svg {
+  width: 19px;
+  height: 19px;
+}
+
+.notes-card strong {
+  font-size: 1.02rem;
+  color: var(--text);
+}
+
+.notes-card small {
+  font-size: 0.8rem;
+  color: var(--text-faint);
+}
+
+/* ---------- Onglets de semestre ---------- */
+.semestre-tabs {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: var(--space-md);
+  border-bottom: 1px solid var(--border);
+}
+
+.semestre-tab {
+  padding: 0.65rem 1.2rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+
+.semestre-tab:hover {
+  color: var(--text);
+}
+
+.semestre-tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+/* ---------- Tableau de saisie ---------- */
+.notes-form .data-table-wrap {
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.notes-table th,
+.notes-table td {
+  text-align: center;
+}
+
+.notes-table th:first-child,
+.notes-table td:first-child {
+  text-align: left;
+}
+
+.notes-matricule {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  color: var(--text-faint);
+  margin-top: 0.15rem;
+}
+
+.note-input {
+  width: 64px;
+  text-align: center;
+  padding: 0.45rem 0.3rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: var(--text);
+  background: var(--bg);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.note-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.note-input::placeholder {
+  color: var(--text-faint);
+}
+
+/* Empêche les flèches natives du input[type=number] de prendre trop de place */
+.note-input::-webkit-inner-spin-button,
+.note-input::-webkit-outer-spin-button {
+  opacity: 0.4;
+}
+
+.moyenne-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 56px;
+  padding: 0.35rem 0.6rem;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  background: rgba(28, 157, 111, 0.1);
+  color: var(--success);
+}
+
+.moyenne-badge.empty {
+  background: var(--surface-2);
+  color: var(--text-faint);
+  font-weight: 600;
+}
+
+.notes-form-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  background: var(--bg-soft);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  border-top: 1px solid var(--border-soft);
+}
+
+.notes-form-footer .field-hint {
+  margin: 0;
+}
+
+@media (max-width: 980px) {
+  .notes-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .notes-grid {
+    grid-template-columns: 1fr;
+  }
+  .notes-form-footer {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+}

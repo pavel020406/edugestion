@@ -1,0 +1,229 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Appel — {{ classe }} — {{ creneau }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard_enseignant/presences.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="form-page-header">
+  <h1 class="form-page-title">
+    <span class="title-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M9 11l3 3L22 4"/>
+        <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+      </svg>
+    </span>
+    Appel — {{ creneau.heure_debut|time:"H\hi" }}–{{ creneau.heure_fin|time:"H\hi" }}
+  </h1>
+  <a href="{% url 'enseignant_presences_creneaux' classe.id %}?date={{ date_appel }}"
+     class="btn btn-ghost btn-sm">Retour aux cours</a>
+</div>
+
+<!-- Fiche cours -->
+<div class="cours-info-bar">
+  <div class="cours-info-item">
+    <span class="ci-label">Classe</span>
+    <strong>{{ classe }}</strong>
+  </div>
+  <div class="cours-info-item">
+    <span class="ci-label">Créneau</span>
+    <strong>{{ creneau.heure_debut|time:"H\hi" }} – {{ creneau.heure_fin|time:"H\hi" }}</strong>
+  </div>
+  <div class="cours-info-item">
+    <span class="ci-label">Date</span>
+    <strong>{{ date_appel }}</strong>
+  </div>
+  {% if deja_verrouille %}
+    <div class="cours-info-item">
+      <span class="badge badge-locked">✓ Appel verrouillé</span>
+    </div>
+  {% endif %}
+</div>
+
+{% if messages %}
+  <div class="form-messages">
+    {% for message in messages %}
+      <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span>{{ message }}</span>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<form method="post">
+  {% csrf_token %}
+  <input type="hidden" name="date" value="{{ date_appel }}">
+
+  <div class="list-card">
+    <div class="list-card-header">
+      <h2>Liste des élèves</h2>
+      <span class="list-card-count">{{ lignes|length }} élève(s)</span>
+    </div>
+
+    {% if not deja_verrouille %}
+    <div class="quick-actions">
+      <span class="quick-label">Tout marquer :</span>
+      <button type="button" class="btn-xs btn-xs-present" onclick="marquerTous('present')">✓ Tous présents</button>
+      <button type="button" class="btn-xs btn-xs-absent"  onclick="marquerTous('absent')">✗ Tous absents</button>
+    </div>
+    {% endif %}
+
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th style="width:36px;">#</th>
+            <th>Nom et Prénom</th>
+            <th>Matricule</th>
+           <th class="th-statut">Statut</th>
+<th style="text-align:center; width:80px;">Justifiée</th>
+ 
+{# Et dans chaque ligne élève : #}
+ 
+<td class="td-statut">
+  {% if deja_verrouille %}
+    {# Lecture seule #}
+    {% if ligne.statut == 'present' %}
+      <span class="badge badge-present">Présent</span>
+    {% elif ligne.statut == 'absent' %}
+      <span class="badge badge-absent">Absent</span>
+    {% else %}
+      <span class="badge badge-retard">Retard</span>
+    {% endif %}
+  {% else %}
+    <div class="statut-group" data-eleve="{{ ligne.eleve.id }}">
+      <label class="statut-btn statut-present {% if ligne.statut == 'present' %}active{% endif %}">
+        <input type="radio" name="statut_{{ ligne.eleve.id }}" value="present"
+               {% if ligne.statut == 'present' %}checked{% endif %} hidden>Présent
+      </label>
+      <label class="statut-btn statut-absent {% if ligne.statut == 'absent' %}active{% endif %}">
+        <input type="radio" name="statut_{{ ligne.eleve.id }}" value="absent"
+               {% if ligne.statut == 'absent' %}checked{% endif %} hidden>Absent
+      </label>
+      <label class="statut-btn statut-retard {% if ligne.statut == 'retard' %}active{% endif %}">
+        <input type="radio" name="statut_{{ ligne.eleve.id }}" value="retard"
+               {% if ligne.statut == 'retard' %}checked{% endif %} hidden>Retard
+      </label>
+    </div>
+  {% endif %}
+</td>
+ 
+{# ── Colonne justifiée ── #}
+<td style="text-align:center;">
+  {% if deja_verrouille %}
+    {% if ligne.justifiee %}
+      <span style="color:var(--green-700); font-size:.8rem; font-weight:600;">✓</span>
+    {% else %}
+      <span style="color:var(--gray-300);">—</span>
+    {% endif %}
+  {% else %}
+    <label style="display:inline-flex;align-items:center;gap:.3rem;cursor:pointer;
+                  font-size:.75rem;color:var(--gray-600);">
+      <input type="checkbox" name="justifiee_{{ ligne.eleve.id }}"
+             value="1"
+             {% if ligne.justifiee %}checked{% endif %}
+             style="width:1rem;height:1rem;accent-color:var(--green-600);">
+      Justifiée
+    </label>
+  {% endif %}
+</td>
+ 
+          </tr>
+        </thead>
+        <tbody>
+          {% for ligne in lignes %}
+            <tr class="eleve-row statut-{{ ligne.statut_actuel }}">
+              <td>{{ forloop.counter }}</td>
+              <td><strong>{{ ligne.eleve.nom }} {{ ligne.eleve.prenom }}</strong></td>
+              <td style="color: var(--gray-500); font-size:0.8rem;">{{ ligne.eleve.matricule }}</td>
+              <td class="td-statut">
+                {% if deja_verrouille %}
+                  {% if ligne.statut_actuel == 'present' %}
+                    <span class="badge badge-present">Présent</span>
+                  {% elif ligne.statut_actuel == 'absent' %}
+                    <span class="badge badge-absent">Absent</span>
+                  {% else %}
+                    <span class="badge badge-retard">Retard</span>
+                  {% endif %}
+                {% else %}
+                  <div class="statut-group">
+                    <label class="statut-btn statut-present {% if ligne.statut_actuel == 'present' %}active{% endif %}">
+                      <input type="radio" name="statut_{{ ligne.eleve.id }}" value="present"
+                             {% if ligne.statut_actuel == 'present' %}checked{% endif %} hidden>
+                      Présent
+                    </label>
+                    <label class="statut-btn statut-absent {% if ligne.statut_actuel == 'absent' %}active{% endif %}">
+                      <input type="radio" name="statut_{{ ligne.eleve.id }}" value="absent"
+                             {% if ligne.statut_actuel == 'absent' %}checked{% endif %} hidden>
+                      Absent
+                    </label>
+                    <label class="statut-btn statut-retard {% if ligne.statut_actuel == 'retard' %}active{% endif %}">
+                      <input type="radio" name="statut_{{ ligne.eleve.id }}" value="retard"
+                             {% if ligne.statut_actuel == 'retard' %}checked{% endif %} hidden>
+                      Retard
+                    </label>
+                  </div>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {% if not deja_verrouille %}
+  <div class="form-actions">
+    <a href="{% url 'enseignant_presences_creneaux' classe.id %}?date={{ date_appel }}"
+       class="btn btn-ghost">Annuler</a>
+    <button type="submit" class="btn btn-primary">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           style="width:1rem;height:1rem;">
+        <path d="M9 11l3 3L22 4"/>
+      </svg>
+      Valider et verrouiller l'appel
+    </button>
+  </div>
+  {% else %}
+  <div class="form-actions">
+    <a href="{% url 'enseignant_presences_creneaux' classe.id %}?date={{ date_appel }}"
+       class="btn btn-ghost">Retour</a>
+  </div>
+  {% endif %}
+
+</form>
+
+<script>
+document.querySelectorAll('.statut-group').forEach(function(group) {
+  group.querySelectorAll('.statut-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      group.querySelectorAll('.statut-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+});
+
+function marquerTous(statut) {
+  document.querySelectorAll('.statut-group').forEach(function(group) {
+    group.querySelectorAll('.statut-btn').forEach(function(btn) {
+      btn.classList.remove('active');
+      var input = btn.querySelector('input[type="radio"]');
+      if (input && input.value === statut) {
+        btn.classList.add('active');
+        input.checked = true;
+      }
+    });
+  });
+  // Met à jour la couleur de fond des lignes en temps réel
+  document.querySelectorAll('.eleve-row').forEach(function(row) {
+    row.className = row.className.replace(/statut-\w+/, 'statut-' + statut);
+  });
+}
+</script>
+
+{% endblock %}

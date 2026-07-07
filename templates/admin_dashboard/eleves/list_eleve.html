@@ -1,0 +1,216 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Élèves{% endblock %}
+
+{% block extra_css %}
+
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/add_eleve.css' %}">
+<link rel="stylesheet" href="{% static 'css/secretaire/eleves/list_eleve.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/detail.css' %}">
+<link rel="stylesheet" href="{% static 'css/dashboard_enseignant/list.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/message.css' %}">
+
+{% endblock %}
+
+{% block content %}
+
+<div class="form-page-header">
+  <h1 class="form-page-title">
+    <span class="title-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/>
+        <path d="M16 3.13a4 4 0 010 7.75"/>
+        <path d="M21 21v-2a4 4 0 00-3-3.87"/>
+      </svg>
+    </span>
+    Élèves
+  </h1>
+  <a href="{% url 'add_eleve' %}" class="btn btn-primary btn-sm">+ Inscrire un élève</a>
+</div>
+
+{% if messages %}
+  <div class="form-messages">
+    {% for message in messages %}
+      <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/>
+        </svg>
+        <span>{{ message }}</span>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<!-- Filtres -->
+<form method="get" class="filter-bar" style="margin-bottom:1rem; display:flex; gap:.6rem; flex-wrap:wrap;">
+  <input type="text" name="search" value="{{ request.GET.search|default:'' }}"
+         placeholder="Rechercher par nom ou prénom…"
+         style="flex:1; min-width:180px; padding:.45rem .85rem; border:1.5px solid var(--gray-300);
+                border-radius:6px; font-size:.875rem; outline:none;">
+  <select name="classe"
+          style="padding:.45rem 2rem .45rem .75rem; border:1.5px solid var(--gray-300);
+                 border-radius:6px; font-size:.875rem; background:#fff;
+               
+                 background-repeat:no-repeat; background-position:right .6rem center;">
+    <option value="">Toutes les classes</option>
+    {% for c in classes %}
+      <option value="{{ c.id }}" {% if request.GET.classe == c.id|stringformat:"s" %}selected{% endif %}>
+        {{ c }}
+      </option>
+    {% endfor %}
+  </select>
+  <button type="submit" class="btn btn-ghost btn-sm">Filtrer</button>
+  {% if request.GET.search or request.GET.classe %}
+    <a href="{% url 'list_eleve' %}" class="btn btn-ghost btn-sm">✕ Réinitialiser</a>
+  {% endif %}
+</form>
+
+<!-- Carte liste -->
+<div class="list-card">
+  <div class="list-card-header">
+    <h2>
+      Liste des élèves
+      {% if classe_filtree %}
+        <span style="font-weight:400; color:var(--gray-500); font-size:.85rem;">
+          — {{ classe_filtree }}
+        </span>
+      {% endif %}
+    </h2>
+    <span class="list-card-count">{{ total }} élève(s)</span>
+  </div>
+
+  {% if eleves %}
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Matricule</th>
+            <th>Nom et Prénom</th>
+            <th>Sexe</th>
+            <th>Classe</th>
+            <th>Parent / Tuteur</th>
+            <th>Téléphone</th>
+            <th>Compte</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for eleve in eleves %}
+            <tr>
+              <td style="color:var(--gray-400); font-size:.75rem;">{{ forloop.counter }}</td>
+              <td>
+                <span class="list-card-count" style="font-size:.7rem;">
+                  {{ eleve.matricule }}
+                </span>
+              </td>
+              <td>
+                <div style="display:flex; align-items:center; gap:.55rem;">
+                  <span class="eleve-avatar">
+                    {{ eleve.prenom|first|upper }}{{ eleve.nom|first|upper }}
+                  </span>
+                  <div>
+                    <strong>{{ eleve.nom }} {{ eleve.prenom }}</strong>
+                    <div style="font-size:.72rem; color:var(--gray-400);">
+                      {{ eleve.date_naissance|date:"d/m/Y" }}
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>{{ eleve.get_sexe_display }}</td>
+              <td>
+                {% if eleve.classe %}
+                  <span class="class-chip">{{ eleve.classe }}</span>
+                {% else %}
+                  <span style="color:var(--gray-400); font-size:.8rem;">—</span>
+                {% endif %}
+              </td>
+              <td style="font-size:.82rem;">{{ eleve.nom_parent }}</td>
+              <td style="font-size:.82rem; white-space:nowrap;">{{ eleve.telephone_parent }}</td>
+              <td>
+                {% if eleve.compte %}
+                  <span class="badge-compte actif" title="{{ eleve.compte.username }}">
+                    ✓ {{ eleve.compte.username }}
+                  </span>
+                {% else %}
+                  <span class="badge-compte inactif">Aucun</span>
+                {% endif %}
+              </td>
+              <td>
+               <div class="sec-actions">
+            <a href="{% url 'detail_eleve' eleve.id %}" class="sec-icon-btn" title="Voir la fiche">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </a>
+            <a href="{% url 'edit_eleve' eleve.id %}" class="sec-icon-btn" title="Modifier">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 113 3L7 19l-4 1 1-4z"/></svg>
+            </a>
+            <a href="{% url 'admin_envoyer_message_eleve' eleve.id %}" class="sec-icon-btn" title="Envoyer un message">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+            </a>
+            <form method="post" action="{% url 'delete_eleve' eleve.id %}" style="display:inline;"
+                  onsubmit="return confirm('Supprimer définitivement {{ e.nom }} {{ e.prenom }} ?');">
+              {% csrf_token %}
+              <button type="submit" class="sec-icon-btn danger" title="Supprimer">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H7a2 2 0 01-2-2L4 6"/></svg>
+              </button>
+            </form>
+          </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-emoji">🎒</div>
+      <p>Aucun élève trouvé.</p>
+      <a href="{% url 'add_eleve' %}" class="btn btn-primary btn-sm">+ Inscrire le premier élève</a>
+    </div>
+  {% endif %}
+</div>
+
+<style>
+.eleve-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--blue-600);
+  color: #ffffff;
+  font-size: .7rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.badge-compte {
+  display: inline-flex;
+  align-items: center;
+  padding: .15rem .5rem;
+  border-radius: 999px;
+  font-size: .68rem;
+  font-weight: 700;
+  white-space: nowrap;
+  max-width: 110px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.badge-compte.actif {
+  background: var(--green-100);
+  color: var(--green-700);
+  border: 1px solid var(--green-300);
+}
+
+.badge-compte.inactif {
+  background: var(--gray-100);
+  color: var(--gray-500);
+  border: 1px solid var(--gray-300);
+}
+</style>
+
+{% endblock %}

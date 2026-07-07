@@ -1,0 +1,80 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Emploi du temps — {{ enfant.nom }} {{ enfant.prenom }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/add_eleve.css' %}">
+<link rel="stylesheet" href="{% static 'css/parent/dashboard.css' %}">
+<link rel="stylesheet" href="{% static 'css/parent/emploi_du_temps.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/emploi_grille.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="form-page-header">
+  <h1 class="form-page-title">
+    <span class="title-icon">🗓️</span>
+    Emploi du temps — {{ enfant.classe|default:"Classe non assignée" }}
+  </h1>
+</div>
+
+{% if enfants.count > 1 %}
+<div class="enfant-selector">
+  <span class="enfant-selector-label">Mes enfants :</span>
+  {% for e in enfants %}
+    <a href="{% url 'parent_choisir_enfant' e.id %}" class="enfant-chip {% if enfant.id == e.id %}enfant-chip-actif{% endif %}">
+      <span class="enfant-chip-avatar">{{ e.nom|first|upper }}{{ e.prenom|first|upper }}</span>
+      {{ e.nom }} {{ e.prenom }}
+    </a>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% if lignes_grille %}
+  <div class="emploi-wrap">
+    <table class="emploi-table">
+      <thead>
+        <tr>
+          <th class="emploi-th-heure">Horaire</th>
+          {% for jour in entetes_jours %}
+            <th>{{ jour }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+      {% for ligne in lignes_grille %}
+        <tr class="{% if ligne.est_pause %}emploi-row-pause{% endif %}">
+          <td class="emploi-heure">
+            {{ ligne.heure_debut|time:"H\hi" }}<br>
+            <span>{{ ligne.heure_fin|time:"H\hi" }}</span>
+          </td>
+          {% for cellule in ligne.cellules %}
+            {% if cellule is None %}
+              <td class="emploi-vide"></td>
+            {% elif ligne.est_pause %}
+              <td class="emploi-pause" colspan="1">Pause</td>
+            {% elif cellule.matiere %}
+              <td class="emploi-cours">
+                <span class="emploi-matiere">{{ cellule.matiere.nom_matiere }}</span>
+                {% if cellule.enseignant %}
+                  <span class="emploi-enseignant">{{ cellule.enseignant.first_name }} {{ cellule.enseignant.last_name }}</span>
+                {% endif %}
+              </td>
+            {% else %}
+              <td class="emploi-libre"></td>
+            {% endif %}
+          {% endfor %}
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <div class="empty-state" style="padding:3rem;">
+    <div class="empty-emoji">🗓️</div>
+    <p>Aucun emploi du temps configuré pour cette classe.</p>
+  </div>
+{% endif %}
+
+{% endblock %}

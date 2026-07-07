@@ -1,0 +1,51 @@
+/* ============================================================
+   admin_dashboard/profil.css
+   Pour le template "Mon profil" (admin)
+   ============================================================ */
+
+/* ── Carte photo de profil ── */
+.detail-card {
+  background: #ffffff;
+  border: 1px solid var(--gray-200, #e2e8f0);
+  border-radius: var(--radius-lg, 12px);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-md, 0 2px 8px rgba(0,0,0,.06));
+}
+
+.detail-section { padding: .25rem 0; }
+
+.detail-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--blue-600, #2563eb);
+  color: #ffffff;
+  font-weight: 800;
+  border: 2px solid var(--blue-200, #bfdbfe);
+  flex-shrink: 0;
+}
+
+/* ── Bouton pleine largeur ── */
+.btn-block {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Champ fichier (photo) ── */
+.form-field input[type="file"] {
+  display: block;
+  width: 100%;
+  font-size: .82rem;
+  color: var(--text-faint, #94a3b8);
+  padding: .4rem 0;
+}
+
+/* ── Responsive : la grille 1fr/2fr passe en 1 colonne ── */
+@media (max-width: 760px) {
+  [style*="grid-template-columns: 1fr 2fr"] {
+    grid-template-columns: 1fr !important;
+  }
+}

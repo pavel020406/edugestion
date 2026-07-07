@@ -1,0 +1,90 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Tableau de bord{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/add_eleve.css' %}">
+<link rel="stylesheet" href="{% static 'css/secretaire/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="form-page-header">
+  <h1 class="form-page-title">
+    <span class="title-icon" aria-hidden="true">📋</span>
+    Tableau de bord — Secrétariat
+  </h1>
+</div>
+
+{% if messages %}
+  <div class="form-messages">
+    {% for message in messages %}
+      <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span>{{ message }}</span>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+{% if nb_eleves_en_retard %}
+  <a href="{% url 'secretaire_paiements_retard' %}" class="alert-retard-banner">
+    ⚠ <strong>{{ nb_eleves_en_retard }}</strong> élève{{ nb_eleves_en_retard|pluralize }} en retard de paiement —
+    <span>voir la liste →</span>
+  </a>
+{% endif %}
+
+<div class="niveaux-grid" style="grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); margin-bottom: 1.5rem;">
+  <div class="niveau-card" style="cursor:default;">
+    <div class="niveau-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.2 2.7-5.5 6-5.5s6 2.3 6 5.5"/></svg></div>
+    <h3>{{ total_eleves }}</h3>
+    <div class="niveau-meta">Élèves inscrits</div>
+  </div>
+  <div class="niveau-card" style="cursor:default;">
+    <div class="niveau-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 11l8-6 8 6"/><path d="M6 10v9h12v-9"/></svg></div>
+    <h3>{{ total_classes }}</h3>
+    <div class="niveau-meta">Classes</div>
+  </div>
+  <div class="niveau-card" style="cursor:default;">
+    <div class="niveau-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 9.5h4.5a1.5 1.5 0 010 3H10a1.5 1.5 0 000 3h4.5"/></svg></div>
+    <h3>{{ total_frais_configures }}</h3>
+    <div class="niveau-meta">Niveaux avec frais configurés</div>
+  </div>
+</div>
+
+<div class="form-grid-2" style="margin-bottom: 1.5rem; grid-template-columns: repeat(3, 1fr);">
+  <a href="{% url 'secretaire_add_eleve' %}" class="btn btn-primary" style="justify-content:center; padding: .9rem;">
+    ➕ Inscrire un élève
+  </a>
+  <a href="{% url 'bulletin_classes' %}" class="btn btn-ghost" style="justify-content:center; padding: .9rem;">
+    📋 Générer un bulletin
+  </a>
+  <a href="{% url 'secretaire_envoyer_message' %}" class="btn btn-ghost" style="justify-content:center; padding: .9rem;">
+    ✉ Envoyer un message
+  </a>
+</div>
+
+<div class="sec-table-wrap">
+  <table class="sec-table">
+    <thead>
+      <tr><th>Élève</th><th>Classe</th><th>Date d'inscription</th></tr>
+    </thead>
+    <tbody>
+    {% for e in dernieres_inscriptions %}
+      <tr>
+        <td class="sec-row-name">
+          <span class="sec-avatar">{{ e.nom|first|upper }}{{ e.prenom|first|upper }}</span>
+          {{ e.nom }} {{ e.prenom }}
+        </td>
+        <td>{{ e.classe|default:"—" }}</td>
+        <td>{{ e.date_inscription }}</td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="3" style="color:var(--sec-gray-500); padding: 1.2rem;">Aucune inscription récente.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

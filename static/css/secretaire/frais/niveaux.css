@@ -1,0 +1,77 @@
+/* ============================================================
+   frais/niveaux.css — grille des niveaux (page Frais)
+   ============================================================ */
+
+.niveaux-frais-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.niveau-frais-card {
+  background: #fff;
+  border: 1px solid var(--sec-blue-100);
+  border-radius: .9rem;
+  padding: 1.2rem;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  transition: box-shadow .15s ease, border-color .15s ease, transform .15s ease;
+}
+.niveau-frais-card:hover {
+  border-color: var(--sec-blue-600);
+  box-shadow: 0 6px 18px rgba(37, 99, 235, .12);
+  transform: translateY(-2px);
+}
+
+.niveau-frais-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: .7rem;
+}
+
+.niveau-frais-card h3 { margin: 0 0 .2rem; font-size: 1.05rem; color: var(--sec-blue-900); }
+
+.niveau-frais-montants {
+  display: flex;
+  justify-content: space-between;
+  gap: .6rem;
+  margin-top: .8rem;
+  padding-top: .6rem;
+  border-top: 1px solid var(--sec-gray-100);
+  font-size: .78rem;
+}
+.niveau-frais-montants div { display: flex; flex-direction: column; }
+.niveau-frais-montants span { color: var(--sec-gray-500); }
+.niveau-frais-montants strong { color: var(--sec-blue-900); font-size: .85rem; }
+
+.niveau-frais-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: .8rem;
+  font-size: .78rem;
+  color: var(--sec-gray-500);
+}
+
+/* ── Icône + badges (réutilisés sur cette page) ── */
+.niveau-card-icon {
+  width: 2.6rem; height: 2.6rem;
+  border-radius: 0.7rem;
+  background: var(--sec-blue-50);
+  color: var(--sec-blue-600);
+  display: flex; align-items: center; justify-content: center;
+}
+.niveau-card-icon svg { width: 1.3rem; height: 1.3rem; }
+
+.niveau-meta { color: var(--sec-gray-500); font-size: .85rem; }
+
+.niveau-badge {
+  display: inline-flex; align-items: center; gap: .3rem;
+  font-size: .72rem; font-weight: 600; padding: .2rem .55rem;
+  border-radius: 999px;
+}
+.niveau-badge-ok   { background: #dcfce7; color: #15803d; }
+.niveau-badge-vide { background: var(--sec-gray-100); color: var(--sec-gray-500); }

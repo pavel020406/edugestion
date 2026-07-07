@@ -1,0 +1,294 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Notes — {{ matiere.nom_matiere }}{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+  :root {
+  --bleu-fonce: #1D4ED8;
+  --bleu-moyen: #3B82F6;
+  --bleu-pale: #EFF6FF;
+  --bleu-ligne: #BFDBFE;
+  --texte: #0F172A;
+  --texte-mute: #64748B;
+  --blanc: #FFFFFF;
+  --rouge: #DC2626;
+  --rouge-fonce: #991B1B;
+  --rouge-pale: #FEE2E2;
+}
+
+.bs-scope {
+  background-color: var(--blanc);
+  color: var(--texte);
+}
+
+/* ---------- Titre de page ---------- */
+.bs-scope h1.h3 {
+  color: var(--bleu-fonce);
+  font-weight: 700;
+}
+
+/* ---------- Onglets Trimestre ---------- */
+.bs-scope .nav-tabs {
+  border-bottom: 2px solid var(--bleu-ligne);
+}
+
+.bs-scope .nav-tabs .nav-link {
+  color: var(--texte-mute);
+  border: none;
+  border-bottom: 3px solid transparent;
+  border-radius: 0;
+  font-weight: 500;
+  padding: 0.6rem 1.1rem;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.bs-scope .nav-tabs .nav-link:hover {
+  color: var(--bleu-moyen);
+  border-color: var(--bleu-ligne);
+}
+
+.bs-scope .nav-tabs .nav-link.active {
+  color: var(--bleu-fonce);
+  background-color: transparent;
+  border-color: var(--bleu-fonce);
+}
+
+/* ---------- Carte / tableau ---------- */
+.bs-scope .card {
+  border: 1px solid var(--bleu-ligne);
+  border-radius: 0.6rem;
+  overflow: hidden;
+}
+
+.bs-scope .card.shadow-sm {
+  box-shadow: 0 2px 10px rgba(29, 78, 216, 0.08) !important;
+}
+
+.bs-scope .table thead.table-light th {
+  background-color: var(--bleu-pale);
+  color: var(--bleu-fonce);
+  border-bottom: 2px solid var(--bleu-ligne);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+  letter-spacing: 0.03em;
+}
+
+.bs-scope .table > tbody > tr {
+  border-bottom: 1px solid var(--bleu-ligne);
+}
+
+.bs-scope .table-hover > tbody > tr:hover {
+  background-color: var(--bleu-pale);
+}
+
+.bs-scope .table td strong {
+  color: var(--texte);
+}
+
+.bs-scope .table td .text-muted {
+  color: var(--texte-mute) !important;
+}
+
+/* ---------- Champs de saisie des notes ---------- */
+.bs-scope .form-control {
+  border: 1px solid var(--bleu-ligne);
+  color: var(--texte);
+}
+
+.bs-scope .form-control:focus {
+  border-color: var(--bleu-moyen);
+  box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
+}
+
+.bs-scope .form-control::placeholder {
+  color: #A9C3F0;
+}
+
+.bs-scope .form-control:disabled {
+  background-color: #F1F5F9;
+  color: var(--texte-mute);
+  border-color: #E2E8F0;
+}
+
+/* ---------- Badge Moyenne ---------- */
+.bs-scope .badge.bg-success {
+  background-color: var(--bleu-fonce) !important;
+}
+
+.bs-scope .badge.bg-secondary {
+  background-color: #CBD5E1 !important;
+  color: var(--texte-mute);
+}
+
+/* ---------- Bandeau de verrouillage ---------- */
+.bs-scope .bandeau-verrouille {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background-color: var(--rouge-pale);
+  border: 1px solid #FCA5A5;
+  color: var(--rouge-fonce);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+/* ---------- Pied de tableau / bouton principal ---------- */
+.bs-scope .card-footer {
+  background-color: var(--bleu-pale);
+  border-top: 1px solid var(--bleu-ligne);
+}
+
+.bs-scope .btn-primary {
+  background-color: var(--bleu-fonce);
+  border-color: var(--bleu-fonce);
+  font-weight: 500;
+}
+
+.bs-scope .btn-primary:hover,
+.bs-scope .btn-primary:focus {
+  background-color: #1746B3;
+  border-color: #1746B3;
+}
+
+.bs-scope .btn-primary:disabled {
+  background-color: #94A3B8;
+  border-color: #94A3B8;
+}
+
+.bs-scope .btn-outline-secondary {
+  color: var(--bleu-fonce);
+  border-color: var(--bleu-fonce);
+}
+
+.bs-scope .btn-outline-secondary:hover {
+  background-color: var(--bleu-fonce);
+  border-color: var(--bleu-fonce);
+  color: var(--blanc);
+}
+
+/* ---------- Alertes ---------- */
+.bs-scope .alert-success {
+  background-color: var(--bleu-pale);
+  border-color: var(--bleu-ligne);
+  color: var(--bleu-fonce);
+}
+
+/* Messages d'erreur bien en rouge, franc et lisible */
+.bs-scope .alert-danger {
+  background-color: var(--rouge-pale);
+  border: 1px solid var(--rouge);
+  color: var(--rouge-fonce);
+  font-weight: 600;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="bs-scope">
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">{{ matiere.nom_matiere }} — {{ classe }}</h1>
+    <a href="{% url 'enseignant_notes_matieres' classe.id %}" class="btn btn-outline-secondary btn-sm">Retour aux matières</a>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-success{% endif %}" role="alert">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  {% if est_verrouille %}
+    <div class="bandeau-verrouille">
+      🔒 Les notes de ce trimestre sont verrouillées par l'administrateur. Vous ne pouvez plus les modifier.
+    </div>
+  {% endif %}
+
+  <ul class="nav nav-tabs mb-3">
+    <li class="nav-item">
+      <a class="nav-link {% if trimestre == 'T1' %}active{% endif %}" href="?trimestre=T1">Trimestre 1</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link {% if trimestre == 'T2' %}active{% endif %}" href="?trimestre=T2">Trimestre 2</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link {% if trimestre == 'T3' %}active{% endif %}" href="?trimestre=T3">Trimestre 3</a>
+    </li>
+  </ul>
+
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="trimestre" value="{{ trimestre }}">
+
+    <div class="card shadow-sm">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Élève</th>
+              {% for code, libelle in entetes_evaluations %}
+                <th class="text-center">{{ libelle }}</th>
+              {% endfor %}
+              <th class="text-center">Moyenne</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for ligne in lignes %}
+              <tr>
+                <td>
+                  <strong>{{ ligne.eleve.nom }} {{ ligne.eleve.prenom }}</strong>
+                  <div class="text-muted small">{{ ligne.eleve.matricule }}</div>
+                </td>
+                {% for code, libelle, valeur_actuelle in ligne.cellules %}
+                  <td style="width: 110px;">
+                    <input
+                      type="number" step="0.25" min="0" max="20"
+                      name="note_{{ ligne.eleve.id }}_{{ code }}"
+                      value="{{ valeur_actuelle|default_if_none:'' }}"
+                      placeholder="—"
+                      class="form-control form-control-sm text-center"
+                      {% if est_verrouille %}disabled{% endif %}
+                    >
+                  </td>
+                {% endfor %}
+                <td class="text-center" style="width: 90px;">
+                  <span class="badge {% if ligne.moyenne != None %}bg-success{% else %}bg-secondary{% endif %}">
+                    {% if ligne.moyenne != None %}{{ ligne.moyenne }}/20{% else %}—{% endif %}
+                  </span>
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="5" class="text-center text-muted py-4">Aucun élève dans cette classe.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      {% if lignes %}
+        <div class="card-footer d-flex justify-content-between align-items-center">
+          <span class="text-muted small">
+            {% if est_verrouille %}
+              Verrouillé par l'administrateur — aucune modification possible.
+            {% else %}
+              Laissez une case vide si la note n'est pas encore disponible.
+            {% endif %}
+          </span>
+          <button type="submit" class="btn btn-primary" {% if est_verrouille %}disabled{% endif %}>
+            Enregistrer les notes
+          </button>
+        </div>
+      {% endif %}
+    </div>
+  </form>
+
+</div>
+{% endblock %}

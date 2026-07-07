@@ -1,0 +1,99 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Envoyer un message{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard_enseignant/message.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="form-page-header">
+  <h1 class="form-page-title">
+    <span class="title-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+    </span>
+    Envoyer un message
+  </h1>
+  <a href="{% url 'admin_messages' %}" class="btn btn-ghost btn-sm">Retour aux messages</a>
+</div>
+
+{% if messages %}
+  <div class="form-messages">
+    {% for message in messages %}
+      <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span>{{ message }}</span>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<form method="post" enctype="multipart/form-data" class="form-card">
+  {% csrf_token %}
+
+  <h2 class="form-section-title">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+    Nouveau message
+  </h2>
+
+  <div class="form-field">
+    <label for="eleve_id">Destinataire (élève) <span class="required">*</span></label>
+    <select id="eleve_id" name="eleve_id" required>
+      <option value="">-- Choisir un élève --</option>
+      {% for eleve in eleves %}
+        <option value="{{ eleve.id }}"
+          {% if eleve_preselect and eleve_preselect.id == eleve.id %}selected{% endif %}>
+          {{ eleve.nom }} {{ eleve.prenom }}
+          {% if eleve.classe %} — {{ eleve.classe }}{% endif %}
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="form-grid-2">
+    <div class="form-field">
+      <label for="type_message">Type de message <span class="required">*</span></label>
+      <select id="type_message" name="type_message" required>
+        {% for code, libelle in type_choices %}
+          <option value="{{ code }}">{{ libelle }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-field">
+      <label for="sujet">Sujet <span class="required">*</span></label>
+      <input type="text" id="sujet" name="sujet" placeholder="Ex : Bulletin T1, Notes de mathématiques…" required>
+    </div>
+  </div>
+
+  <div class="form-field">
+    <label for="contenu">Contenu du message</label>
+    <textarea id="contenu" name="contenu" rows="5"
+              placeholder="Rédigez votre message ici…"></textarea>
+  </div>
+
+  <div class="form-field">
+    <label for="fichier_pdf">Pièce jointe PDF (bulletin, emploi du temps…)</label>
+    <input type="file" id="fichier_pdf" name="fichier_pdf" accept=".pdf"
+           style="padding:0.4rem 0;">
+    <small style="color:var(--gray-500); font-size:0.78rem;">
+      Formats acceptés : PDF uniquement. Taille max recommandée : 5 Mo.
+    </small>
+  </div>
+     <div class="form-field">
+    <label style="display:flex;align-items:center;gap:.5rem;font-weight:500;">
+      <input type="checkbox" name="publier_acces" value="1" style="width:auto;" checked>
+       Accorder automatiquement l'accès à ce contenu pour l'élève
+   </label>
+   </div>
+   
+  <div class="form-actions">
+    <a href="{% url 'admin_messages' %}" class="btn btn-ghost">Annuler</a>
+    <button type="submit" class="btn btn-primary">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem;">
+        <path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"/>
+      </svg>
+      Envoyer le message
+    </button>
+  </div>
+</form>
+{% endblock %}

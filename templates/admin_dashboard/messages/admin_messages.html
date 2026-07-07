@@ -1,0 +1,140 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Messagerie{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard_enseignant/message.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="form-page-header">
+  <h1 class="form-page-title">
+    <span class="title-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+      </svg>
+    </span>
+    Messagerie
+  </h1>
+  <a href="{% url 'admin_envoyer_message' %}" class="btn btn-primary btn-sm">
+    + Nouveau message
+  </a>
+</div>
+
+{% if messages %}
+  <div class="form-messages">
+    {% for message in messages %}
+      <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/>
+        </svg>
+        <span>{{ message }}</span>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<!-- Filtres -->
+<form method="get" class="filter-bar">
+  <input type="text" name="search" value="{{ search }}"
+         placeholder="Rechercher par sujet ou élève…" class="filter-input">
+  <select name="type" class="filter-select">
+    <option value="">Tous les types</option>
+    {% for code, libelle in type_choices %}
+      <option value="{{ code }}" {% if type_filtre == code %}selected{% endif %}>
+        {{ libelle }}
+      </option>
+    {% endfor %}
+  </select>
+  <button type="submit" class="btn btn-ghost btn-sm">Filtrer</button>
+  {% if search or type_filtre %}
+    <a href="{% url 'admin_messages' %}" class="btn btn-ghost btn-sm">Réinitialiser</a>
+  {% endif %}
+</form>
+
+<div class="list-card">
+  <div class="list-card-header">
+    <h2>Messages envoyés</h2>
+    <span class="list-card-count">{{ total }} message(s)</span>
+  </div>
+
+  {% if messages_list %}
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Sujet</th>
+            <th>Destinataire</th>
+            <th>Classe</th>
+            <th>Date</th>
+            <th>Lu</th>
+            <th>PJ</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for msg in messages_list %}
+            <tr>
+              <td>
+                <span class="badge-type msg-{{ msg.type_message }}">
+                  {{ msg.get_type_message_display }}
+                </span>
+              </td>
+              <td><strong>{{ msg.sujet }}</strong></td>
+              <td>
+                {% if msg.eleve %}
+                  {{ msg.eleve.nom }} {{ msg.eleve.prenom }}
+                {% else %}
+                  {{ msg.destinataire }}
+                {% endif %}
+              </td>
+              <td>
+                {% if msg.eleve and msg.eleve.classe %}
+                  <span class="class-chip">{{ msg.eleve.classe }}</span>
+                {% else %}—{% endif %}
+              </td>
+              <td style="white-space:nowrap; font-size:0.8rem;">
+                {{ msg.date_envoi|date:"d/m/Y H:i" }}
+              </td>
+              <td>
+                {% if msg.lu %}
+                  <span class="badge badge-present">✓ Lu</span>
+                {% else %}
+                  <span class="badge badge-pending">Non lu</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if msg.fichier_pdf %}
+                  <span class="badge" style="background:var(--red-50);color:var(--red-600);border-color:var(--red-300);">PDF</span>
+                {% else %}—{% endif %}
+              </td>
+              <td>
+                <div class="action-buttons">
+                  <a href="{% url 'admin_envoyer_message_eleve' msg.eleve.id %}"
+                     class="btn-xs btn-xs-edit" title="Renvoyer">Renvoyer</a>
+                  <form method="post"
+                        action="{% url 'admin_supprimer_message' msg.id %}"
+                        style="display:inline;"
+                        onsubmit="return confirm('Supprimer ce message ?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-xs btn-xs-delete">Supprimer</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-emoji">📭</div>
+      <p>Aucun message envoyé pour l'instant.</p>
+      <a href="{% url 'admin_envoyer_message' %}" class="btn btn-primary btn-sm">
+        + Envoyer le premier message
+      </a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

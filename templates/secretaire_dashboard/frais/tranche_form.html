@@ -1,0 +1,71 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}{% if tranche %}Modifier la tranche{% else %}Ajouter une tranche{% endif %}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/add_eleve.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="form-page-header">
+  <h1 class="form-page-title">
+    <span class="title-icon" aria-hidden="true">🧾</span>
+    {% if tranche %}Modifier la tranche{% else %}Ajouter une tranche{% endif %} — {{ libelle_niveau }}
+  </h1>
+  <a href="{% url 'frais_niveau_detail' niveau %}" class="btn btn-ghost btn-sm">Retour</a>
+</div>
+
+{% if messages %}
+  <div class="form-messages">
+    {% for message in messages %}
+      <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span>{{ message }}</span>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<form method="post" class="form-card" novalidate>
+  {% csrf_token %}
+
+  <div class="form-field">
+    <label for="libelle">Libellé de la tranche <span class="required">*</span></label>
+    <input type="text" id="libelle" name="libelle" placeholder="Ex : 1ère tranche"
+           value="{{ tranche.libelle|default:'' }}" required>
+  </div>
+
+  <div class="form-grid-2">
+    <div class="form-field">
+      <label for="montant">Montant (FCFA) <span class="required">*</span></label>
+      <input type="number" step="1" min="0" id="montant" name="montant"
+             value="{{ tranche.montant|default:'' }}" required>
+    </div>
+    <div class="form-field">
+      <label for="date_limite">Date limite de paiement <span class="required">*</span></label>
+      <input type="date" id="date_limite" name="date_limite"
+             value="{{ tranche.date_limite|date:'Y-m-d'|default:'' }}"
+             {% if date_min %}min="{{ date_min|date:'Y-m-d' }}"{% endif %}
+             {% if date_max %}max="{{ date_max|date:'Y-m-d' }}"{% endif %}
+             required>
+      <small style="color: var(--gray-400, #94a3b8);">
+        {% if date_max %}
+          Doit être comprise entre le {{ date_min|date:"d/m/Y" }} et le {{ date_max|date:"d/m/Y" }}.
+        {% else %}
+          Ne peut pas être avant aujourd'hui, ni avant la tranche précédente.
+        {% endif %}
+      </small>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <a href="{% url 'frais_niveau_detail' niveau %}" class="btn btn-ghost">Annuler</a>
+    <button type="submit" class="btn btn-primary">
+      {% if tranche %}Enregistrer les modifications{% else %}Ajouter la tranche{% endif %}
+    </button>
+  </div>
+</form>
+
+{% endblock %}

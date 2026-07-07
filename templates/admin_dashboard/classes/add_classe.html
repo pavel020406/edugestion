@@ -1,0 +1,187 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}{% if classe %}Modifier la classe{% else %}Ajouter une classe{% endif %}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/classes/add_classe.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/classes/list_classe.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/classes/detail.css' %}">
+{% endblock %}
+
+{% block content %}
+
+  <div class="form-page-header">
+    <h1 class="form-page-title">
+      <span class="title-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 11l8-6 8 6"/><path d="M6 10v9h12v-9"/><path d="M10 19v-5h4v5"/></svg>
+      </span>
+      {% if classe %}Modifier la classe{% else %}Ajouter une classe{% endif %}
+    </h1>
+
+    <div class="action-buttons">
+      {% if eleves_count > 0 %}
+        <a href="{% url 'detail_classe' classe.id %}" class="btn btn-ghost btn-sm">Voir les élèves ({{ eleves_count }})</a>
+      {% endif %}
+      <a href="{% url 'list_classe' %}" class="btn btn-ghost btn-sm">Retour à la liste</a>
+    </div>
+  </div>
+
+  <!-- ---------- Messages ---------- -->
+  {% if messages %}
+    <div class="form-messages">
+      {% for message in messages %}
+        <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+          <span>{{ message }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- ---------- Formulaire ---------- -->
+  <form method="post" class="form-card form-card-wide" novalidate>
+    {% csrf_token %}
+
+    <h2 class="form-section-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 11l8-6 8 6"/><path d="M6 10v9h12v-9"/><path d="M10 19v-5h4v5"/></svg>
+      Informations de la classe
+    </h2>
+
+    <div class="form-grid-2">
+      <div class="form-field">
+        <label for="niveau">Niveau <span class="required">*</span></label>
+        <select id="niveau" name="niveau" required>
+          <option value="" {% if not classe %}selected disabled{% endif %}>-- Choisir un niveau --</option>
+          <option value="6eme" {% if classe.niveau == '6eme' %}selected{% endif %}>6ème</option>
+          <option value="5eme" {% if classe.niveau == '5eme' %}selected{% endif %}>5ème</option>
+          <option value="4eme" {% if classe.niveau == '4eme' %}selected{% endif %}>4ème</option>
+          <option value="3eme" {% if classe.niveau == '3eme' %}selected{% endif %}>3ème</option>
+          <option value="seconde" {% if classe.niveau == 'seconde' %}selected{% endif %}>Seconde</option>
+          <option value="premiere" {% if classe.niveau == 'premiere' %}selected{% endif %}>1ère</option>
+          <option value="terminale" {% if classe.niveau == 'terminale' %}selected{% endif %}>Terminale</option>
+        </select>
+      </div>
+
+      <div class="form-field">
+        <label for="salle">Salle <span class="required">*</span></label>
+        <input
+          type="text"
+          id="salle"
+          name="salle"
+          value="{% if classe.salle %}{{ classe.salle.nom }}{% endif %}"
+          placeholder="Ex : Salle A1"
+          required
+        >
+      </div>
+    </div>
+
+    <div class="form-field">
+      <label for="enseignant_principal">Enseignant principal</label>
+      <select id="enseignant_principal" name="enseignant_principal">
+        <option value="">-- Aucun --</option>
+        {% for enseignant in enseignants %}
+          <option value="{{ enseignant.id }}" {% if classe.enseignant_principal_id == enseignant.id %}selected{% endif %}>{{ enseignant.first_name }} {{ enseignant.last_name }}</option>
+        {% endfor %}
+      </select>
+      {% if classe.enseignant_principal %}
+        <p class="field-hint">
+          Principal actuel : <strong>{{ classe.enseignant_principal.first_name }} {{ classe.enseignant_principal.last_name }}</strong>.
+          Si vous choisissez un autre enseignant ci-dessus, cochez la case ci-dessous pour confirmer le remplacement.
+        </p>
+        <label style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem; font-size: 0.85rem; color: var(--text-muted);">
+          <input type="checkbox" name="confirmer_changement_principal" value="1" style="width: auto;">
+          Je confirme vouloir remplacer l'enseignant principal actuel.
+        </label>
+      {% endif %}
+    </div>
+
+    <h2 class="form-section-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="12" rx="1.5"/><path d="M9 20h6M12 16v4"/></svg>
+      Matières enseignées
+    </h2>
+    <p class="field-hint" style="margin-top: -0.5rem; margin-bottom: var(--space-md);">
+      Cochez les matières enseignées dans cette classe, puis indiquez leur coefficient et leur volume horaire hebdomadaire.
+    </p>
+
+    <div class="matieres-table-wrap">
+      <table class="matieres-table">
+        <thead>
+          <tr>
+            <th class="col-check"></th>
+            <th>Matière</th>
+            <th>Enseignant</th>
+            <th>Coefficient</th>
+            <th>Heures / semaine</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ligne in lignes_matieres %}
+            <tr class="{% if ligne.cochee %}matiere-row-active{% endif %}">
+              <td class="col-check">
+                <input
+                  type="checkbox"
+                  name="matiere_{{ ligne.matiere.id }}"
+                  id="matiere_{{ ligne.matiere.id }}"
+                  {% if ligne.cochee %}checked{% endif %}
+                >
+              </td>
+              <td>
+                <label for="matiere_{{ ligne.matiere.id }}" class="matiere-label">{{ ligne.matiere.nom_matiere }}</label>
+              </td>
+              <td>
+                <select name="enseignant_{{ ligne.matiere.id }}" class="matiere-select-input">
+                  <option value="">-- Aucun --</option>
+                  {% for enseignant in enseignants %}
+                    <option value="{{ enseignant.id }}" {% if ligne.enseignant_id == enseignant.id %}selected{% endif %}>{{ enseignant.first_name }} {{ enseignant.last_name }}</option>
+                  {% endfor %}
+                </select>
+              </td>
+              <td>
+                <input
+                  type="number"
+                  step="0.5"
+                  min="0.5"
+                  name="coef_{{ ligne.matiere.id }}"
+                  value="{{ ligne.coefficient }}"
+                  placeholder="1"
+                  class="matiere-num-input"
+                >
+              </td>
+              <td>
+                <input
+                  type="number"
+                  step="0.5"
+                  min="0"
+                  name="heures_{{ ligne.matiere.id }}"
+                  value="{{ ligne.heures_semaine }}"
+                  placeholder="1"
+                  class="matiere-num-input"
+                >
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="5">
+                <p class="field-hint">Aucune matière disponible. Créez-en une d'abord.</p>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="form-field" style="margin-top: var(--space-md);">
+      <a href="{% url 'add_matiere' %}" class="btn btn-ghost btn-sm">+ Ajouter une nouvelle matière</a>
+    </div>
+
+    <div class="form-actions">
+      <a href="{% url 'list_classe' %}" class="btn btn-ghost">Annuler</a>
+      <button type="submit" class="btn btn-primary">
+        {% if classe %}Enregistrer les modifications{% else %}Créer la classe{% endif %}
+      </button>
+    </div>
+
+  </form>
+
+{% endblock %}

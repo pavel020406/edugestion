@@ -1,0 +1,659 @@
+/* ============================================================
+   EduGestion — notes.css
+   Parcours Niveau → Classes → Matières → Saisie des notes
+   ============================================================ */
+/* ==========================================================
+   Thème Bleu & Blanc — Page de saisie des notes
+   Palette :
+   --bleu-fonce : #1D4ED8  (accent principal, boutons, actif)
+   --bleu-moyen : #3B82F6  (survols, liens)
+   --bleu-pale  : #EFF6FF  (fonds légers, en-tête tableau)
+   --bleu-ligne : #BFDBFE  (bordures)
+   --texte      : #0F172A  (texte principal, quasi noir/bleu nuit)
+   --texte-mute : #64748B  (texte secondaire)
+   --blanc      : #FFFFFF
+   ========================================================== */
+
+:root {
+  --bleu-fonce: #1D4ED8;
+  --bleu-moyen: #3B82F6;
+  --bleu-pale: #EFF6FF;
+  --bleu-ligne: #BFDBFE;
+  --texte: #0F172A;
+  --texte-mute: #64748B;
+  --blanc: #FFFFFF;
+}
+
+.bs-scope {
+  background-color: var(--blanc);
+  color: var(--texte);
+}
+
+/* ---------- Titre de page ---------- */
+.bs-scope h1.h3 {
+  color: var(--bleu-fonce);
+  font-weight: 700;
+}
+
+/* ---------- Onglets Trimestre ---------- */
+.bs-scope .nav-tabs {
+  border-bottom: 2px solid var(--bleu-ligne);
+}
+
+.bs-scope .nav-tabs .nav-link {
+  color: var(--texte-mute);
+  border: none;
+  border-bottom: 3px solid transparent;
+  border-radius: 0;
+  font-weight: 500;
+  padding: 0.6rem 1.1rem;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.bs-scope .nav-tabs .nav-link:hover {
+  color: var(--bleu-moyen);
+  border-color: var(--bleu-ligne);
+}
+
+.bs-scope .nav-tabs .nav-link.active {
+  color: var(--bleu-fonce);
+  background-color: transparent;
+  border-color: var(--bleu-fonce);
+}
+
+/* ---------- Carte / tableau ---------- */
+.bs-scope .card {
+  border: 1px solid var(--bleu-ligne);
+  border-radius: 0.6rem;
+  overflow: hidden;
+}
+
+.bs-scope .card.shadow-sm {
+  box-shadow: 0 2px 10px rgba(29, 78, 216, 0.08) !important;
+}
+
+.bs-scope .table thead.table-light th {
+  background-color: var(--bleu-pale);
+  color: var(--bleu-fonce);
+  border-bottom: 2px solid var(--bleu-ligne);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+  letter-spacing: 0.03em;
+}
+
+.bs-scope .table > tbody > tr {
+  border-bottom: 1px solid var(--bleu-ligne);
+}
+
+.bs-scope .table-hover > tbody > tr:hover {
+  background-color: var(--bleu-pale);
+}
+
+.bs-scope .table td strong {
+  color: var(--texte);
+}
+
+.bs-scope .table td .text-muted {
+  color: var(--texte-mute) !important;
+}
+
+/* ---------- Champs de saisie des notes ---------- */
+.bs-scope .form-control {
+  border: 1px solid var(--bleu-ligne);
+  color: var(--texte);
+}
+
+.bs-scope .form-control:focus {
+  border-color: var(--bleu-moyen);
+  box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
+}
+
+.bs-scope .form-control::placeholder {
+  color: #A9C3F0;
+}
+
+/* ---------- Badge Moyenne ---------- */
+.bs-scope .badge.bg-success {
+  background-color: var(--bleu-fonce) !important;
+}
+
+.bs-scope .badge.bg-secondary {
+  background-color: #CBD5E1 !important;
+  color: var(--texte-mute);
+}
+
+/* ---------- Pied de tableau / bouton principal ---------- */
+.bs-scope .card-footer {
+  background-color: var(--bleu-pale);
+  border-top: 1px solid var(--bleu-ligne);
+}
+
+.bs-scope .btn-primary {
+  background-color: var(--bleu-fonce);
+  border-color: var(--bleu-fonce);
+  font-weight: 500;
+}
+
+.bs-scope .btn-primary:hover,
+.bs-scope .btn-primary:focus {
+  background-color: #1746B3;
+  border-color: #1746B3;
+}
+
+.bs-scope .btn-outline-secondary {
+  color: var(--bleu-fonce);
+  border-color: var(--bleu-fonce);
+}
+
+.bs-scope .btn-outline-secondary:hover {
+  background-color: var(--bleu-fonce);
+  border-color: var(--bleu-fonce);
+  color: var(--blanc);
+}
+
+/* ---------- Alertes ---------- */
+.bs-scope .alert-success {
+  background-color: var(--bleu-pale);
+  border-color: var(--bleu-ligne);
+  color: var(--bleu-fonce);
+}
+
+.bs-scope .alert-danger {
+  background-color: #FEF2F2;
+  border-color: #FCA5A5;
+  color: #B91C1C;
+}
+.notes-breadcrumb-hint {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  margin-bottom: var(--space-md);
+}
+.form-page-title .title-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.form-page-title .title-icon svg {
+  width: 16px;
+  height: 16px;
+}
+/* ---------- Cartes de navigation (niveau / classe / matière) ---------- */
+.notes-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-md);
+}
+
+.notes-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.notes-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.notes-card-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notes-card-icon svg {
+  width: 19px;
+  height: 19px;
+}
+
+.notes-card strong {
+  font-size: 1.02rem;
+  color: var(--text);
+}
+
+.notes-card small {
+  font-size: 0.8rem;
+  color: var(--text-faint);
+}
+
+/* ---------- Onglets de semestre ---------- */
+.semestre-tabs {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: var(--space-md);
+  border-bottom: 1px solid var(--border);
+}
+
+.semestre-tab {
+  padding: 0.65rem 1.2rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+
+.semestre-tab:hover {
+  color: var(--text);
+}
+
+.semestre-tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+/* ---------- Tableau de saisie ---------- */
+.notes-form .data-table-wrap {
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.notes-table th,
+.notes-table td {
+  text-align: center;
+}
+
+.notes-table th:first-child,
+.notes-table td:first-child {
+  text-align: left;
+}
+
+.notes-matricule {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  color: var(--text-faint);
+  margin-top: 0.15rem;
+}
+
+.note-input {
+  width: 64px;
+  text-align: center;
+  padding: 0.45rem 0.3rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: var(--text);
+  background: var(--bg);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.note-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.note-input::placeholder {
+  color: var(--text-faint);
+}
+
+/* Empêche les flèches natives du input[type=number] de prendre trop de place */
+.note-input::-webkit-inner-spin-button,
+.note-input::-webkit-outer-spin-button {
+  opacity: 0.4;
+}
+
+.moyenne-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 56px;
+  padding: 0.35rem 0.6rem;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  background: rgba(28, 157, 111, 0.1);
+  color: var(--success);
+}
+
+.moyenne-badge.empty {
+  background: var(--surface-2);
+  color: var(--text-faint);
+  font-weight: 600;
+}
+
+.notes-form-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  background: var(--bg-soft);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  border-top: 1px solid var(--border-soft);
+}
+
+.notes-form-footer .field-hint {
+  margin: 0;
+}
+
+@media (max-width: 980px) {
+  .notes-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .notes-grid {
+    grid-template-columns: 1fr;
+  }
+  .notes-form-footer {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+}
+
+
+/* Styles spécifiques à la page notes_saisie */
+.notes-saisie-table .th-nom  { text-align: left; min-width: 160px; }
+.notes-saisie-table .th-note { text-align: center; width: 80px; }
+.notes-saisie-table .th-moy  { text-align: center; width: 70px; }
+.notes-saisie-table .td-nom  { text-align: left; }
+.notes-saisie-table .td-note { text-align: center; padding: 0.4rem 0.3rem; }
+.notes-saisie-table .td-moy  { text-align: center; }
+
+/* Input note */
+.note-input {
+  width: 68px;
+  padding: 0.3rem 0.4rem;
+  border: 1.5px solid var(--gray-300);
+  border-radius: 5px;
+  font-size: 0.82rem;
+  text-align: center;
+  color: var(--gray-900);
+  background: var(--gray-50);
+  outline: none;
+  transition: border-color 150ms, box-shadow 150ms, background 150ms;
+  /* -moz-appearance: textfield; */
+}
+
+.note-input::-webkit-inner-spin-button,
+.note-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+
+.note-input:focus {
+  border-color: var(--blue-500);
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(59,130,246,.2);
+}
+
+.note-input:hover { border-color: var(--blue-400); background: #ffffff; }
+
+/* Affichage note lecture seule */
+.note-display {
+  display: inline-block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  background: var(--gray-100);
+  color: var(--gray-600);
+}
+
+/* Moyennes colorées */
+.moy-display {
+  display: inline-block;
+  font-weight: 700;
+  font-size: 0.88rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 5px;
+  background: var(--gray-100);
+  color: var(--gray-500);
+  min-width: 38px;
+  text-align: center;
+  transition: background 200ms, color 200ms;
+}
+
+.moy-ok   { background: var(--green-100); color: var(--green-700); }
+.moy-fail { background: var(--red-100);   color: var(--red-700);   }
+
+.note-ok   { background: var(--green-100); color: var(--green-700); }
+.note-fail { background: var(--red-100);   color: var(--red-700);   }
+
+/* Barre verrou */
+.verrou-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.verrou-bar.verrouille {
+  background: var(--red-50);
+  border: 1.5px solid var(--red-300);
+  color: var(--red-700);
+}
+
+.verrou-bar.ouvert {
+  background: var(--green-50);
+  border: 1.5px solid var(--green-300);
+  color: var(--green-700);
+}
+
+.verrou-bar-text {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.verrou-bar-actions { display: flex; gap: 0.5rem; }
+
+/* Sélecteur trimestre */
+.trimestre-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.trimestre-selector span {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--gray-600);
+}
+
+.trimestre-btn {
+  padding: 0.35rem 1rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1.5px solid var(--gray-300);
+  background: #ffffff;
+  color: var(--gray-600);
+  text-decoration: none;
+  transition: background 150ms, border-color 150ms, color 150ms;
+}
+
+.trimestre-btn:hover {
+  border-color: var(--blue-400);
+  color: var(--blue-700);
+  background: var(--blue-50);
+}
+
+.trimestre-btn.active {
+  background: var(--blue-600);
+  border-color: var(--blue-600);
+  color: #ffffff;
+}
+
+/* Lignes alternées */
+.eleve-note-row:nth-child(even) { background: var(--gray-50); }
+.eleve-note-row:hover { background: var(--blue-50) !important; }
+
+/* Responsive */
+@media (max-width: 700px) {
+  .note-input { width: 54px; font-size: 0.75rem; }
+  .notes-saisie-table .th-note { width: 60px; }
+}
+
+/* Styles spécifiques à la page notes_saisie */
+.notes-saisie-table .th-nom  { text-align: left; min-width: 160px; }
+.notes-saisie-table .th-note { text-align: center; width: 80px; }
+.notes-saisie-table .th-moy  { text-align: center; width: 70px; }
+.notes-saisie-table .td-nom  { text-align: left; }
+.notes-saisie-table .td-note { text-align: center; padding: 0.4rem 0.3rem; }
+.notes-saisie-table .td-moy  { text-align: center; }
+
+/* Input note */
+.note-input {
+  width: 68px;
+  padding: 0.3rem 0.4rem;
+  border: 1.5px solid var(--gray-300);
+  border-radius: 5px;
+  font-size: 0.82rem;
+  text-align: center;
+  color: var(--gray-900);
+  background: var(--gray-50);
+  outline: none;
+  transition: border-color 150ms, box-shadow 150ms, background 150ms;
+  /* -moz-appearance: textfield; */
+}
+
+.note-input::-webkit-inner-spin-button,
+.note-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+
+.note-input:focus {
+  border-color: var(--blue-500);
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(59,130,246,.2);
+}
+
+.note-input:hover { border-color: var(--blue-400); background: #ffffff; }
+
+/* Affichage note lecture seule */
+.note-display {
+  display: inline-block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  background: var(--gray-100);
+  color: var(--gray-600);
+}
+
+/* Moyennes colorées */
+.moy-display {
+  display: inline-block;
+  font-weight: 700;
+  font-size: 0.88rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 5px;
+  background: var(--gray-100);
+  color: var(--gray-500);
+  min-width: 38px;
+  text-align: center;
+  transition: background 200ms, color 200ms;
+}
+
+.moy-ok   { background: var(--green-100); color: var(--green-700); }
+.moy-fail { background: var(--red-100);   color: var(--red-700);   }
+
+.note-ok   { background: var(--green-100); color: var(--green-700); }
+.note-fail { background: var(--red-100);   color: var(--red-700);   }
+
+/* Barre verrou */
+.verrou-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.verrou-bar.verrouille {
+  background: var(--red-50);
+  border: 1.5px solid var(--red-300);
+  color: var(--red-700);
+}
+
+.verrou-bar.ouvert {
+  background: var(--green-50);
+  border: 1.5px solid var(--green-300);
+  color: var(--green-700);
+}
+
+.verrou-bar-text {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.verrou-bar-actions { display: flex; gap: 0.5rem; }
+
+/* Sélecteur trimestre */
+.trimestre-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.trimestre-selector span {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--gray-600);
+}
+
+.trimestre-btn {
+  padding: 0.35rem 1rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1.5px solid var(--gray-300);
+  background: #ffffff;
+  color: var(--gray-600);
+  text-decoration: none;
+  transition: background 150ms, border-color 150ms, color 150ms;
+}
+
+.trimestre-btn:hover {
+  border-color: var(--blue-400);
+  color: var(--blue-700);
+  background: var(--blue-50);
+}
+
+.trimestre-btn.active {
+  background: var(--blue-600);
+  border-color: var(--blue-600);
+  color: #ffffff;
+}
+
+/* Lignes alternées */
+.eleve-note-row:nth-child(even) { background: var(--gray-50); }
+.eleve-note-row:hover { background: var(--blue-50) !important; }
+
+/* Responsive */
+@media (max-width: 700px) {
+  .note-input { width: 54px; font-size: 0.75rem; }
+  .notes-saisie-table .th-note { width: 60px; }
+}

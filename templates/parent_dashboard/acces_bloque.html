@@ -1,0 +1,38 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+{% block page_title %}Accès non autorisé{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/add_eleve.css' %}">
+<link rel="stylesheet" href="{% static 'css/parent/dashboard.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/list_eleve.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/add_eleve.css' %}">
+<link rel="stylesheet" href="{% static 'css/secretaire/eleves/list_eleve.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/detail.css' %}">
+<link rel="stylesheet" href="{% static 'css/dashboard_enseignant/list.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/message.css' %}">
+{% endblock %}
+{% block content %}
+
+{% if enfants.count > 1 %}
+<div class="enfant-selector">
+  <span class="enfant-selector-label">Mes enfants :</span>
+  {% for e in enfants %}
+    <a href="{% url 'parent_choisir_enfant' e.id %}" class="enfant-chip {% if enfant.id == e.id %}enfant-chip-actif{% endif %}">
+      <span class="enfant-chip-avatar">{{ e.nom|first|upper }}{{ e.prenom|first|upper }}</span>
+      {{ e.nom }} {{ e.prenom }}
+    </a>
+  {% endfor %}
+</div>
+{% endif %}
+
+<div class="acces-bloque-card">
+  <div class="acces-bloque-icon">🔒</div>
+  <h2>Contenu non disponible</h2>
+  <p>{{ message }}</p>
+  <p style="font-size:.82rem; color: var(--gray-500);">
+    Contactez l'administration ou le secrétariat pour demander la publication de ces informations.
+  </p>
+  <a href="{% url 'dashboard_parent' %}" class="btn btn-ghost btn-sm">← Retour au tableau de bord</a>
+</div>
+
+{% endblock %}

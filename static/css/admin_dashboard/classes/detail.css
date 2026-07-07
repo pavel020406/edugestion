@@ -1,0 +1,234 @@
+/* ============================================================
+   admin_dashboard/classes/detail.css
+   Page détail d'une classe (infos, matières, élèves, partage notes)
+   CSS complet et autonome
+   ============================================================ */
+
+/* ── En-tête de page ── */
+.form-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .75rem;
+  margin-bottom: 1.25rem;
+}
+.form-page-title {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin: 0;
+}
+.title-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem; height: 2rem;
+  border-radius: .6rem;
+  background: var(--blue-50);
+  color: var(--blue-600);
+  flex-shrink: 0;
+}
+.title-icon svg { width: 1.1rem; height: 1.1rem; }
+
+/* ── Boutons ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  border-radius: .55rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background .15s ease, border-color .15s ease;
+}
+.btn-sm { padding: .45rem .9rem; font-size: .82rem; }
+.btn-primary { background: var(--blue-600); color: #fff; }
+.btn-primary:hover { background: var(--blue-700); }
+.btn-ghost { background: #fff; border-color: var(--gray-300); color: var(--gray-700, var(--gray-900)); }
+.btn-ghost:hover { background: var(--gray-50); border-color: var(--gray-400, var(--gray-300)); }
+
+/* ── Messages flash ── */
+.form-messages { margin-bottom: 1rem; }
+.alert {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  padding: .7rem 1rem;
+  border-radius: .6rem;
+  font-size: .85rem;
+  margin-bottom: .5rem;
+  border: 1px solid transparent;
+}
+.alert svg { width: 1.1rem; height: 1.1rem; flex-shrink: 0; }
+.alert-success { background: var(--green-100); color: var(--green-700); border-color: var(--green-300); }
+.alert-error   { background: var(--red-100);   color: var(--red-700);   border-color: var(--red-300); }
+
+/* ── Carte liste (info / matières / élèves / partage) ── */
+.list-card {
+  background: #fff;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg, 12px);
+  box-shadow: var(--shadow-md, 0 2px 8px rgba(0,0,0,.06));
+  overflow: hidden;
+}
+.list-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .9rem 1.25rem;
+  border-bottom: 1px solid var(--gray-100);
+}
+.list-card-header h2 {
+  font-size: .95rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin: 0;
+}
+.list-card-count {
+  font-size: .72rem;
+  font-weight: 700;
+  color: var(--blue-700);
+  background: var(--blue-50);
+  border: 1px solid var(--blue-200);
+  border-radius: 999px;
+  padding: .15rem .6rem;
+  white-space: nowrap;
+}
+
+/* ── Tables ── */
+.data-table-wrap { overflow-x: auto; }
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table thead th {
+  text-align: left;
+  font-size: .7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  color: var(--gray-500);
+  background: var(--gray-50);
+  padding: .65rem 1.1rem;
+  border-bottom: 1px solid var(--gray-200);
+}
+.data-table tbody td {
+  padding: .65rem 1.1rem;
+  font-size: .84rem;
+  color: var(--gray-900);
+  border-bottom: 1px solid var(--gray-100);
+  vertical-align: middle;
+}
+.data-table tbody tr:last-child td { border-bottom: none; }
+.data-table tbody tr:hover { background: var(--blue-50); }
+
+/* ── Boutons d'action compacts ── */
+.action-buttons { display: flex; gap: .4rem; flex-wrap: wrap; }
+.btn-xs {
+  display: inline-flex;
+  align-items: center;
+  font-size: .74rem;
+  font-weight: 600;
+  padding: .32rem .65rem;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+.btn-xs-edit   { background: var(--blue-50);  color: var(--blue-700);  border-color: var(--blue-200); }
+.btn-xs-edit:hover { background: var(--blue-100); }
+.btn-xs-delete { background: var(--red-100);  color: var(--red-700);   border-color: var(--red-300); }
+.btn-xs-delete:hover { filter: brightness(.97); }
+.btn-xs-success { background: var(--green-100); color: var(--green-700); border-color: var(--green-300); }
+.btn-xs-success:hover { background: var(--green-100); filter: brightness(.97); }
+.btn-xs-disabled {
+  background: var(--gray-100); color: var(--gray-400); border-color: var(--gray-200);
+  cursor: not-allowed;
+}
+
+/* ── État vide ── */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .5rem;
+  text-align: center;
+  color: var(--gray-500);
+}
+.empty-emoji { font-size: 2.2rem; }
+.empty-state p { margin: 0; font-size: .88rem; }
+
+/* ── Section partage des notes ── */
+.partage-hint {
+  padding: .8rem 1.25rem;
+  font-size: .82rem;
+  color: var(--gray-500);
+  background: var(--blue-50);
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.partage-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.partage-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: .9rem 1.25rem;
+  border-bottom: 1px solid var(--gray-100);
+}
+.partage-row:last-child { border-bottom: none; }
+.partage-row.partage-actif { background: var(--green-100); background: color-mix(in srgb, var(--green-100) 35%, #fff); }
+
+.partage-row-left {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  flex-wrap: wrap;
+}
+.partage-row-title {
+  font-size: .92rem;
+  font-weight: 700;
+  color: var(--gray-900);
+}
+
+.partage-row-actions {
+  display: flex;
+  gap: .5rem;
+  flex-wrap: wrap;
+}
+
+/* ── Badges de statut partage ── */
+.badge-partage {
+  display: inline-flex;
+  align-items: center;
+  font-size: .68rem;
+  font-weight: 700;
+  padding: .15rem .55rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+}
+.badge-partage-oui  { background: var(--green-100); color: var(--green-700); border-color: var(--green-300); }
+.badge-partage-non   { background: var(--gray-100);  color: var(--gray-500);  border-color: var(--gray-300); }
+.badge-partage-warn  { background: var(--amber-100); color: var(--amber-700); border-color: var(--amber-300); }
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  div[style*="grid-template-columns:260px 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .form-page-header { flex-direction: column; align-items: flex-start; }
+  .partage-row { flex-direction: column; align-items: flex-start; }
+  .partage-row-actions { width: 100%; }
+}

@@ -1,0 +1,163 @@
+{% extends 'dashboard_eleve/base_eleve.html' %}
+{% load static %}
+{% block page_title %}Mes notes{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard_eleve/eleve.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="form-page-header">
+  <h1 class="form-page-title">
+    <span class="title-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+    </span>
+    Mes notes
+  </h1>
+  <!-- Sélecteur trimestre -->
+  <div class="trimestre-tabs">
+    {% for t, l in trimestres %}
+      <a href="?trimestre={{ t }}"
+         class="trim-tab {% if trimestre == t %}active{% endif %}">{{ l }}</a>
+    {% endfor %}
+  </div>
+</div>
+
+{% if not a_acces %}
+  <!-- ── État verrouillé ── -->
+  <div class="acces-locked">
+    <div class="locked-icon">🔒</div>
+    <h2>Notes non disponibles</h2>
+    <p>Vos notes du {{ trimestre }} ne sont pas encore disponibles.<br>
+       L'administration vous enverra un message lorsqu'elles seront publiées.</p>
+    <a href="{% url 'eleve_messages' %}" class="btn btn-ghost btn-sm">
+      Voir mes messages
+    </a>
+  </div>
+
+{% else %}
+  <!-- Moyenne générale -->
+  {% if moyenne_generale is not None %}
+    <div class="moy-generale-bar">
+      <span>Moyenne générale {{ trimestre }}</span>
+      <strong class="{% if moyenne_generale >= 10 %}moy-ok{% else %}moy-fail{% endif %}">
+        {{ moyenne_generale }}/20
+      </strong>
+    </div>
+  {% endif %}
+
+  <div class="list-card">
+    <div class="list-card-header">
+      <h2>{{ trimestre }} — Notes par matière</h2>
+      <span class="list-card-count">{{ lignes|length }} matière(s)</span>
+    </div>
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Matière</th>
+            <th>Séquence 1</th>
+            <th>Séquence 2</th>
+            <th>Examen</th>
+            <th>Moyenne</th>
+            <th>Enseignant</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ligne in lignes %}
+            <tr>
+              <td><strong>{{ ligne.matiere.nom_matiere }}</strong></td>
+              <td>{% with v=ligne.notes_par_eval.sequence1 %}{% if v is not None %}{{ v }}/20{% else %}—{% endif %}{% endwith %}</td>
+              <td>{% with v=ligne.notes_par_eval.sequence2 %}{% if v is not None %}{{ v }}/20{% else %}—{% endif %}{% endwith %}</td>
+              <td>{% with v=ligne.notes_par_eval.examen %}{% if v is not None %}{{ v }}/20{% else %}—{% endif %}{% endwith %}</td>
+              <td>
+                {% if ligne.moyenne is not None %}
+                  <span class="note-val {% if ligne.moyenne >= 10 %}note-ok{% else %}note-fail{% endif %}">
+                    {{ ligne.moyenne }}/20
+                  </span>
+                {% else %}—{% endif %}
+              </td>
+              <td style="font-size:0.8rem; color:var(--gray-500);">
+                {% if ligne.enseignant %}{{ ligne.enseignant.last_name }}{% else %}—{% endif %}
+              </td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="6" class="empty-mini" style="text-align:center;padding:1.5rem;">Aucune note saisie.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endif %}
+{% endblock %}
+
+
+{# ══════════════════════════════════════════════════════════════
+   eleve_emploi.html
+══════════════════════════════════════════════════════════════ #}
+{# FICHIER SÉPARÉ — sauvegarde ce bloc dans eleve_emploi.html #}
+{% comment %}
+{% extends 'dashboard_eleve/base_eleve.html' %}
+{% load static %}
+{% block page_title %}Mon emploi du temps{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard_eleve/eleve.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="form-page-header">
+  <h1 class="form-page-title">
+    <span class="title-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 3v3M16 3v3"/></svg>
+    </span>
+    Mon emploi du temps
+  </h1>
+</div>
+
+{% if not a_acces %}
+  <div class="acces-locked">
+    <div class="locked-icon">🔒</div>
+    <h2>Emploi du temps non disponible</h2>
+    <p>Votre emploi du temps n'a pas encore été publié par l'administration.</p>
+    <a href="{% url 'eleve_messages' %}" class="btn btn-ghost btn-sm">Voir mes messages</a>
+  </div>
+{% else %}
+  <div class="emploi-table-wrap">
+    <table class="emploi-table">
+      <thead>
+        <tr>
+          <th class="emploi-col-heure">Horaire</th>
+          {% for jour in entetes_jours %}
+            <th>{{ jour.libelle }}<br><span style="font-size:.65rem;opacity:.8;">{{ jour.date|date:"d/m" }}</span></th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for ligne in lignes_grille %}
+          <tr>
+            <td class="emploi-col-heure">{{ ligne.heure_debut|time:"H\hi" }} – {{ ligne.heure_fin|time:"H\hi" }}</td>
+            {% if ligne.est_pause %}
+              <td colspan="6" class="emploi-pause">Pause</td>
+            {% else %}
+              {% for cellule in ligne.cellules %}
+                <td>
+                  {% if cellule and cellule.matiere %}
+                    <div class="emploi-cell-cours">
+                      <span class="emploi-cell-matiere">{{ cellule.matiere.nom_matiere }}</span>
+                      {% if cellule.enseignant %}
+                        <span class="emploi-cell-prof">{{ cellule.enseignant.last_name }}</span>
+                      {% endif %}
+                    </div>
+                  {% endif %}
+                </td>
+              {% endfor %}
+            {% endif %}
+          </tr>
+        {% empty %}
+          <tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--gray-400);">Aucun créneau défini.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endif %}
+{% endblock %}
+{% endcomment %}

@@ -1,0 +1,59 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Mes appels{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard_enseignant/presences.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="form-page-header">
+  <h1 class="form-page-title">
+    <span class="title-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M9 11l3 3L22 4"/>
+        <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+      </svg>
+    </span>
+    Mes appels
+  </h1>
+</div>
+
+<p class="page-hint">Choisissez une classe pour faire l'appel du jour.</p>
+
+{% if messages %}
+  <div class="form-messages">
+    {% for message in messages %}
+      <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span>{{ message }}</span>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+{% if classes %}
+  <div class="classe-grid">
+    {% for classe in classes %}
+      <a href="{% url 'enseignant_presences_creneaux' classe.id %}" class="classe-card">
+        <span class="avatar-chip">{{ classe.get_niveau_display|first|upper }}</span>
+        <div class="classe-card-info">
+          <strong>{{ classe }}</strong>
+          <small>{{ classe.effectif }} élève(s)</small>
+        </div>
+        <svg class="card-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 18l6-6-6-6"/>
+        </svg>
+      </a>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="empty-state">
+    <div class="empty-emoji">🏫</div>
+    <p>Aucune classe ne vous est assignée pour le moment.</p>
+  </div>
+{% endif %}
+
+{% endblock %}

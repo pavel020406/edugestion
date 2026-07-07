@@ -1,0 +1,79 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}{{ matiere.nom_matiere }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/matieres/list_matiere.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/matieres/add_matiere.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/matieres/detail.css' %}">
+{% endblock %}
+
+{% block content %}
+
+  <div class="form-page-header">
+    <h1 class="form-page-title">
+      <span class="title-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="12" rx="1.5"/><path d="M9 20h6M12 16v4"/></svg>
+      </span>
+      Fiche matière
+    </h1>
+    <a href="{% url 'list_matiere' %}" class="btn btn-ghost btn-sm">Retour à la liste</a>
+  </div>
+
+  {% if messages %}
+    <div class="form-messages">
+      {% for message in messages %}
+        <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+          <span>{{ message }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="detail-card">
+
+    <div class="detail-header">
+      <div class="detail-avatar" aria-hidden="true">{{ matiere.nom_matiere|first|upper }}</div>
+      <div>
+        <h2>{{ matiere.nom_matiere }}</h2>
+        <p>{{ classes_concernees|length }} classe(s) concernée(s)</p>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <h3 class="detail-section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 3h7l4 4v13a1 1 0 01-1 1H7a1 1 0 01-1-1V4a1 1 0 011-1z"/><path d="M9 12h6M9 16h6M9 8h3"/></svg>
+        Description
+      </h3>
+      <div class="detail-value {% if not matiere.description %}empty{% endif %}">
+        {% if matiere.description %}{{ matiere.description }}{% else %}— Aucune description —{% endif %}
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <h3 class="detail-section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 11l8-6 8 6"/><path d="M6 10v9h12v-9"/></svg>
+        Classes où cette matière est enseignée
+      </h3>
+      <div class="detail-chips">
+        {% for classe in classes_concernees %}
+          <span class="class-chip">{{ classe }}</span>
+        {% empty %}
+          <span class="detail-value empty">— Aucune classe pour l'instant —</span>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="detail-actions">
+      <form method="post" action="{% url 'delete_matiere' matiere.id %}" style="display:inline;" onsubmit="return confirm('Supprimer définitivement la matière « {{ matiere.nom_matiere }} » ?');">
+        {% csrf_token %}
+        <button type="submit" class="btn-xs btn-xs-delete" style="padding: 0.6rem 1.2rem; font-size: 0.85rem;">Supprimer</button>
+      </form>
+      <a href="{% url 'edit_matiere' matiere.id %}" class="btn btn-primary">Modifier</a>
+    </div>
+
+  </div>
+
+{% endblock %}

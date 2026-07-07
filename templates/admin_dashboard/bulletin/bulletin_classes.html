@@ -1,0 +1,42 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Générer un bulletin{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/bulletin/bulletin.css' %}">
+{% endblock %}
+
+{% block content %}
+
+  <div class="form-page-header">
+    <h1 class="form-page-title">
+      <span class="title-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 3h7l4 4v13a1 1 0 01-1 1H7a1 1 0 01-1-1V4a1 1 0 011-1z"/><path d="M9 12h6M9 16h6M9 8h3"/></svg>
+      </span>
+      Générer un bulletin
+    </h1>
+  </div>
+
+  <p class="bulletin-breadcrumb-hint">Étape 1 sur 2 — Choisissez une classe.</p>
+
+  {% if classes %}
+    <div class="bulletin-grid">
+      {% for classe in classes %}
+        <a href="{% url 'bulletin_eleves' classe.id %}" class="bulletin-card">
+          <span class="avatar-chip" aria-hidden="true">{{ classe.get_niveau_display|first|upper }}</span>
+          <div>
+            <strong>{{ classe }}</strong>
+            <small>{{ classe.effectif }} élève(s)</small>
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-emoji" aria-hidden="true">🏫</div>
+      <p>Aucune classe pour l'instant</p>
+    </div>
+  {% endif %}
+
+{% endblock %}

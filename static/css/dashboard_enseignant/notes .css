@@ -1,0 +1,109 @@
+/* ==========================================================
+   Thème Bleu & Blanc — Cartes de sélection de classe
+   (Étape 1 : choix de la classe pour saisir les notes)
+   ========================================================== */
+
+:root {
+  --bleu-fonce: #2563EB;
+  --bleu-badge: #2F5CE0;
+  --bleu-pale: #EFF4FF;
+  --fond-page: #F3F6FB;
+  --texte: #0F172A;
+  --texte-mute: #94A3B8;
+  --blanc: #FFFFFF;
+  --bordure: #EEF1F6;
+}
+
+.bs-scope {
+  background-color: var(--fond-page);
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+}
+
+.bs-scope h1.h3 {
+  color: var(--texte);
+  font-weight: 700;
+}
+
+.bs-scope .text-muted {
+  color: var(--texte-mute) !important;
+}
+
+/* ---------- Carte classe ---------- */
+.bs-scope .classe-card {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  background-color: var(--blanc);
+  border: 1px solid var(--bordure);
+  border-radius: 1rem;
+  padding: 1.1rem 1.2rem;
+  text-decoration: none;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+  transition: box-shadow 0.18s ease, transform 0.18s ease, border-color 0.18s ease;
+}
+
+.bs-scope .classe-card:hover {
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.12);
+  border-color: var(--bleu-pale);
+  transform: translateY(-2px);
+}
+
+/* ---------- Badge niveau (le carré bleu avec le chiffre) ---------- */
+.bs-scope .classe-badge {
+  flex-shrink: 0;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 0.65rem;
+  background: linear-gradient(180deg, #3B6CF0 0%, var(--bleu-badge) 100%);
+  color: var(--blanc);
+  font-weight: 700;
+  font-size: 1.05rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ---------- Texte central ---------- */
+.bs-scope .classe-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.bs-scope .classe-titre {
+  color: var(--texte);
+  font-weight: 700;
+  font-size: 0.98rem;
+  margin: 0 0 0.15rem 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bs-scope .classe-effectif {
+  color: var(--texte-mute);
+  font-size: 0.82rem;
+  margin: 0;
+}
+
+/* ---------- Chevron ---------- */
+.bs-scope .classe-chevron {
+  flex-shrink: 0;
+  color: #CBD5E1;
+  transition: transform 0.18s ease, color 0.18s ease;
+}
+
+.bs-scope .classe-card:hover .classe-chevron {
+  color: var(--bleu-fonce);
+  transform: translateX(3px);
+}
+
+/* ---------- État vide ---------- */
+.bs-scope .classe-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--texte-mute);
+  background-color: var(--blanc);
+  border-radius: 1rem;
+  border: 1px dashed var(--bordure);
+}

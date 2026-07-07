@@ -1,0 +1,60 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+{% load dict_filters %}
+{% block page_title %}Bulletins — {{ enfant.nom }} {{ enfant.prenom }}{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/add_eleve.css' %}">
+<link rel="stylesheet" href="{% static 'css/parent/dashboard.css' %}">
+<link rel="stylesheet" href="{% static 'css/parent/notes.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/list_eleve.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/add_eleve.css' %}">
+<link rel="stylesheet" href="{% static 'css/secretaire/eleves/list_eleve.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/detail.css' %}">
+<link rel="stylesheet" href="{% static 'css/dashboard_enseignant/list.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/message.css' %}">
+{% endblock %}
+{% block content %}
+
+<div class="form-page-header">
+  <h1 class="form-page-title">
+    <span class="title-icon">📄</span>
+    Bulletins — {{ enfant.nom }} {{ enfant.prenom }}
+  </h1>
+  <a href="{% url 'parent_notes' %}" class="btn btn-ghost btn-sm">← Voir les notes</a>
+</div>
+
+{% if enfants.count > 1 %}
+<div class="enfant-selector">
+  <span class="enfant-selector-label">Mes enfants :</span>
+  {% for e in enfants %}
+    <a href="{% url 'parent_choisir_enfant' e.id %}" class="enfant-chip {% if enfant.id == e.id %}enfant-chip-actif{% endif %}">
+      <span class="enfant-chip-avatar">{{ e.nom|first|upper }}{{ e.prenom|first|upper }}</span>
+      {{ e.nom }} {{ e.prenom }}
+    </a>
+  {% endfor %}
+</div>
+{% endif %}
+
+<div class="bulletins-grid">
+  {% for t_code, t_libelle in trimestres %}
+    <div class="bulletin-card {% if acces_par_trimestre|get_item:t_code %}bulletin-card-dispo{% else %}bulletin-card-bloque{% endif %}">
+      <div class="bulletin-card-icon">
+        {% if acces_par_trimestre|get_item:t_code %}📄{% else %}🔒{% endif %}
+      </div>
+      <h3>{{ t_libelle }}</h3>
+      {% if acces_par_trimestre|get_item:t_code %}
+        <p>Bulletin disponible en téléchargement.</p>
+        <a href="{% url 'parent_bulletin_pdf' t_code %}" class="btn btn-primary btn-sm">
+          ⬇ Télécharger le PDF
+        </a>
+      {% else %}
+        <p>Non encore publié par l'administration.</p>
+        <span class="notes-trim-btn-bloque" style="display:inline-block;margin-top:.4rem;">
+          En attente de publication
+        </span>
+      {% endif %}
+    </div>
+  {% endfor %}
+</div>
+
+{% endblock %}

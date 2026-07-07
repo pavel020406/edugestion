@@ -1,0 +1,191 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}{% if creneau %}Modifier le créneau{% else %}Ajouter un créneau{% endif %}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/add_creneau.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/list_eleve.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/add_eleve.css' %}">
+<link rel="stylesheet" href="{% static 'css/secretaire/eleves/list_eleve.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/detail.css' %}">
+<link rel="stylesheet" href="{% static 'css/dashboard_enseignant/list.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/message.css' %}">
+
+
+
+{% endblock %}
+
+{% block content %}
+
+<div class="form-page-header">
+  <h1 class="form-page-title">
+    <span class="title-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>
+      </svg>
+    </span>
+    {% if creneau %}Modifier le créneau{% else %}Ajouter un créneau{% endif %}
+  </h1>
+  <a href="{% url 'list_creneau' %}" class="btn btn-ghost btn-sm">Retour à la liste</a>
+</div>
+
+{% if messages %}
+  <div class="form-messages">
+    {% for message in messages %}
+      <div class="alert {% if message.tags == 'error' %}alert-error{% elif message.tags == 'warning' %}alert-warning{% else %}alert-success{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/>
+        </svg>
+        <span>{{ message }}</span>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<form method="post" class="form-card" novalidate>
+  {% csrf_token %}
+
+  <h2 class="form-section-title">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+      <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>
+    </svg>
+    Informations du créneau
+  </h2>
+
+  {% if creneau %}
+    <!-- ── MODIFICATION : un seul jour (select classique) ── -->
+    <div class="form-field">
+      <label for="jour">Jour <span class="required">*</span></label>
+      <select id="jour" name="jour" required>
+        {% for code, libelle in jours_choices %}
+          <option value="{{ code }}" {% if creneau.jour == code %}selected{% endif %}>{{ libelle }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+  {% else %}
+    <!-- ── CRÉATION : plusieurs jours (cases à cocher) ── -->
+    <div class="form-field">
+      <label>Jour(s) concerné(s) <span class="required">*</span></label>
+      <p style="font-size:.78rem;color:var(--gray-500);margin:0 0 .5rem;">
+        Sélectionnez un ou plusieurs jours : le même créneau horaire sera créé pour chacun.
+      </p>
+
+      <div class="jours-checkbox-grid">
+        {% for code, libelle in jours_choices %}
+          <label class="jour-checkbox-item">
+            <input type="checkbox" name="jours" value="{{ code }}">
+            <span class="jour-checkbox-label">{{ libelle }}</span>
+          </label>
+        {% endfor %}
+      </div>
+
+      <div class="jours-quick-actions">
+        <button type="button" class="btn-xs btn-xs-edit" onclick="toggleTousJours(true)">
+          Tout sélectionner
+        </button>
+        <button type="button" class="btn-xs btn-xs-edit" onclick="toggleTousJours(false)">
+          Tout désélectionner
+        </button>
+        <button type="button" class="btn-xs btn-xs-edit" onclick="selectionnerSemaine()">
+          Lun–Sam (sans dimanche)
+        </button>
+      </div>
+    </div>
+  {% endif %}
+
+  <div class="form-grid-2">
+    <div class="form-field">
+      <label for="heure_debut">Heure de début <span class="required">*</span></label>
+      <input type="time" id="heure_debut" name="heure_debut"
+             value="{{ creneau.heure_debut|time:'H:i'|default:'' }}" required>
+    </div>
+    <div class="form-field">
+      <label for="heure_fin">Heure de fin <span class="required">*</span></label>
+      <input type="time" id="heure_fin" name="heure_fin"
+             value="{{ creneau.heure_fin|time:'H:i'|default:'' }}" required>
+    </div>
+  </div>
+
+  <div class="form-field">
+    <label style="display: flex; align-items: center; gap: 0.5rem; font-weight: 500;">
+      <input type="checkbox" name="est_pause" value="1" style="width: auto;" {% if creneau.est_pause %}checked{% endif %}>
+      Ce créneau est une pause (récréation, déjeuner) — aucun cours n'y sera assigné
+    </label>
+  </div>
+
+  <div class="form-actions">
+    <a href="{% url 'list_creneau' %}" class="btn btn-ghost">Annuler</a>
+    <button type="submit" class="btn btn-primary">
+      {% if creneau %}Enregistrer les modifications{% else %}Créer le(s) créneau(x){% endif %}
+    </button>
+  </div>
+
+</form>
+
+<style>
+.jours-checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+}
+
+.jour-checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.75rem;
+  background: var(--gray-50);
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background 150ms, border-color 150ms;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--gray-700);
+}
+
+.jour-checkbox-item:hover {
+  background: var(--blue-50);
+  border-color: var(--blue-300);
+}
+
+.jour-checkbox-item input[type="checkbox"] {
+  width: 1.05rem;
+  height: 1.05rem;
+  accent-color: var(--blue-600);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.jour-checkbox-item:has(input:checked) {
+  background: var(--blue-50);
+  border-color: var(--blue-500);
+  color: var(--blue-700);
+  font-weight: 700;
+}
+
+.jours-quick-actions {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+</style>
+
+<script>
+function toggleTousJours(etat) {
+  document.querySelectorAll('input[name="jours"]').forEach(function(cb) {
+    cb.checked = etat;
+  });
+}
+
+function selectionnerSemaine() {
+  document.querySelectorAll('input[name="jours"]').forEach(function(cb) {
+    cb.checked = cb.value !== 'dimanche';
+  });
+}
+</script>
+
+{% endblock %}

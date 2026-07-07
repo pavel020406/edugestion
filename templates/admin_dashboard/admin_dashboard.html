@@ -1,0 +1,92 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Tableau de bord{% endblock %}
+
+{% block content %}
+
+  <div class="dashboard-topbar">
+    <div>
+      <h1>Tableau de bord</h1>
+      <p>Vue d'ensemble de votre établissement.</p>
+    </div>
+    <a href="{% url 'accueil' %}" class="btn btn-ghost btn-sm">Voir le site public</a>
+  </div>
+
+  <!-- ---------- Actions rapides ---------- -->
+  <h2 class="dashboard-section-title">Actions rapides</h2>
+  <div class="quick-actions">
+
+    <a href="{% url 'add_eleve' %}" class="quick-action">
+      <span class="qa-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg>
+      </span>
+      <strong>Ajouter un élève</strong>
+      <small>Créer une nouvelle fiche élève</small>
+    </a>
+
+    <a href="{% url 'add_enseignant' %}" class="quick-action">
+      <span class="qa-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6"/><path d="M19 8v4M21 10h-4" stroke-width="1.6"/></svg>
+      </span>
+      <strong>Ajouter un enseignant</strong>
+      <small>Enregistrer un nouveau profil</small>
+    </a>
+
+    <a href="{% url 'appel_classes' %}" class="quick-action">
+      <span class="qa-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6"/><path d="M19 8v4M21 10h-4" stroke-width="1.6"/></svg>
+      </span>
+      <strong>Faire l'appel </strong>
+      <small>Faire l'appel</small>
+    </a>
+
+    <a href="{% url 'bulletin_classes' %}" class="quick-action">
+      <span class="qa-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6"/><path d="M19 8v4M21 10h-4" stroke-width="1.6"/></svg>
+      </span>
+      <strong>Generer un bulletin </strong>
+      <small>Generer un bulletin</small>
+    </a>
+
+  </div>
+
+  <!-- ---------- Statistiques ---------- -->
+  <h2 class="dashboard-section-title">Statistiques</h2>
+  <div class="stats-grid">
+
+    <div class="stat-card-empty">
+      <span class="stat-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.2 2.7-5.5 6-5.5s6 2.3 6 5.5"/></svg>
+      </span>
+      <div class="stat-card-value">{{ total_eleves }}</div>
+      <div class="stat-card-label">Élèves inscrits</div>
+    </div>
+
+    <div class="stat-card-empty">
+      <span class="stat-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 11l8-6 8 6"/><path d="M6 10v9h12v-9"/></svg>
+      </span>
+      <div class="stat-card-value">{{ total_classes }}</div>
+      <div class="stat-card-label">Classes actives</div>
+    </div>
+
+    <div class="stat-card-empty">
+      <span class="stat-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>
+      </span>
+      <div class="stat-card-value">—</div>
+      <div class="stat-card-label">Taux de présence</div>
+    </div>
+
+    <div class="stat-card-empty">
+      <span class="stat-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 9.5h4.5a1.5 1.5 0 010 3H10a1.5 1.5 0 000 3h4.5"/></svg>
+      </span>
+      <div class="stat-card-value">—</div>
+      <div class="stat-card-label">Paiements en attente</div>
+    </div>
+
+  </div>
+
+{% endblock %}

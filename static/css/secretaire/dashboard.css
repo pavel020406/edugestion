@@ -1,0 +1,73 @@
+/* ============================================================
+   dashboard.css — page Tableau de bord secrétariat
+   ============================================================ */
+
+.niveaux-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1rem;
+}
+
+.niveau-card {
+    background: #ffffff;
+    border: 1px solid var(--sec-blue-100);
+    border-radius: 0.9rem;
+    padding: 1.4rem;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.niveau-card-icon {
+    width: 2.6rem; height: 2.6rem;
+    border-radius: 0.7rem;
+    background: var(--sec-blue-50);
+    color: var(--sec-blue-600);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: .9rem;
+}
+.niveau-card-icon svg { width: 1.3rem; height: 1.3rem; }
+
+.niveau-card h3 { margin: 0 0 .25rem; font-size: 1.4rem; color: var(--sec-blue-900); }
+.niveau-meta { color: var(--sec-gray-500); font-size: .85rem; }
+
+/* ── Table des dernières inscriptions ── */
+.sec-table-wrap {
+    background: #fff; border: 1px solid var(--sec-blue-100);
+    border-radius: 0.9rem; overflow: hidden; margin-top: 1rem;
+}
+.sec-table { width: 100%; border-collapse: collapse; }
+.sec-table thead { background: var(--sec-blue-900); }
+.sec-table thead th {
+    color: #fff; text-align: left; font-size: .78rem; letter-spacing: .03em;
+    text-transform: uppercase; padding: .85rem 1rem; font-weight: 600;
+}
+.sec-table tbody tr { border-top: 1px solid var(--sec-gray-100); }
+.sec-table tbody tr:hover { background: var(--sec-blue-50); }
+.sec-table td { padding: .8rem 1rem; font-size: .9rem; color: var(--sec-gray-700); vertical-align: middle; }
+
+.sec-avatar {
+    width: 2.2rem; height: 2.2rem; border-radius: 50%;
+    background: var(--sec-blue-600); color: #fff;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: .8rem; margin-right: .6rem;
+}
+.sec-row-name { display: flex; align-items: center; }
+
+/* ── Bannière d'alerte retard de paiement ── */
+.alert-retard-banner {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  border-radius: .7rem;
+  padding: .8rem 1.1rem;
+  margin-bottom: 1.25rem;
+  font-size: .88rem;
+  text-decoration: none;
+  font-weight: 600;
+}
+.alert-retard-banner span { font-weight: 500; margin-left: auto; text-decoration: underline; }
+.alert-retard-banner:hover { background: #fee2e2; }

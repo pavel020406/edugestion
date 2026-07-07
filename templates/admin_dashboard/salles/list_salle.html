@@ -1,0 +1,90 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Gestion des salles{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/salles/add_salle.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/salles/list_salle.css' %}">
+{% endblock %}
+
+{% block content %}
+
+  <div class="form-page-header">
+    <h1 class="form-page-title">
+      <span class="title-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="12" rx="1.5"/><path d="M8 20h8"/></svg>
+      </span>
+      Gestion des salles
+    </h1>
+    <a href="{% url 'add_salle' %}" class="btn btn-primary btn-sm">+ Ajouter une salle</a>
+  </div>
+
+  <!-- ---------- Messages ---------- -->
+  {% if messages %}
+    <div class="form-messages">
+      {% for message in messages %}
+        <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+          <span>{{ message }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- ---------- Barre de filtre ---------- -->
+  <form method="get" class="filter-bar">
+    <input type="search" name="search" placeholder="Rechercher une salle..." value="{{ request.GET.search }}">
+    <button type="submit" class="btn btn-primary btn-sm">Filtrer</button>
+    <a href="{% url 'list_salle' %}" class="btn btn-ghost btn-sm">Réinitialiser</a>
+  </form>
+
+  <!-- ---------- Liste des salles ---------- -->
+  <div class="list-card">
+    <div class="list-card-header">
+      <h2>Liste des salles</h2>
+      <span class="list-card-count">{{ total }} salle(s)</span>
+    </div>
+
+    {% if salles %}
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Nom de la salle</th>
+              <th>Capacité</th>
+              <th>Classes assignées</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for salle in salles %}
+              <tr>
+                <td><strong>{{ salle.nom }}</strong></td>
+                <td>{{ salle.capacite }} places</td>
+                <td>{{ salle.classes.count }}</td>
+                <td>
+                  <div class="action-buttons">
+                    <a href="{% url 'detail_salle' salle.id %}" class="btn-xs btn-xs-view">Voir</a>
+                    <a href="{% url 'edit_salle' salle.id %}" class="btn-xs btn-xs-edit">Modifier</a>
+                    <form method="post" action="{% url 'delete_salle' salle.id %}" style="display:inline;" onsubmit="return confirm('Supprimer la salle « {{ salle.nom }} » ?');">
+                      {% csrf_token %}
+                      <button type="submit" class="btn-xs btn-xs-delete">Supprimer</button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <div class="empty-emoji" aria-hidden="true">🏫</div>
+        <p>Aucune salle trouvée</p>
+        <a href="{% url 'add_salle' %}" class="btn btn-primary">+ Ajouter la première salle</a>
+      </div>
+    {% endif %}
+  </div>
+
+{% endblock %}

@@ -1,0 +1,124 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}{% if enseignant %}Modifier l'enseignant{% else %}Ajouter un enseignant{% endif %}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/enseignants/add.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/detail.css' %}">
+<link rel="stylesheet" href="{% static 'css/dashboard_enseignant/list.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/message.css' %}">
+{% endblock %}
+
+{% block content %}
+
+  <div class="form-page-header">
+    <h1 class="form-page-title">
+      <span class="title-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6"/></svg>
+      </span>
+      {% if enseignant %}Modifier l'enseignant{% else %}Ajouter un enseignant{% endif %}
+    </h1>
+    <a href="{% url 'list_enseignant' %}" class="btn btn-ghost btn-sm">Retour à la liste</a>
+  </div>
+
+  <!-- ---------- Messages ---------- -->
+  {% if messages %}
+    <div class="form-messages">
+      {% for message in messages %}
+        <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+          <span>{{ message }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- ---------- Formulaire ---------- -->
+  <form method="post" class="form-card" novalidate>
+    {% csrf_token %}
+
+    <h2 class="form-section-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6"/></svg>
+      Informations personnelles
+    </h2>
+
+    <div class="form-grid-2">
+      <div class="form-field">
+        <label for="first_name">Nom <span class="required">*</span></label>
+        <input type="text" id="first_name" name="first_name" placeholder="Nom de l'enseignant" value="{{ enseignant.first_name|default:'' }}" required>
+      </div>
+      <div class="form-field">
+        <label for="last_name">Prénom <span class="required">*</span></label>
+        <input type="text" id="last_name" name="last_name" placeholder="Prénom de l'enseignant" value="{{ enseignant.last_name|default:'' }}" required>
+      </div>
+    </div>
+
+    <div class="form-grid-2">
+      <div class="form-field">
+        <label for="sexe">Sexe <span class="required">*</span></label>
+        <select id="sexe" name="sexe" required>
+          <option value="" {% if not enseignant %}selected disabled{% endif %}>-- Choisir --</option>
+          <option value="F" {% if enseignant.sexe == 'F' %}selected{% endif %}>Féminin</option>
+          <option value="M" {% if enseignant.sexe == 'M' %}selected{% endif %}>Masculin</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label for="telephone">Téléphone</label>
+        <input type="tel" id="telephone" name="telephone" placeholder="Ex. 6XXXXXXXX" value="{{ enseignant.telephone|default:'' }}">
+      </div>
+    </div>
+
+    <div class="form-field">
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" placeholder="email@exemple.com" value="{{ enseignant.email|default:'' }}">
+    </div>
+
+    <h2 class="form-section-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 3h7l4 4v13a1 1 0 01-1 1H7a1 1 0 01-1-1V4a1 1 0 011-1z"/><path d="M9 12h6M9 16h6M9 8h3"/></svg>
+      Affectation
+    </h2>
+
+    <div class="form-grid-2">
+      <div class="form-field">
+        <label for="domaine_enseignement">Domaine d'enseignement</label>
+        <input type="text" id="domaine_enseignement" name="domaine_enseignement" placeholder="Ex. Sciences, Langues..." value="{{ enseignant.domaine_enseignement|default:'' }}">
+      </div>
+      <div class="form-field">
+        <label for="classe_principale">Classe principale (optionnel)</label>
+        <select id="classe_principale" name="classe_principale">
+          <option value="">-- Aucune --</option>
+          {% for classe in classes %}
+            <option value="{{ classe.id }}" {% if enseignant.classe_principale_id == classe.id %}selected{% endif %}>{{ classe.nom }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <h2 class="form-section-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+      Compte de connexion
+    </h2>
+
+    <div class="form-grid-2">
+      <div class="form-field">
+        <label for="username">Nom d'utilisateur</label>
+        <input type="text" id="username" name="username" placeholder="{% if not enseignant %}généré automatiquement si vide{% endif %}" value="{{ enseignant.username|default:'' }}">
+      </div>
+      <div class="form-field">
+        <label for="password">{% if enseignant %}Nouveau mot de passe{% else %}Mot de passe initial{% endif %}</label>
+        <input type="text" id="password" name="password" placeholder="{% if enseignant %}Laisser vide pour ne pas changer{% else %}généré automatiquement si vide{% endif %}">
+      </div>
+    </div>
+    <p class="field-hint">{% if not enseignant %}Si laissés vides, l'identifiant et le mot de passe seront générés automatiquement et affichés après l'enregistrement.{% else %}Laissez le mot de passe vide si vous ne souhaitez pas le modifier.{% endif %}</p>
+
+    <div class="form-actions">
+      <a href="{% url 'list_enseignant' %}" class="btn btn-ghost">Annuler</a>
+      <button type="submit" class="btn btn-primary">
+        {% if enseignant %}Enregistrer les modifications{% else %}Créer l'enseignant{% endif %}
+      </button>
+    </div>
+
+  </form>
+
+{% endblock %}

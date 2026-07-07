@@ -1,0 +1,128 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Messagerie{% endblock %}
+
+{% block extra_css %}
+
+<link rel="stylesheet" href="{% static 'css/parent/dashboard.css' %}">
+<link rel="stylesheet" href="{% static 'css/parent/messages.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/add_eleve.css' %}">
+
+
+
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/detail.css' %}">
+<link rel="stylesheet" href="{% static 'css/dashboard_enseignant/list.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/message.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="form-page-header">
+  <h1 class="form-page-title">
+    <span class="title-icon">✉️</span>
+    Messagerie
+  </h1>
+  <a href="{% url 'parent_envoyer_message' %}" class="btn btn-primary btn-sm">✏ Nouveau message</a>
+</div>
+
+{% if messages %}
+  <div class="form-messages">
+    {% for message in messages %}
+      <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span>{{ message }}</span>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+{% if enfants.count > 1 %}
+<div class="enfant-selector">
+  <span class="enfant-selector-label">Mes enfants :</span>
+  {% for e in enfants %}
+    <a href="{% url 'parent_choisir_enfant' e.id %}" class="enfant-chip {% if enfant.id == e.id %}enfant-chip-actif{% endif %}">
+      <span class="enfant-chip-avatar">{{ e.nom|first|upper }}{{ e.prenom|first|upper }}</span>
+      {{ e.nom }} {{ e.prenom }}
+    </a>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- Messages reçus -->
+<div class="msg-section">
+  <div class="msg-section-header">
+    <h2>📥 Messages reçus</h2>
+    <span class="msg-count">{{ recus.count }}</span>
+  </div>
+  {% if recus %}
+    <div class="msg-list">
+      {% for m in recus %}
+        <div class="msg-item {% if not m.lu %}msg-item-nouveau{% endif %}">
+          <div class="msg-item-meta">
+            <span class="msg-expediteur">
+              {{ m.expediteur.first_name }} {{ m.expediteur.last_name }}
+              <span class="msg-role-tag">{{ m.expediteur.get_role_display }}</span>
+            </span>
+            <span class="msg-date">{{ m.date_envoi|date:"d/m/Y H:i" }}</span>
+          </div>
+          <div class="msg-sujet">{{ m.sujet }}</div>
+          {% if m.contenu %}
+            <div class="msg-contenu">{{ m.contenu }}</div>
+          {% endif %}
+          {% if m.fichier_pdf %}
+            <a href="{{ m.fichier_pdf.url }}" target="_blank" class="btn btn-ghost btn-sm" style="margin-top:.5rem;">
+              📄 Pièce jointe
+            </a>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state" style="padding:1.5rem;">
+      <div class="empty-emoji">📭</div>
+      <p>Aucun message reçu.</p>
+    </div>
+  {% endif %}
+</div>
+
+<!-- Messages envoyés -->
+<div class="msg-section" style="margin-top:1.25rem;">
+  <div class="msg-section-header">
+    <h2>📤 Messages envoyés</h2>
+    <span class="msg-count">{{ envoyes.count }}</span>
+  </div>
+  {% if envoyes %}
+    <div class="msg-list">
+      {% for m in envoyes %}
+        <div class="msg-item">
+          <div class="msg-item-meta">
+            <span class="msg-expediteur">
+              À : {{ m.destinataire.first_name }} {{ m.destinataire.last_name }}
+              <span class="msg-role-tag">{{ m.destinataire.get_role_display }}</span>
+            </span>
+            <span class="msg-date">{{ m.date_envoi|date:"d/m/Y H:i" }}</span>
+          </div>
+          <div class="msg-sujet">{{ m.sujet }}</div>
+          {% if m.contenu %}
+            <div class="msg-contenu">{{ m.contenu }}</div>
+          {% endif %}
+          <div style="margin-top:.4rem;">
+            {% if m.lu %}
+              <span class="msg-statut msg-statut-lu">✓ Lu</span>
+            {% else %}
+              <span class="msg-statut msg-statut-non-lu">● Non lu</span>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state" style="padding:1.5rem;">
+      <div class="empty-emoji">📤</div>
+      <p>Aucun message envoyé.</p>
+    </div>
+  {% endif %}
+</div>
+
+{% endblock %}

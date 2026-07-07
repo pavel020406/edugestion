@@ -1,0 +1,101 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Appel — {{ classe }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard_enseignant/presences.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="form-page-header">
+  <h1 class="form-page-title">
+    <span class="title-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M9 11l3 3L22 4"/>
+        <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+      </svg>
+    </span>
+    Appel — {{ classe }}
+  </h1>
+  <a href="{% url 'enseignant_presences_classes' %}" class="btn btn-ghost btn-sm">
+    Changer de classe
+  </a>
+</div>
+
+{% if messages %}
+  <div class="form-messages">
+    {% for message in messages %}
+      <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span>{{ message }}</span>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<!-- Sélecteur de date -->
+<div class="date-selector">
+  <form method="get" class="date-form">
+    <label for="date">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:1rem;height:1rem;">
+        <rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 3v3M16 3v3"/>
+      </svg>
+      Date :
+    </label>
+    <input type="date" id="date" name="date" value="{{ date_choisie }}"
+           onchange="this.form.submit()">
+  </form>
+  <p class="page-hint" style="margin:0;">
+    Cours du <strong>{{ date_choisie }}</strong>
+  </p>
+</div>
+
+{% if lignes %}
+  <div class="creneau-list">
+    {% for item in lignes %}
+      <div class="creneau-card {% if item.verrouille %}verrouille{% endif %}">
+
+        <!-- Horaire -->
+        <div class="creneau-heure">
+          {{ item.emploi.creneau.heure_debut|time:"H\hi" }}
+          –
+          {{ item.emploi.creneau.heure_fin|time:"H\hi" }}
+        </div>
+
+        <!-- Matière -->
+        <div class="creneau-info">
+          <strong>
+            {% if item.emploi.matiere %}{{ item.emploi.matiere.nom_matiere }}{% else %}—{% endif %}
+          </strong>
+          <small>{{ item.emploi.creneau.get_jour_display }}</small>
+        </div>
+
+        <!-- Statut + action -->
+        <div class="creneau-action">
+          {% if item.verrouille %}
+            <span class="badge badge-locked">✓ Appel fait</span>
+            <a href="{% url 'enseignant_presences_appel' classe.id item.emploi.creneau.id %}?date={{ date_choisie }}"
+               class="btn-xs btn-xs-edit">Voir</a>
+          {% else %}
+            <span class="badge badge-pending">En attente</span>
+            <a href="{% url 'enseignant_presences_appel' classe.id item.emploi.creneau.id %}?date={{ date_choisie }}"
+               class="btn-xs btn-xs-primary">Faire l'appel</a>
+          {% endif %}
+        </div>
+
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="empty-state">
+    <div class="empty-emoji">📅</div>
+    <p>Aucun cours programmé ce jour pour cette classe.</p>
+    <p style="font-size:0.8rem; color: var(--gray-400);">
+      Vérifiez l'emploi du temps ou choisissez une autre date.
+    </p>
+  </div>
+{% endif %}
+
+{% endblock %}

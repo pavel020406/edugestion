@@ -1,0 +1,124 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Emploi du temps — {{ classe }}{% endblock %}
+
+{% block extra_css %}
+
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/emploi_grille.css' %}">
+
+{% endblock %}
+
+{% block content %}
+
+  <div class="form-page-header">
+    <h1 class="form-page-title">
+      <span class="title-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 3v3M16 3v3"/></svg>
+      </span>
+      Emploi du temps — {{ classe }}
+    </h1>
+    <a href="{% url 'emploi_du_temps_classes' %}" class="btn btn-ghost btn-sm">Retour aux classes</a>
+  </div>
+
+  {% if messages %}
+    <div class="form-messages">
+      {% for message in messages %}
+        <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+          <span>{{ message }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {% if not lignes_grille %}
+    <div class="empty-state">
+      <div class="empty-emoji" aria-hidden="true">🕐</div>
+      <p>Aucun créneau horaire n'a encore été créé.</p>
+      <a href="{% url 'add_creneau' %}" class="btn btn-primary">+ Créer des créneaux</a>
+    </div>
+  {% else %}
+
+    <form method="post">
+      {% csrf_token %}
+
+      <div class="emploi-table-wrap">
+        <table class="emploi-table">
+          <thead>
+  <tr>
+    <th class="emploi-col-heure">Horaire</th>
+    {% for jour in entetes_jours %}
+      <th>
+        {{ jour.libelle }}<br>
+        <span style="font-size:0.68rem; font-weight:400; opacity:0.85;">
+          {{ jour.date|date:"d/m" }}
+        </span>
+      </th>
+    {% endfor %}
+  </tr>
+</thead>
+          <tbody>
+            {% for ligne in lignes_grille %}
+              <tr class="{% if ligne.est_pause %}emploi-row-pause{% endif %}">
+                <td class="emploi-col-heure">{{ ligne.heure_debut|time:"H\hi" }} – {{ ligne.heure_fin|time:"H\hi" }}</td>
+
+                {% if ligne.est_pause %}
+                  <td colspan="{{ jours_ordonnes|length }}" class="emploi-pause-cell">Pause</td>
+                {% else %}
+                  {% for cellule in ligne.cellules %}
+  <td>
+    {% if cellule %}
+      <div class="emploi-cellule">
+        <select name="matiere_{{ cellule.creneau_id }}">
+          <option value="">-- Libre --</option>
+          {% for matiere in matieres_classe %}
+            <option value="{{ matiere.id }}" {% if cellule.matiere_id == matiere.id %}selected{% endif %}>
+              {{ matiere.nom_matiere }}
+            </option>
+          {% endfor %}
+        </select>
+        <select name="enseignant_{{ cellule.creneau_id }}">
+          <option value="">-- Aucun --</option>
+          {% for enseignant in enseignants %}
+            <option value="{{ enseignant.id }}" {% if cellule.enseignant_id == enseignant.id %}selected{% endif %}>
+              {{ enseignant.first_name }} {{ enseignant.last_name }}
+            </option>
+          {% endfor %}
+        </select>
+ 
+        {# Bouton appel — visible seulement si un cours est programmé #}
+        {% if cellule.a_cours and cellule.date %}
+          <div style="margin-top:3px;">
+            {% if cellule.verrouille %}
+              <a href="{% url 'appel_depuis_grille' classe.id cellule.creneau_id %}"
+                 class="emploi-appel-btn emploi-appel-done"
+                 title="Appel déjà fait">✓ Appel fait</a>
+            {% else %}
+              <a href="{% url 'appel_depuis_grille' classe.id cellule.creneau_id %}"
+                 class="emploi-appel-btn emploi-appel-todo"
+                 title="Faire l'appel">📋 Appel</a>
+            {% endif %}
+          </div>
+        {% endif %}
+ 
+      </div>
+    {% endif %}
+  </td>
+{% endfor %}
+ 
+                {% endif %}
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="form-actions" style="margin-top: var(--space-md);">
+        <button type="submit" class="btn btn-primary">Enregistrer l'emploi du temps</button>
+      </div>
+    </form>
+
+  {% endif %}
+
+{% endblock %}

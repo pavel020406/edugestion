@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    @page {
+      size: A4 portrait;
+      margin: 0.5cm 0.6cm;
+    }
+
+    * { margin: 0; padding: 0; }
+
+    body {
+      font-family: Helvetica, Arial, sans-serif;
+      font-size: 6pt;
+      color: #000;
+      width: 100%;
+    }
+
+    /* ══════════════════════════════
+       EN-TÊTE
+    ══════════════════════════════ */
+    table.entete {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 2px;
+    }
+    table.entete td {
+      vertical-align: top;
+      font-size: 5.5pt;
+      line-height: 1.4;
+      padding: 0 3px;
+      width: 33%;
+    }
+    table.entete td.centre { text-align: center; }
+    table.entete td.droite { text-align: right; }
+    .etablissement {
+      font-size: 8pt;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+    .entete-sep {
+      border-bottom: 1.5px solid #000;
+      margin-bottom: 2px;
+    }
+
+    /* ══════════════════════════════
+       TITRE
+    ══════════════════════════════ */
+    .titre-bulletin {
+      text-align: center;
+      font-size: 10pt;
+      font-weight: bold;
+      background-color: #c8e6c9;
+      border: 1.5px solid #000;
+      padding: 3px 4px;
+      margin: 2px 0;
+    }
+
+    /* ══════════════════════════════
+       FICHE ÉLÈVE
+    ══════════════════════════════ */
+    table.fiche {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 2px;
+    }
+    table.fiche td {
+      border: 0.5px solid #555;
+      padding: 1.5px 3px;
+      font-size: 6pt;
+      vertical-align: middle;
+    }
+    table.fiche .lbl {
+      background-color: #c8e6c9;
+      font-weight: bold;
+      white-space: nowrap;
+      width: 90px;
+    }
+    table.fiche .val {
+      font-weight: bold;
+    }
+
+    /* ══════════════════════════════
+       TABLEAU DES NOTES
+       Largeur totale A4 portrait utilisable ≈ 190mm
+       Répartition des colonnes (px relatifs) :
+         Matière        : 95px  (50%)
+         Séq1           : 22px
+         Séq2           : 22px
+         Note           : 22px
+         Rang           : 16px
+         Coef           : 16px
+         NxC            : 22px
+         Mention        : 38px
+         Niv.acq.       : 45px
+         Min            : 16px
+         Moy            : 16px
+         Max            : 16px
+         Enseignant     : 52px
+    ══════════════════════════════ */
+    table.notes {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 2px;
+      table-layout: fixed;
+    }
+    table.notes th,
+    table.notes td {
+      border: 0.5px solid #555;
+      text-align: center;
+      padding: 1px 1px;
+      font-size: 5.5pt;
+      vertical-align: middle;
+      overflow: hidden;
+      word-break: break-word;
+    }
+    table.notes th {
+      background-color: #c8e6c9;
+      font-weight: bold;
+      line-height: 1.2;
+    }
+    /* Largeurs fixes */
+    table.notes col.c-mat  { width: 95px; }
+    table.notes col.c-seq  { width: 22px; }
+    table.notes col.c-note { width: 22px; }
+    table.notes col.c-rang { width: 16px; }
+    table.notes col.c-coef { width: 16px; }
+    table.notes col.c-nxc  { width: 22px; }
+    table.notes col.c-men  { width: 38px; }
+    table.notes col.c-niv  { width: 45px; }
+    table.notes col.c-min  { width: 16px; }
+    table.notes col.c-moy  { width: 16px; }
+    table.notes col.c-max  { width: 16px; }
+    table.notes col.c-ens  { width: 52px; }
+
+    table.notes .col-matiere {
+      text-align: left;
+      padding-left: 3px;
+    }
+    table.notes .groupe-row {
+      background-color: #a5d6a7;
+      font-weight: bold;
+      text-align: left;
+      padding-left: 3px;
+      font-size: 6pt;
+    }
+    table.notes .total-row {
+      background-color: #e8f5e9;
+      font-weight: bold;
+      font-size: 5.5pt;
+    }
+
+    /* ══════════════════════════════
+       BAS DE PAGE — 4 colonnes
+    ══════════════════════════════ */
+    table.bas {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+    table.bas > tbody > tr > td {
+      vertical-align: top;
+      padding: 0 1px;
+      border: none;
+    }
+    table.bas col.b-res  { width: 30%; }
+    table.bas col.b-dist { width: 27%; }
+    table.bas col.b-sanc { width: 22%; }
+    table.bas col.b-visa { width: 21%; }
+
+    table.resultats {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 5.5pt;
+      margin-bottom: 2px;
+      table-layout: fixed;
+    }
+    table.resultats th,
+    table.resultats td {
+      border: 0.5px solid #555;
+      padding: 1px 2px;
+      text-align: center;
+      overflow: hidden;
+    }
+    table.resultats th    { background-color: #c8e6c9; font-weight: bold; }
+    table.resultats .lbl  {
+      text-align: left;
+      background-color: #e8f5e9;
+      font-weight: bold;
+      font-size: 5pt;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    /* Colonnes du tableau résultats */
+    table.resultats col.r-lbl { width: 52%; }
+    table.resultats col.r-val { width: 16%; }
+
+    table.distinctions,
+    table.sanctions {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 5.5pt;
+    }
+    table.distinctions td,
+    table.sanctions td {
+      border: 0.5px solid #555;
+      padding: 1px 2px;
+    }
+
+    .bloc-titre {
+      background-color: #c8e6c9;
+      border: 0.5px solid #555;
+      font-weight: bold;
+      text-align: center;
+      padding: 1px;
+      font-size: 5.5pt;
+    }
+    .oui-non {
+      width: 20px;
+      text-align: center;
+      font-weight: bold;
+      background-color: #fff9c4;
+      white-space: nowrap;
+    }
+
+    .appreciation-bloc {
+      border: 0.5px solid #555;
+      padding: 2px;
+      font-size: 5.5pt;
+      min-height: 26px;
+    }
+    .decision-bloc {
+      border: 0.5px solid #555;
+      padding: 2px;
+      font-size: 5.5pt;
+      min-height: 14px;
+    }
+    .visa-bloc {
+      border: 0.5px solid #555;
+      padding: 2px;
+      font-size: 5.5pt;
+      min-height: 50px;
+      text-align: center;
+    }
+
+    .pied { margin-top: 3px; font-size: 5pt; color: #555; }
+  </style>
+</head>
+<body>
+
+<!-- ════ EN-TÊTE ════ -->
+<table class="entete">
+  <tr>
+    <td>
+      RÉPUBLIQUE DU CAMEROUN<br>
+      Paix – Travail – Patrie<br>
+      --------<br>
+      MINISTÈRE DES ENSEIGNEMENTS SECONDAIRES<br>
+      --------<br>
+      DÉLÉGATION RÉGIONALE DU ___________<br>
+      --------<br>
+      DÉLÉGATION DÉPARTEMENTALE DU ___________
+    </td>
+    <td class="centre">
+      <span class="etablissement">LYCÉE ___________________________</span><br>
+      BP : ___ | Tél : ___________<br>
+      Email : ___________
+    </td>
+    <td class="droite">
+      REPUBLIC OF CAMEROON<br>
+      Peace – Work – Fatherland<br>
+      --------<br>
+      MINISTRY OF SECONDARY EDUCATION<br>
+      --------<br>
+      REGIONAL DELEGATION FOR THE ___________<br>
+      --------<br>
+      DIVISIONAL DELEGATION FOR THE ___________
+    </td>
+  </tr>
+</table>
+<div class="entete-sep"></div>
+
+<!-- ════ TITRE ════ -->
+<div class="titre-bulletin">
+  BULLETIN DE NOTES &nbsp;–&nbsp; {{ trimestre|upper }}
+  &nbsp;/&nbsp; {{ classe.nom }}
+</div>
+
+<!-- ════ FICHE ÉLÈVE ════ -->
+<table class="fiche">
+  <tr>
+    <td class="lbl">NOM(S) ET PRÉNOM(S)</td>
+    <td class="val" style="width:160px;">{{ eleve.nom }} {{ eleve.prenom }}</td>
+    <td class="lbl">MATRICULE</td>
+    <td class="val" style="width:70px;">{{ eleve.matricule }}</td>
+    <td class="lbl">ANNÉE</td>
+    <td class="val" style="width:50px;">2025-2026</td>
+  </tr>
+  <tr>
+    <td class="lbl">DATE DE NAISSANCE</td>
+    <td class="val">{{ eleve.date_naissance|date:"d/m/Y" }}</td>
+    <td class="lbl">SEXE</td>
+    <td class="val">{{ eleve.get_sexe_display }}</td>
+    <td class="lbl">CLASSE</td>
+    <td class="val">{{ classe.nom }}</td>
+  </tr>
+  <tr>
+    <td class="lbl">LIEU DE NAISSANCE</td>
+    <td class="val">—</td>
+    <td class="lbl">SITUATION</td>
+    <td class="val">—</td>
+    <td class="lbl">EFFECTIF</td>
+    <td class="val">{{ effectif }}</td>
+  </tr>
+  <tr>
+    <td class="lbl">PROF. TITULAIRE</td>
+    <td class="val" colspan="3">
+      {% if classe.enseignant_principal %}
+        {{ classe.enseignant_principal.first_name }} {{ classe.enseignant_principal.last_name }}
+      {% else %}—{% endif %}
+    </td>
+    <td class="lbl">REDOUBLANT</td>
+    <td class="val">—</td>
+  </tr>
+</table>
+
+<!-- ════ TABLEAU DES NOTES ════ -->
+<table class="notes">
+  <colgroup>
+    <col class="c-mat">
+    <col class="c-seq"><col class="c-seq">
+    <col class="c-note">
+    <col class="c-rang">
+    <col class="c-coef">
+    <col class="c-nxc">
+    <col class="c-men">
+    <col class="c-niv">
+    <col class="c-min"><col class="c-moy"><col class="c-max">
+    <col class="c-ens">
+  </colgroup>
+  <thead>
+    <tr>
+      <th class="col-matiere">MATIÈRES</th>
+      <th>Séq 1</th>
+      <th>Séq 2</th>
+      <th>Note</th>
+      <th>Rang</th>
+      <th>Coef</th>
+      <th>N×C</th>
+      <th>Mention</th>
+      <th>Niv. d'acquisition</th>
+      <th>Min</th>
+      <th>Moy</th>
+      <th>Max</th>
+      <th>ENSEIGNANT</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for section in sections %}
+    <tr>
+      <td class="groupe-row" colspan="13">{{ section.libelle }}</td>
+    </tr>
+    {% for ligne in section.matieres %}
+    <tr>
+      <td class="col-matiere">{{ ligne.matiere.nom_matiere }}</td>
+      <td>{% with v=ligne.notes_par_eval.sequence1 %}{% if v is not None %}{{ v }}{% else %}—{% endif %}{% endwith %}</td>
+      <td>{% with v=ligne.notes_par_eval.sequence2 %}{% if v is not None %}{{ v }}{% else %}—{% endif %}{% endwith %}</td>
+      <td><strong>{% if ligne.moyenne is not None %}{{ ligne.moyenne }}{% else %}—{% endif %}</strong></td>
+      <td>—</td>
+      <td>{{ ligne.coefficient }}</td>
+      <td>{% if ligne.moyenne_ponderee is not None %}{{ ligne.moyenne_ponderee }}{% else %}—{% endif %}</td>
+      <td>
+        {% if ligne.moyenne is not None %}
+          {% if ligne.moyenne >= 16 %}Très Bien
+          {% elif ligne.moyenne >= 14 %}Bien
+          {% elif ligne.moyenne >= 12 %}Assez Bien
+          {% elif ligne.moyenne >= 10 %}Passable
+          {% elif ligne.moyenne >= 7 %}Médiocre
+          {% else %}Insuffisant{% endif %}
+        {% else %}—{% endif %}
+      </td>
+      <td>
+        {% if ligne.moyenne is not None %}
+          {% if ligne.moyenne >= 14 %}Acquis
+          {% elif ligne.moyenne >= 10 %}En cours d'acq.
+          {% else %}Non Acquis{% endif %}
+        {% else %}—{% endif %}
+      </td>
+      <td>{% if ligne.stats_classe.min is not None %}{{ ligne.stats_classe.min }}{% else %}—{% endif %}</td>
+      <td>{% if ligne.stats_classe.moy is not None %}{{ ligne.stats_classe.moy }}{% else %}—{% endif %}</td>
+      <td>{% if ligne.stats_classe.max is not None %}{{ ligne.stats_classe.max }}{% else %}—{% endif %}</td>
+      <td style="font-size:5pt; text-align:left; padding-left:2px;">
+        {% if ligne.enseignant %}{{ ligne.enseignant.last_name|upper }} {{ ligne.enseignant.first_name }}{% else %}—{% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+    <tr class="total-row">
+      <td class="col-matiere">Total {{ section.libelle }}</td>
+      <td></td><td></td><td></td><td></td>
+      <td></td><td>—</td>
+      <td colspan="6"></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<!-- ════ BAS DE PAGE ════ -->
+<table class="bas">
+  <colgroup>
+    <col class="b-res">
+    <col class="b-dist">
+    <col class="b-sanc">
+    <col class="b-visa">
+  </colgroup>
+  <tr>
+
+    <!-- Col 1 : Résultats élève + classe -->
+    <td>
+      <table class="resultats">
+        <colgroup>
+          <col class="r-lbl">
+          <col class="r-val"><col class="r-val"><col class="r-val">
+        </colgroup>
+        <tr>
+          <th class="lbl"></th>
+          <th>Séq 1</th><th>Séq 2</th><th>{{ trimestre }}</th>
+        </tr>
+        <tr>
+          <td class="lbl">Moyenne de l'élève</td>
+          <td>—</td><td>—</td>
+          <td><strong>{% if moyenne_generale is not None %}{{ moyenne_generale }}{% else %}—{% endif %}</strong></td>
+        </tr>
+        <tr>
+          <td class="lbl">Rang de l'élève</td>
+          <td>—</td><td>—</td>
+          <td><strong>{% if rang %}{{ rang }}è{% else %}—{% endif %}</strong></td>
+        </tr>
+       <tr>
+  <td class="lbl">Abs. justifiées (H)</td>
+  <td colspan="3">{{ appreciation.absences_justifiees_heures|default:"0" }}</td>
+</tr>
+ 
+{# Ligne absences non justifiées #}
+<tr>
+  <td class="lbl">Abs. non just. (H)</td>
+  <td colspan="3">{{ appreciation.absences_non_justifiees_heures|default:"0" }}</td>
+</tr>
+
+      </table>
+
+      <table class="resultats">
+        <colgroup>
+          <col class="r-lbl">
+          <col class="r-val"><col class="r-val"><col class="r-val">
+        </colgroup>
+        <tr>
+          <th class="lbl">Résultats classe</th>
+          <th>Séq 1</th><th>Séq 2</th><th>{{ trimestre }}</th>
+        </tr>
+        <tr>
+          <td class="lbl">Moy. du premier</td>
+          <td>—</td><td>—</td>
+          <td>{% if moyenne_premier is not None %}{{ moyenne_premier }}{% else %}—{% endif %}</td>
+        </tr>
+        <tr>
+          <td class="lbl">Moy. du dernier</td>
+          <td>—</td><td>—</td>
+          <td>{% if moyenne_dernier is not None %}{{ moyenne_dernier }}{% else %}—{% endif %}</td>
+        </tr>
+        <tr>
+          <td class="lbl">Moy. de la classe</td>
+          <td>—</td><td>—</td>
+          <td>{% if moyenne_classe is not None %}{{ moyenne_classe }}{% else %}—{% endif %}</td>
+        </tr>
+        <tr>
+          <td class="lbl">Sign. parents / Requête</td>
+          <td colspan="3" style="height:20px;"></td>
+        </tr>
+      </table>
+    </td>
+
+    <!-- Col 2 : Distinctions + Appréciation + Décision -->
+    <td>
+      <div class="bloc-titre">Distinctions</div>
+      <table class="distinctions">
+        <tr><td class="oui-non">NON</td><td>Refusé</td></tr>
+        <tr><td class="oui-non">NON</td><td>Tableau d'honneur</td></tr>
+        <tr><td class="oui-non">NON</td><td>TH + Encouragements</td></tr>
+        <tr><td class="oui-non">NON</td><td>TH + Félicitations</td></tr>
+      </table>
+      <div style="margin-top:2px;">
+        <div class="bloc-titre">Appréciation du conseil de classe</div>
+        <div class="appreciation-bloc">{{ appreciation.appreciation_conseil|default:"" }}</div>
+      </div>
+      <div style="margin-top:2px;">
+        <div class="bloc-titre">Décision du conseil de classe</div>
+        <div class="decision-bloc">{{ appreciation.decision_conseil|default:"" }}</div>
+      </div>
+    </td>
+
+    <!-- Col 3 : Sanctions -->
+    <td>
+      <div class="bloc-titre">Sanctions</div>
+      <table class="sanctions">
+        <tr><td class="oui-non">NON</td><td>Avertissement Travail</td></tr>
+        <tr><td class="oui-non">NON</td><td>Blâme Travail</td></tr>
+        <tr><td class="oui-non">NON</td><td>Avertissement Conduite</td></tr>
+        <tr><td class="oui-non">NON</td><td>Blâme conduite</td></tr>
+      </table>
+    </td>
+
+    <!-- Col 4 : Visa -->
+    <td>
+      <div class="bloc-titre">Visa du chef d'établissement</div>
+      <div class="visa-bloc">
+        <br><br>Le Proviseur,
+      </div>
+    </td>
+
+  </tr>
+</table>
+
+<div class="pied">
+  Les requêtes sont recevables dans un (01) délai d'une semaine au plus tard après la remise des bulletins.
+</div>
+
+</body>
+</html>

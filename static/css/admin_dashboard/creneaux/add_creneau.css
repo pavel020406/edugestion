@@ -1,0 +1,276 @@
+:root{
+    --primary:#2563eb;
+    --primary-dark:#1d4ed8;
+    --primary-light:#dbeafe;
+    --secondary:#eff6ff;
+    --white:#ffffff;
+    --gray-50:#f8fafc;
+    --gray-100:#f1f5f9;
+    --gray-200:#e2e8f0;
+    --gray-300:#cbd5e1;
+    --gray-500:#64748b;
+    --gray-700:#334155;
+    --success:#16a34a;
+    --danger:#dc2626;
+    --warning:#d97706;
+    --shadow:0 10px 30px rgba(37,99,235,.12);
+    --radius:14px;
+}
+
+/* =======================
+   PAGE
+======================= */
+
+body{
+    background:#f4f8ff;
+}
+
+/* =======================
+   TITRE
+======================= */
+
+.form-page-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+.form-page-title{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    color:var(--primary);
+    font-size:28px;
+    font-weight:700;
+}
+
+.title-icon{
+    width:48px;
+    height:48px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:var(--primary-light);
+    color:var(--primary);
+}
+
+.title-icon svg{
+    width:24px;
+    height:24px;
+}
+
+/* =======================
+   CARTE
+======================= */
+
+.form-card{
+    background:white;
+    border-radius:18px;
+    padding:35px;
+    box-shadow:var(--shadow);
+    border:1px solid #dbeafe;
+}
+
+.form-section-title{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    color:var(--primary);
+    margin-bottom:25px;
+    font-size:20px;
+}
+
+.form-section-title svg{
+    width:22px;
+    height:22px;
+}
+
+/* =======================
+   CHAMPS
+======================= */
+
+.form-grid-2{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:20px;
+}
+
+.form-field{
+    margin-bottom:22px;
+}
+
+.form-field label{
+    display:block;
+    margin-bottom:8px;
+    font-weight:600;
+    color:#1e3a8a;
+}
+
+.required{
+    color:red;
+}
+
+.form-field input,
+.form-field select{
+    width:100%;
+    padding:13px 15px;
+    border:2px solid #dbeafe;
+    border-radius:12px;
+    background:white;
+    font-size:15px;
+    transition:.25s;
+}
+
+.form-field input:focus,
+.form-field select:focus{
+    outline:none;
+    border-color:var(--primary);
+    box-shadow:0 0 0 4px rgba(37,99,235,.15);
+}
+
+/* =======================
+   CHECKBOX JOURS
+======================= */
+
+.jours-checkbox-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+    gap:12px;
+}
+
+.jour-checkbox-item{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    background:#f8fbff;
+    border:2px solid #dbeafe;
+    border-radius:12px;
+    padding:12px;
+    cursor:pointer;
+    transition:.25s;
+    font-weight:600;
+}
+
+.jour-checkbox-item:hover{
+    background:#dbeafe;
+    border-color:var(--primary);
+}
+
+.jour-checkbox-item input{
+    accent-color:var(--primary);
+}
+
+.jour-checkbox-item:has(input:checked){
+    background:var(--primary);
+    color:white;
+    border-color:var(--primary);
+}
+
+/* =======================
+   BOUTONS RAPIDES
+======================= */
+
+.jours-quick-actions{
+    display:flex;
+    gap:10px;
+    margin-top:15px;
+    flex-wrap:wrap;
+}
+
+/* =======================
+   BOUTONS
+======================= */
+
+.btn{
+    padding:12px 22px;
+    border-radius:12px;
+    text-decoration:none;
+    font-weight:600;
+    transition:.25s;
+    border:none;
+    cursor:pointer;
+}
+
+.btn-primary{
+    background:var(--primary);
+    color:white;
+}
+
+.btn-primary:hover{
+    background:var(--primary-dark);
+    transform:translateY(-2px);
+}
+
+.btn-ghost{
+    background:white;
+    color:var(--primary);
+    border:2px solid var(--primary);
+}
+
+.btn-ghost:hover{
+    background:var(--primary);
+    color:white;
+}
+
+.btn-xs{
+    padding:8px 15px;
+    border:none;
+    border-radius:10px;
+    background:var(--primary-light);
+    color:var(--primary);
+    font-weight:600;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.btn-xs:hover{
+    background:var(--primary);
+    color:white;
+}
+
+/* =======================
+   ACTIONS
+======================= */
+
+.form-actions{
+    margin-top:30px;
+    display:flex;
+    justify-content:flex-end;
+    gap:12px;
+}
+
+/* =======================
+   ALERTES
+======================= */
+
+.alert{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:14px 18px;
+    margin-bottom:15px;
+    border-radius:12px;
+    font-weight:500;
+}
+
+.alert svg{
+    width:20px;
+    height:20px;
+}
+
+.alert-success{
+    background:#ecfdf5;
+    color:#166534;
+}
+
+.alert-error{
+    background:#fef2f2;
+    color:#991b1b;
+}
+
+.alert-warning{
+    background:#fff7ed;
+    color:#9a3412;}

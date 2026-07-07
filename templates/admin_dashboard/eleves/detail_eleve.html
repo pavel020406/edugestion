@@ -1,0 +1,572 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load dict_filters %}
+{% load static %}
+
+
+{% block page_title %}{{ eleve.nom }} {{ eleve.prenom }}{% endblock %}
+
+{% block extra_css %}
+
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/detail.css' %}">
+<link rel="stylesheet" href="{% static 'css/dashboard_enseignant/list.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/message.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- ── En-tête ── -->
+<div class="form-page-header">
+  <h1 class="form-page-title">
+    <span class="title-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <circle cx="12" cy="8" r="4"/>
+        <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+      </svg>
+    </span>
+    {{ eleve.nom }} {{ eleve.prenom }}
+  </h1>
+  <div class="header-actions">
+    <a href="{% url 'admin_gestion_acces' eleve.id %}" class="btn btn-ghost btn-sm">
+      🔒 Gérer les accès
+    </a>
+    <a href="{% url 'admin_envoyer_message_eleve' eleve.id %}" class="btn btn-ghost btn-sm">
+      ✉ Envoyer un message
+    </a>
+    <a href="{% url 'edit_eleve' eleve.id %}" class="btn btn-primary btn-sm">
+      ✏ Modifier
+    </a>
+    <a href="{% url 'list_eleve' %}" class="btn btn-ghost btn-sm">← Liste</a>
+  </div>
+</div>
+
+{% if messages %}
+  <div class="form-messages">
+    {% for message in messages %}
+      <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/>
+        </svg>
+        <span>{{ message }}</span>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<!-- ════════════════════════════════
+     GRILLE PRINCIPALE
+════════════════════════════════ -->
+<div class="detail-grid">
+
+  <!-- ── Colonne gauche : identité ── -->
+  <div class="detail-col-left">
+
+    <!-- Carte identité -->
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+        </svg>
+        <h2>Identité</h2>
+      </div>
+
+      <!-- Avatar + nom -->
+      <div class="detail-avatar-block">
+        <div class="detail-avatar">
+          {{ eleve.prenom|first|upper }}{{ eleve.nom|first|upper }}
+        </div>
+        <div>
+          <div class="detail-fullname">{{ eleve.nom }} {{ eleve.prenom }}</div>
+          <span class="detail-matricule">{{ eleve.matricule }}</span>
+        </div>
+      </div>
+
+      <div class="detail-info-list">
+        <div class="detail-info-row">
+          <span class="detail-info-lbl">Date de naissance</span>
+          <span class="detail-info-val">{{ eleve.date_naissance|date:"d/m/Y" }}</span>
+        </div>
+        <div class="detail-info-row">
+          <span class="detail-info-lbl">Sexe</span>
+          <span class="detail-info-val">{{ eleve.get_sexe_display }}</span>
+        </div>
+        <div class="detail-info-row">
+          <span class="detail-info-lbl">Classe</span>
+          <span class="detail-info-val">
+            {% if eleve.classe %}
+              <span class="class-chip">{{ eleve.classe }}</span>
+            {% else %}—{% endif %}
+          </span>
+        </div>
+        <div class="detail-info-row">
+          <span class="detail-info-lbl">Date d'inscription</span>
+          <span class="detail-info-val">{{ eleve.date_inscription|date:"d/m/Y" }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Carte parent -->
+    <div class="detail-card" style="margin-top:.85rem;">
+      <div class="detail-card-header">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+        </svg>
+        <h2>Parent / Tuteur</h2>
+      </div>
+      <div class="detail-info-list">
+        <div class="detail-info-row">
+          <span class="detail-info-lbl">Nom</span>
+          <span class="detail-info-val">{{ eleve.nom_parent }}</span>
+        </div>
+        <div class="detail-info-row">
+          <span class="detail-info-lbl">Téléphone</span>
+          <span class="detail-info-val">{{ eleve.telephone_parent }}</span>
+        </div>
+        {% if eleve.email_parent %}
+          <div class="detail-info-row">
+            <span class="detail-info-lbl">Email</span>
+            <span class="detail-info-val">{{ eleve.email_parent }}</span>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Carte compte -->
+    <div class="detail-card" style="margin-top:.85rem;">
+      <div class="detail-card-header">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <rect x="3" y="11" width="18" height="11" rx="2"/>
+          <path d="M7 11V7a5 5 0 0110 0v4"/>
+        </svg>
+        <h2>Compte de connexion</h2>
+      </div>
+      {% if eleve.compte %}
+        <div class="detail-info-list">
+          <div class="detail-info-row">
+            <span class="detail-info-lbl">Identifiant</span>
+            <span class="detail-info-val">
+              <code style="background:var(--gray-100);padding:.1rem .4rem;border-radius:4px;font-size:.82rem;">
+                {{ eleve.compte.username }}
+              </code>
+            </span>
+          </div>
+          <div class="detail-info-row">
+            <span class="detail-info-lbl">Rôle</span>
+            <span class="detail-info-val">{{ eleve.compte.role }}</span>
+          </div>
+          <div class="detail-info-row">
+            <span class="detail-info-lbl">Email</span>
+            <span class="detail-info-val">{{ eleve.compte.email|default:"—" }}</span>
+          </div>
+          <div class="detail-info-row">
+            <span class="detail-info-lbl">Statut</span>
+            <span class="detail-info-val">
+              {% if eleve.compte.is_active %}
+                <span class="badge-compte actif">✓ Actif</span>
+              {% else %}
+                <span class="badge-compte inactif">✗ Inactif</span>
+              {% endif %}
+            </span>
+          </div>
+        </div>
+        <div style="margin-top:.75rem;">
+          <a href="{% url 'edit_eleve' eleve.id %}" class="btn btn-ghost btn-sm">
+            ✏ Modifier les identifiants
+          </a>
+        </div>
+      {% else %}
+        <div class="detail-no-compte">
+          <span>Aucun compte de connexion.</span>
+          <a href="{% url 'edit_eleve' eleve.id %}" class="btn btn-primary btn-sm">
+            + Créer un compte
+          </a>
+        </div>
+      {% endif %}
+    </div>
+
+  </div>
+
+  <!-- ── Colonne droite : notes, présences, accès ── -->
+  <div class="detail-col-right">
+
+    <!-- Carte notes récentes -->
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+        </svg>
+        <h2>Notes récentes</h2>
+        {% if eleve.classe %}
+          <a href="{% url 'notes_matieres' eleve.classe.id %}"
+             class="btn-xs btn-xs-edit" style="margin-left:auto;">
+            Saisir des notes
+          </a>
+        {% endif %}
+      </div>
+
+      {% if notes_recentes %}
+        <div class="data-table-wrap">
+          <table class="data-table" style="font-size:.8rem;">
+            <thead>
+              <tr>
+                <th>Matière</th>
+                <th>Éval.</th>
+                <th>Trim.</th>
+                <th>Note</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for note in notes_recentes %}
+                <tr>
+                  <td><strong>{{ note.matiere.nom_matiere }}</strong></td>
+                  <td>{{ note.get_evaluation_display }}</td>
+                  <td>{{ note.trimestre }}</td>
+                  <td>
+                    {% if note.valeur is not None %}
+                      <span class="note-badge {% if note.valeur >= 10 %}note-ok{% else %}note-fail{% endif %}">
+                        {{ note.valeur }}/20
+                      </span>
+                    {% else %}—{% endif %}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="detail-empty">Aucune note enregistrée.</p>
+      {% endif %}
+
+      <!-- Moyennes par trimestre -->
+      {% if eleve.classe %}
+        <div class="moy-trimestres">
+          {% for t_code, t_libelle in trimestres %}
+            {% with moy=moyennes_trimestres|get_item:t_code %}
+              <div class="moy-trim-card">
+                <div class="moy-trim-label">{{ t_libelle }}</div>
+                <div class="moy-trim-val {% if moy is not None and moy >= 10 %}ok{% elif moy is not None %}fail{% endif %}">
+                  {% if moy is not None %}{{ moy }}/20{% else %}—{% endif %}
+                </div>
+              </div>
+            {% endwith %}
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Carte présences -->
+    <div class="detail-card" style="margin-top:.85rem;">
+      <div class="detail-card-header">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>
+        </svg>
+        <h2>Présences</h2>
+      </div>
+
+      <div class="presence-mini-stats">
+        <div class="pms-item pms-present">
+          <span class="pms-val">{{ nb_presents }}</span>
+          <span class="pms-lbl">Présent(s)</span>
+        </div>
+        <div class="pms-item pms-absent">
+          <span class="pms-val">{{ nb_absences }}</span>
+          <span class="pms-lbl">Absence(s)</span>
+        </div>
+        <div class="pms-item pms-retard">
+          <span class="pms-val">{{ nb_retards }}</span>
+          <span class="pms-lbl">Retard(s)</span>
+        </div>
+      </div>
+
+      {% if dernieres_presences %}
+        <div class="data-table-wrap" style="margin-top:.75rem;">
+          <table class="data-table" style="font-size:.78rem;">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Créneau</th>
+                <th>Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for p in dernieres_presences %}
+                <tr>
+                  <td>{{ p.date|date:"d/m/Y" }}</td>
+                  <td>{{ p.creneau.heure_debut|time:"H\hi" }}–{{ p.creneau.heure_fin|time:"H\hi" }}</td>
+                  <td>
+                    {% if p.statut == 'present' %}
+                      <span class="badge badge-present">Présent</span>
+                    {% elif p.statut == 'absent' %}
+                      <span class="badge badge-absent">Absent</span>
+                    {% else %}
+                      <span class="badge badge-retard">Retard</span>
+                    {% endif %}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="detail-empty">Aucune présence enregistrée.</p>
+      {% endif %}
+    </div>
+
+    <!-- Carte accès publiés -->
+    <div class="detail-card" style="margin-top:.85rem;">
+      <div class="detail-card-header">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <rect x="3" y="11" width="18" height="11" rx="2"/>
+          <path d="M7 11V7a5 5 0 0110 0v4"/>
+        </svg>
+        <h2>Accès publiés</h2>
+        <a href="{% url 'admin_gestion_acces' eleve.id %}"
+           class="btn-xs btn-xs-edit" style="margin-left:auto;">
+          Gérer
+        </a>
+      </div>
+
+      {% if acces_list %}
+        <div class="acces-tags">
+          {% for acces in acces_list %}
+            <span class="acces-tag {% if acces.actif %}acces-actif{% else %}acces-inactif{% endif %}">
+              {% if acces.actif %}✓{% else %}✗{% endif %}
+              {{ acces.get_type_contenu_display }}
+              {% if acces.trimestre %}({{ acces.trimestre }}){% endif %}
+            </span>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="detail-empty">Aucun accès accordé.</p>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+
+<!-- ── Zone danger ── -->
+<div class="danger-zone">
+  <div class="danger-zone-title">⚠ Zone dangereuse</div>
+  <div class="danger-zone-body">
+    <div>
+      <strong>Supprimer cet élève</strong>
+      <p>Cette action est irréversible. Toutes les notes, présences et messages seront supprimés.</p>
+    </div>
+    <form method="post" action="{% url 'delete_eleve' eleve.id %}"
+          onsubmit="return confirm('Supprimer définitivement {{ eleve.nom }} {{ eleve.prenom }} ? Cette action est irréversible.');">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger btn-sm">Supprimer l'élève</button>
+    </form>
+  </div>
+</div>
+
+<style>
+/* ── Grille detail ── */
+.detail-grid {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+.detail-col-left, .detail-col-right { display: flex; flex-direction: column; }
+
+/* ── Carte detail ── */
+.detail-card {
+  background: #ffffff;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  padding: 1.1rem 1.25rem;
+  box-shadow: var(--shadow-md);
+}
+
+.detail-card-header {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  margin-bottom: .85rem;
+  padding-bottom: .6rem;
+  border-bottom: 2px solid var(--blue-100);
+}
+
+.detail-card-header svg { width:1rem;height:1rem;color:var(--blue-600);flex-shrink:0; }
+
+.detail-card-header h2 {
+  font-size: .9rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin: 0;
+  flex: 1;
+}
+
+/* Avatar bloc */
+.detail-avatar-block {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  margin-bottom: .85rem;
+  padding-bottom: .85rem;
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.detail-avatar {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background: var(--blue-600);
+  color: #ffffff;
+  font-size: .95rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 2px solid var(--blue-200);
+}
+
+.detail-fullname { font-size:.95rem; font-weight:700; color:var(--gray-900); }
+.detail-matricule {
+  font-size:.68rem; font-weight:700;
+  color:var(--blue-700); background:var(--blue-50);
+  border:1px solid var(--blue-200); border-radius:999px;
+  padding:.1rem .5rem; display:inline-block; margin-top:2px;
+}
+
+/* Info list */
+.detail-info-list { display:flex; flex-direction:column; gap:0; }
+
+.detail-info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .45rem 0;
+  border-bottom: 1px solid var(--gray-100);
+  gap: .5rem;
+  font-size: .8rem;
+}
+.detail-info-row:last-child { border-bottom: none; }
+
+.detail-info-lbl { color:var(--gray-500); font-weight:600; white-space:nowrap; }
+.detail-info-val { color:var(--gray-900); font-weight:500; text-align:right; }
+
+/* Compte */
+.detail-no-compte {
+  display:flex; align-items:center; justify-content:space-between;
+  gap:.75rem; padding:.65rem .75rem;
+  background:var(--gray-50); border:1px dashed var(--gray-300);
+  border-radius:8px; font-size:.82rem; color:var(--gray-500);
+}
+
+.badge-compte {
+  display:inline-flex;align-items:center;
+  padding:.15rem .5rem; border-radius:999px;
+  font-size:.68rem; font-weight:700;
+}
+.badge-compte.actif   { background:var(--green-100);color:var(--green-700);border:1px solid var(--green-300); }
+.badge-compte.inactif { background:var(--gray-100);color:var(--gray-500);border:1px solid var(--gray-300); }
+
+/* Notes */
+.note-badge {
+  display:inline-flex;align-items:center;
+  padding:.15rem .45rem; border-radius:4px;
+  font-size:.75rem; font-weight:700;
+}
+.note-ok   { background:var(--green-100);color:var(--green-700); }
+.note-fail { background:var(--red-100);color:var(--red-700); }
+
+/* Moyennes trimestres */
+.moy-trimestres {
+  display:flex; gap:.5rem; margin-top:.85rem; flex-wrap:wrap;
+}
+
+.moy-trim-card {
+  flex:1; min-width:70px;
+  background:var(--gray-50); border:1px solid var(--gray-200);
+  border-radius:8px; padding:.5rem .6rem; text-align:center;
+}
+
+.moy-trim-label { font-size:.65rem;font-weight:600;color:var(--gray-500);text-transform:uppercase; }
+
+.moy-trim-val {
+  font-size:1rem; font-weight:800; color:var(--gray-400);
+  margin-top:2px;
+}
+.moy-trim-val.ok   { color:var(--green-700); }
+.moy-trim-val.fail { color:var(--red-600); }
+
+/* Présences mini stats */
+.presence-mini-stats {
+  display:flex; gap:.5rem;
+}
+
+.pms-item {
+  flex:1; text-align:center; padding:.5rem;
+  border-radius:8px; border:1px solid var(--gray-200);
+}
+
+.pms-val { font-size:1.2rem; font-weight:800; display:block; }
+.pms-lbl { font-size:.65rem; font-weight:600; color:var(--gray-400); text-transform:uppercase; }
+
+.pms-present { border-color:var(--green-300); }
+.pms-present .pms-val { color:var(--green-700); }
+.pms-absent  { border-color:var(--red-300); }
+.pms-absent  .pms-val { color:var(--red-600); }
+.pms-retard  { border-color:var(--amber-300); }
+.pms-retard  .pms-val { color:var(--amber-600); }
+
+/* Badges présences */
+.badge { display:inline-flex;align-items:center;padding:.18rem .55rem;border-radius:999px;font-size:.7rem;font-weight:700;border:1px solid transparent; }
+.badge-present { background:var(--green-100);color:var(--green-700);border-color:var(--green-300); }
+.badge-absent  { background:var(--red-100);color:var(--red-700);border-color:var(--red-300); }
+.badge-retard  { background:var(--amber-100);color:var(--amber-700);border-color:var(--amber-300); }
+
+/* Accès tags */
+.acces-tags { display:flex; flex-wrap:wrap; gap:.4rem; }
+
+.acces-tag {
+  padding:.2rem .6rem; border-radius:999px;
+  font-size:.72rem; font-weight:700;
+  border:1px solid transparent;
+}
+.acces-actif   { background:var(--green-100);color:var(--green-700);border-color:var(--green-300); }
+.acces-inactif { background:var(--gray-100);color:var(--gray-500);border-color:var(--gray-300); }
+
+/* Empty */
+.detail-empty { font-size:.8rem; color:var(--gray-400); padding:.75rem 0; text-align:center; }
+
+/* Danger zone */
+.danger-zone {
+  margin-top:1.5rem;
+  border:1.5px solid var(--red-300);
+  border-radius:var(--radius-lg);
+  overflow:hidden;
+}
+
+.danger-zone-title {
+  background:var(--red-50); padding:.6rem 1.25rem;
+  font-size:.8rem; font-weight:700; color:var(--red-700);
+  border-bottom:1px solid var(--red-300);
+}
+
+.danger-zone-body {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:.9rem 1.25rem; gap:1rem; flex-wrap:wrap;
+  background:#fff;
+}
+
+.danger-zone-body strong { font-size:.875rem; color:var(--gray-900); display:block; margin-bottom:.2rem; }
+.danger-zone-body p { font-size:.78rem; color:var(--gray-500); margin:0; }
+
+/* Responsive */
+@media (max-width:900px) { .detail-grid { grid-template-columns:1fr; } }
+
+@media (max-width:640px) {
+  .form-page-header { flex-direction:column; align-items:flex-start; }
+  .header-actions   { flex-wrap:wrap; }
+  .presence-mini-stats { flex-wrap:wrap; }
+  .moy-trimestres   { gap:.35rem; }
+}
+</style>
+
+{% endblock %}

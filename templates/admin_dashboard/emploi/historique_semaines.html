@@ -1,0 +1,92 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Historique des semaines{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/emploi_classes.css' %}">
+<link rel="stylesheet" href="{% static 'css/dashboard_enseignant/list.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/list_eleve.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/add_eleve.css' %}">
+<link rel="stylesheet" href="{% static 'css/secretaire/eleves/list_eleve.css' %}">
+
+{% endblock %}
+
+{% block content %}
+
+<div class="form-page-header">
+  <h1 class="form-page-title">
+    <span class="title-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 3v3M16 3v3"/>
+      </svg>
+    </span>
+    Historique des semaines
+  </h1>
+  <a href="{% url 'emploi_du_temps_classes' %}" class="btn btn-ghost btn-sm">← Retour</a>
+</div>
+
+<div class="list-card">
+  <div class="list-card-header">
+    <h2>Semaines scolaires</h2>
+    <span class="list-card-count">{{ semaines|length }} semaine(s)</span>
+  </div>
+
+  {% if semaines %}
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Période</th>
+            <th>Statut</th>
+            <th>Clôturée le</th>
+            <th>Par</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for semaine in semaines %}
+            <tr>
+              <td>
+                <strong>{{ semaine.date_debut|date:"d/m/Y" }} – {{ semaine.date_fin|date:"d/m/Y" }}</strong>
+              </td>
+              <td>
+                {% if semaine.cloturee %}
+                  <span class="class-chip" style="background:rgba(220,38,38,.1);color:var(--red-600);">
+                    🔒 Clôturée
+                  </span>
+                {% else %}
+                  <span class="class-chip" style="background:rgba(22,163,74,.1);color:var(--green-700);">
+                    🔓 En cours
+                  </span>
+                {% endif %}
+              </td>
+              <td style="font-size:.8rem;color:var(--gray-500);">
+                {% if semaine.cloturee_le %}{{ semaine.cloturee_le|date:"d/m/Y H:i" }}{% else %}—{% endif %}
+              </td>
+              <td style="font-size:.8rem;">
+                {% if semaine.cloturee_par %}{{ semaine.cloturee_par.get_full_name }}{% else %}—{% endif %}
+              </td>
+              <td>
+                <div class="action-buttons">
+                  <a href="{% url 'emploi_du_temps_classes' %}?semaine_id={{ semaine.id }}"
+                     class="btn-xs btn-xs-edit">Voir</a>
+                  {% if not semaine.cloturee %}
+                    <a href="{% url 'cloturer_semaine' semaine.id %}"
+                       class="btn-xs btn-xs-delete">Clôturer</a>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-emoji">📅</div>
+      <p>Aucune semaine enregistrée.</p>
+    </div>
+  {% endif %}
+</div>
+
+{% endblock %}

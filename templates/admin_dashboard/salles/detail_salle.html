@@ -1,0 +1,69 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}{{ salle.nom }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/salles/add_salle.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/salles/list.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/salles/detail.css' %}">
+{% endblock %}
+
+{% block content %}
+
+  <div class="form-page-header">
+    <h1 class="form-page-title">
+      <span class="title-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="12" rx="1.5"/><path d="M8 20h8"/></svg>
+      </span>
+      Fiche salle
+    </h1>
+    <a href="{% url 'list_salle' %}" class="btn btn-ghost btn-sm">Retour à la liste</a>
+  </div>
+
+  {% if messages %}
+    <div class="form-messages">
+      {% for message in messages %}
+        <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+          <span>{{ message }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="detail-card">
+
+    <div class="detail-header">
+      <div class="detail-avatar" aria-hidden="true">{{ salle.nom|first|upper }}</div>
+      <div>
+        <h2>{{ salle.nom }}</h2>
+        <p>Capacité : {{ salle.capacite }} places</p>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <h3 class="detail-section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 11l8-6 8 6"/><path d="M6 10v9h12v-9"/><path d="M10 19v-5h4v5"/></svg>
+        Classes assignées à cette salle
+      </h3>
+      <div class="detail-chips">
+        {% for classe in classes_dans_salle %}
+          <span class="class-chip">{{ classe }}</span>
+        {% empty %}
+          <span class="detail-value empty">— Aucune classe assignée pour l'instant —</span>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="detail-actions">
+      <form method="post" action="{% url 'delete_salle' salle.id %}" style="display:inline;" onsubmit="return confirm('Supprimer définitivement la salle « {{ salle.nom }} » ?');">
+        {% csrf_token %}
+        <button type="submit" class="btn-xs btn-xs-delete" style="padding: 0.6rem 1.2rem; font-size: 0.85rem;">Supprimer</button>
+      </form>
+      <a href="{% url 'edit_salle' salle.id %}" class="btn btn-primary">Modifier</a>
+    </div>
+
+  </div>
+
+{% endblock %}

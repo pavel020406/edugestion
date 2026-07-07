@@ -1,0 +1,95 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Historique des appels — {{ classe }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard_enseignant/presences.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="form-page-header">
+  <h1 class="form-page-title">
+    <span class="title-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <rect x="3" y="4" width="18" height="17" rx="2"/>
+        <path d="M3 9h18M8 3v3M16 3v3"/>
+      </svg>
+    </span>
+    Historique — {{ classe }}
+  </h1>
+  <a href="{% url 'enseignant_presences_creneaux' classe.id %}" class="btn btn-ghost btn-sm">
+    Retour aux appels
+  </a>
+</div>
+
+{% if messages %}
+  <div class="form-messages">
+    {% for message in messages %}
+      <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/>
+        </svg>
+        <span>{{ message }}</span>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+{% if historique %}
+  <div class="list-card">
+    <div class="list-card-header">
+      <h2>Appels enregistrés</h2>
+      <span class="list-card-count">{{ historique|length }} appel(s)</span>
+    </div>
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Créneau</th>
+            <th>Présents</th>
+            <th>Absents</th>
+            <th>Retards</th>
+            <th>Fait par</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in historique %}
+            <tr>
+              <td><strong>{{ item.appel.date|date:"d/m/Y" }}</strong></td>
+              <td>
+                {{ item.appel.creneau.heure_debut|time:"H\hi" }} –
+                {{ item.appel.creneau.heure_fin|time:"H\hi" }}
+              </td>
+              <td><span class="badge badge-present">{{ item.presents }}</span></td>
+              <td><span class="badge badge-absent">{{ item.absents }}</span></td>
+              <td><span class="badge badge-retard">{{ item.retards }}</span></td>
+              <td style="font-size:0.82rem; color: var(--gray-600);">
+                {% if item.appel.verrouille_par %}
+                  {{ item.appel.verrouille_par.first_name }} {{ item.appel.verrouille_par.last_name }}
+                {% else %}—{% endif %}
+              </td>
+              <td>
+                <a href="{% url 'enseignant_presences_appel' classe.id item.appel.creneau.id %}?date={{ item.appel.date|date:'Y-m-d' }}"
+                   class="btn-xs btn-xs-edit">Voir</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% else %}
+  <div class="empty-state">
+    <div class="empty-emoji">📋</div>
+    <p>Aucun appel enregistré pour cette classe.</p>
+    <a href="{% url 'enseignant_presences_creneaux' classe.id %}" class="btn btn-ghost btn-sm">
+      Faire le premier appel
+    </a>
+  </div>
+{% endif %}
+
+{% endblock %}

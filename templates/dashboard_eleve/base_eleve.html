@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block page_title %}EduGestion Élève{% endblock %}</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/dashboard_eleve/base_eleve.css' %}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<!-- ════ SIDEBAR ════ -->
+<aside class="eleve-sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+    <span>EduGestion</span>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a href="{% url 'dashboard_eleve' %}" class="nav-item {% if active_page == 'dashboard' %}active{% endif %}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      <span>Tableau de bord</span>
+    </a>
+    <a href="{% url 'eleve_notes' %}" class="nav-item {% if active_page == 'mes_notes' %}active{% endif %}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      <span>Mes notes</span>
+    </a>
+    <a href="{% url 'eleve_emploi' %}" class="nav-item {% if active_page == 'mon_emploi' %}active{% endif %}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 3v3M16 3v3"/></svg>
+      <span>Emploi du temps</span>
+    </a>
+    <a href="{% url 'eleve_presences' %}" class="nav-item {% if active_page == 'mes_presences' %}active{% endif %}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+      <span>Mes présences</span>
+    </a>
+    <a href="{% url 'eleve_messages' %}" class="nav-item {% if active_page == 'messages' %}active{% endif %}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      <span>Messages</span>
+      {% if nb_non_lus > 0 %}
+        <span class="sidebar-badge">{{ nb_non_lus }}</span>
+      {% endif %}
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <a href="{% url 'eleve_profil' %}" class="nav-item {% if active_page == 'profil' %}active{% endif %}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      <span>Mon profil</span>
+    </a>
+    <a href="{% url 'deconnexion' %}" class="nav-item nav-logout">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+      <span>Déconnexion</span>
+    </a>
+  </div>
+</aside>
+
+<!-- ════ CONTENU PRINCIPAL ════ -->
+<div class="eleve-main">
+
+  <!-- TOPBAR -->
+  <header class="eleve-topbar">
+    <button class="topbar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')" aria-label="Menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+    </button>
+
+    <div class="topbar-right">
+
+      <!-- Cloche messages -->
+      <div class="topbar-notif" id="notifToggle">
+        <button class="notif-btn" onclick="toggleNotif()" aria-label="Messages">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+          {% if nb_non_lus > 0 %}
+            <span class="notif-count">{{ nb_non_lus }}</span>
+          {% endif %}
+        </button>
+
+        <!-- Dropdown messages -->
+        <div class="notif-dropdown" id="notifDropdown">
+          <div class="notif-header">
+            <span>Messages</span>
+            <a href="{% url 'eleve_messages' %}">Voir tout</a>
+          </div>
+          {% with msgs=request.user.messages_recus.all|slice:":5" %}
+            {% if msgs %}
+              {% for msg in msgs %}
+                <a href="{% url 'eleve_message_detail' msg.id %}"
+                   class="notif-item {% if not msg.lu %}notif-unread{% endif %}">
+                  <span class="notif-type msg-{{ msg.type_message }}">{{ msg.get_type_message_display }}</span>
+                  <div class="notif-content">
+                    <strong>{{ msg.sujet|truncatechars:35 }}</strong>
+                    <small>{{ msg.date_envoi|date:"d/m à H:i" }}</small>
+                  </div>
+                </a>
+              {% endfor %}
+            {% else %}
+              <div class="notif-empty">Aucun message</div>
+            {% endif %}
+          {% endwith %}
+        </div>
+      </div>
+
+      <!-- Avatar profil -->
+      <a href="{% url 'eleve_profil' %}" class="topbar-avatar" title="Mon profil">
+        {% if request.user.photo_profil %}
+          <img src="{{ request.user.photo_profil.url }}" alt="Photo">
+        {% else %}
+          <span>{{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}</span>
+        {% endif %}
+      </a>
+
+    </div>
+  </header>
+
+  <!-- PAGE -->
+  <main class="eleve-page">
+    {% if messages %}
+      <div class="flash-messages">
+        {% for message in messages %}
+          <div class="flash {% if message.tags == 'error' %}flash-error{% else %}flash-success{% endif %}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+</div>
+
+<script>
+function toggleNotif() {
+  document.getElementById('notifDropdown').classList.toggle('show');
+}
+document.addEventListener('click', function(e) {
+  if (!document.getElementById('notifToggle').contains(e.target)) {
+    document.getElementById('notifDropdown').classList.remove('show');
+  }
+});
+</script>
+
+</body>
+</html>

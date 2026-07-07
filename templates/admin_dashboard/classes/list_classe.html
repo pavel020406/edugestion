@@ -1,0 +1,98 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Gestion des classes{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/classes/add_classe.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/classes/list_classe.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/classes/detail.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/detail.css' %}">
+<link rel="stylesheet" href="{% static 'css/dashboard_enseignant/list.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/message.css' %}">
+{% endblock %}
+
+{% block content %}
+
+  <div class="form-page-header">
+    <h1 class="form-page-title">
+      <span class="title-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 11l8-6 8 6"/><path d="M6 10v9h12v-9"/><path d="M10 19v-5h4v5"/></svg>
+      </span>
+      Gestion des classes
+    </h1>
+    <a href="{% url 'add_classe' %}" class="btn btn-primary btn-sm">+ Ajouter une classe</a>
+  </div>
+
+  <!-- ---------- Messages ---------- -->
+  {% if messages %}
+    <div class="form-messages">
+      {% for message in messages %}
+        <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+          <span>{{ message }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- ---------- Liste des classes ---------- -->
+  <div class="list-card">
+    <div class="list-card-header">
+      <h2>Liste des classes</h2>
+      <span class="list-card-count">{{ total }} classe(s)</span>
+    </div>
+
+    {% if classes %}
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Niveau</th>
+              <th>Salle</th>
+              <th>Matières</th>
+              <th>Effectif</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for classe in classes %}
+              <tr>
+                <td><strong>{{ classe.get_niveau_display }}</strong></td>
+                <td>{% if classe.salle %}{{ classe.salle.nom }}{% else %}<span style="color: var(--text-faint);">— Non assignée —</span>{% endif %}</td>
+                <td>
+                  {% for matiere in classe.matieres.all %}
+                    <span class="class-chip">{{ matiere.nom_matiere }}</span>
+                  {% empty %}
+                    <span style="color: var(--text-faint);">— Aucune —</span>
+                  {% endfor %}
+                </td>
+                <td>{{ classe.effectif }}</td>
+                <td>
+                  <div class="action-buttons">
+                    {% if classe.effectif > 0 %}
+                      <a href="{% url 'list_eleve' %}?classe={{ classe.id }}" class="btn-xs btn-xs-view">Élèves</a>
+                    {% endif %}
+                    <a href="{% url 'edit_classe' classe.id %}" class="btn-xs btn-xs-edit">Modifier</a>
+                     <a href="{% url 'detail_classe' classe.id %}" class="btn-xs btn-xs-view">Voir</a>
+                    <form method="post" action="{% url 'delete_classe' classe.id %}" style="display:inline;" onsubmit="return confirm('Supprimer la classe « {{ classe }} » ?');">
+                      {% csrf_token %}
+                      <button type="submit" class="btn-xs btn-xs-delete">Supprimer</button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <div class="empty-emoji" aria-hidden="true">🏫</div>
+        <p>Aucune classe trouvée</p>
+        <a href="{% url 'add_classe' %}" class="btn btn-primary">+ Créer la première classe</a>
+      </div>
+    {% endif %}
+  </div>
+
+{% endblock %}

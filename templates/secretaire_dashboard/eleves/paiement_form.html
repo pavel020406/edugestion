@@ -1,0 +1,111 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Enregistrer un paiement{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/add_eleve.css' %}">
+<link rel="stylesheet" href="{% static 'css/secretaire/eleves/paiement_form.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="form-page-header">
+  <h1 class="form-page-title">
+    <span class="title-icon" aria-hidden="true">💵</span>
+    Enregistrer un paiement — {{ eleve.nom }} {{ eleve.prenom }}
+  </h1>
+  <a href="{% url 'secretaire_detail_eleve' eleve.id %}" class="btn btn-ghost btn-sm">Retour à la fiche</a>
+</div>
+
+{% if messages %}
+  <div class="form-messages">
+    {% for message in messages %}
+      <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span>{{ message }}</span>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<form method="post" class="form-card" novalidate id="paiement-form">
+  {% csrf_token %}
+
+  <h2 class="form-section-title">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+    Date du paiement
+  </h2>
+  <div class="form-field">
+    <label for="date_paiement">Date <span class="required">*</span></label>
+    <input type="date" id="date_paiement" name="date_paiement" value="{% now 'Y-m-d' %}" required>
+  </div>
+
+  <h2 class="form-section-title" style="margin-top: 1.25rem;">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+    Que couvre ce paiement ?
+  </h2>
+
+  <div class="paiement-choix">
+    {% if not statut.inscription_payee %}
+      <label class="paiement-choix-item">
+        <input type="checkbox" name="paie_inscription" value="1" class="js-montant-item" data-montant="{{ statut.frais.montant_inscription }}">
+        <span>Frais d'inscription</span>
+        <strong>{{ statut.frais.montant_inscription }} FCFA</strong>
+      </label>
+    {% else %}
+      <div class="paiement-choix-item paiement-choix-deja-paye">
+        <span>✓ Frais d'inscription déjà payés</span>
+      </div>
+    {% endif %}
+
+    {% for t in tranches_disponibles %}
+      <label class="paiement-choix-item">
+        <input type="checkbox" name="tranches" value="{{ t.tranche.id }}" class="js-montant-item" data-montant="{{ t.tranche.montant }}">
+        <span>
+          {{ t.tranche.libelle }}
+          {% if t.en_retard %}<span class="tag-retard">En retard</span>{% endif %}
+        </span>
+        <strong>{{ t.tranche.montant }} FCFA</strong>
+      </label>
+    {% endfor %}
+
+    {% if statut.inscription_payee and not tranches_disponibles %}
+      <p style="color: var(--sec-gray-500); font-size:.85rem;">Tout est déjà payé pour cet élève. 🎉</p>
+    {% endif %}
+  </div>
+
+  <h2 class="form-section-title" style="margin-top: 1.25rem;">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 9.5h4.5a1.5 1.5 0 010 3H10a1.5 1.5 0 000 3h4.5"/></svg>
+    Montant reçu
+  </h2>
+  <div class="form-field">
+    <label for="montant">Montant (FCFA) <span class="required">*</span></label>
+    <input type="number" step="1" min="0" id="montant" name="montant" required>
+    <small style="color: var(--sec-gray-500, #64748b);">Pré-rempli automatiquement selon votre sélection, modifiable si besoin.</small>
+  </div>
+
+  <div class="form-actions">
+    <a href="{% url 'secretaire_detail_eleve' eleve.id %}" class="btn btn-ghost">Annuler</a>
+    <button type="submit" class="btn btn-primary">Enregistrer le paiement</button>
+  </div>
+</form>
+
+<script>
+(function () {
+  var items = document.querySelectorAll('.js-montant-item');
+  var montantInput = document.getElementById('montant');
+
+  function recalcule() {
+    var total = 0;
+    items.forEach(function (cb) {
+      if (cb.checked) total += parseFloat(cb.dataset.montant) || 0;
+    });
+    montantInput.value = total;
+  }
+
+  items.forEach(function (cb) { cb.addEventListener('change', recalcule); });
+})();
+</script>
+
+{% endblock %}

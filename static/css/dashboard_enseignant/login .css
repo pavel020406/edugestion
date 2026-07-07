@@ -1,0 +1,217 @@
+  /* ---------- Pied de page complet ---------- */
+  .site-footer {
+    border-top: 1px solid var(--border);
+    background: var(--bg-soft);
+    padding: var(--space-xl) 0 var(--space-md);
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr 1fr;
+    gap: var(--space-lg);
+    padding-bottom: var(--space-lg);
+  }
+
+  .footer-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: var(--space-sm);
+  }
+
+  .footer-brand .brand-mark {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .footer-brand .brand-mark svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .footer-col p {
+    font-size: 0.86rem;
+    color: var(--text-muted);
+    max-width: 280px;
+    margin: 0;
+  }
+
+  .footer-col h5 {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin-bottom: var(--space-sm);
+  }
+
+  .footer-col ul {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+  }
+
+  .footer-col ul li a {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    transition: color 0.15s ease;
+  }
+
+  .footer-col ul li a:hover {
+    color: var(--accent);
+  }
+
+  .footer-contact-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    font-size: 0.86rem;
+    color: var(--text-muted);
+    margin-bottom: 0.6rem;
+  }
+
+  .footer-contact-item svg {
+    width: 15px;
+    height: 15px;
+    margin-top: 0.15rem;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .footer-social {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: var(--space-sm);
+  }
+
+  .footer-social a {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    transition: border-color 0.15s ease, color 0.15s ease;
+  }
+
+  .footer-social a:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .footer-social svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .footer-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+
+  .footer-bottom p {
+    font-size: 0.82rem;
+    color: var(--text-faint);
+    margin: 0;
+  }
+
+  .footer-bottom-links {
+    display: flex;
+    gap: var(--space-md);
+  }
+
+  .footer-bottom-links a {
+    font-size: 0.82rem;
+    color: var(--text-faint);
+  }
+
+  .footer-bottom-links a:hover {
+    color: var(--text-muted);
+  }
+
+  /* ---------- Bloc "À propos du réalisateur" (details/summary natif, sans JS) ---------- */
+  .realisateur-toggle {
+    margin-top: var(--space-lg);
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--border);
+    text-align: center;
+  }
+
+  .realisateur-toggle summary {
+    cursor: pointer;
+    list-style: none;
+    display: inline-flex;
+    margin: 0 auto;
+  }
+
+  .realisateur-toggle summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .realisateur-toggle[open] summary {
+    margin-bottom: var(--space-sm);
+  }
+
+  .realisateur-box {
+    margin-top: var(--space-sm);
+  }
+
+  .realisateur-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-md);
+    text-align: left;
+    flex-wrap: wrap;
+  }
+
+  .realisateur-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #ffffff;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .realisateur-text h4 {
+    font-size: 0.98rem;
+    color: var(--text);
+    margin-bottom: 0.2rem;
+  }
+
+  .realisateur-text p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 0.1rem;
+  }
+
+  .realisateur-contact {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-faint) !important;
+  }
+

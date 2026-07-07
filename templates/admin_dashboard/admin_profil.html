@@ -1,0 +1,107 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Mon profil{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/profil.css' %}">
+
+{% endblock %}
+
+{% block content %}
+
+  <div class="form-page-header">
+    <h1 class="form-page-title">
+      <span class="title-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6"/></svg>
+      </span>
+      Mon profil
+    </h1>
+  </div>
+
+  <!-- ---------- Messages ---------- -->
+  {% if messages %}
+    <div class="form-messages">
+      {% for message in messages %}
+        <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+          <span>{{ message }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <div style="display: grid; grid-template-columns: 1fr 2fr; gap: var(--space-lg); align-items: start;">
+
+    <!-- ---------- Photo de profil ---------- -->
+    <div class="detail-card">
+      <div class="detail-section" style="text-align: center;">
+        {% if request.user.photo_profil %}
+          <img src="{{ request.user.photo_profil.url }}" alt="Photo de profil" style="width: 96px; height: 96px; border-radius: 50%; object-fit: cover; margin: 0 auto var(--space-md);">
+        {% else %}
+          <div class="detail-avatar" style="width: 96px; height: 96px; font-size: 2rem; margin: 0 auto var(--space-md);">{{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}</div>
+        {% endif %}
+
+        <h2 style="font-size: 1.1rem; color: var(--text); margin-bottom: 0.2rem;">{{ request.user.first_name }} {{ request.user.last_name }}</h2>
+        <p style="font-size: 0.85rem; color: var(--text-faint); margin-bottom: var(--space-md);">Administrateur</p>
+
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          <input type="hidden" name="first_name" value="{{ request.user.first_name }}">
+          <input type="hidden" name="last_name" value="{{ request.user.last_name }}">
+          <input type="hidden" name="email" value="{{ request.user.email }}">
+
+          <div class="form-field" style="text-align: left;">
+            <label for="photo_profil">Changer la photo</label>
+            <input type="file" id="photo_profil" name="photo_profil" accept="image/*">
+          </div>
+          <button type="submit" class="btn btn-ghost btn-block">Mettre à jour la photo</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ---------- Informations personnelles ---------- -->
+    <div class="form-card" style="max-width: none;">
+      <h2 class="form-section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6"/></svg>
+        Informations personnelles
+      </h2>
+
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="form-grid-2">
+          <div class="form-field">
+            <label for="first_name">Nom</label>
+            <input type="text" id="first_name" name="first_name" value="{{ request.user.first_name }}" required>
+          </div>
+          <div class="form-field">
+            <label for="last_name">Prénom</label>
+            <input type="text" id="last_name" name="last_name" value="{{ request.user.last_name }}" required>
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" value="{{ request.user.email }}">
+        </div>
+
+        <h2 class="form-section-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          Changer le mot de passe
+        </h2>
+
+        <div class="form-field">
+          <label for="password">Nouveau mot de passe</label>
+          <input type="password" id="password" name="password" placeholder="Laisser vide pour ne pas changer">
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
+        </div>
+      </form>
+    </div>
+
+  </div>
+
+{% endblock %}

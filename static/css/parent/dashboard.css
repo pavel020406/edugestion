@@ -1,0 +1,171 @@
+/* ============================================================
+   parent/dashboard.css — tableau de bord parent
+   ============================================================ */
+
+/* ── Sélecteur d'enfant (fratrie) ── */
+.enfant-selector {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.1rem;
+}
+.enfant-selector-label {
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--gray-500);
+}
+.enfant-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .4rem .9rem .4rem .4rem;
+  border-radius: 999px;
+  border: 1.5px solid var(--gray-200);
+  background: #fff;
+  text-decoration: none;
+  color: var(--gray-900);
+  font-size: .85rem;
+  font-weight: 600;
+  transition: border-color .15s ease, background .15s ease;
+}
+.enfant-chip:hover { border-color: var(--blue-300, var(--blue-600)); }
+.enfant-chip-actif {
+  border-color: var(--blue-600);
+  background: var(--blue-50);
+  color: var(--blue-700);
+}
+.enfant-chip-avatar {
+  width: 1.7rem; height: 1.7rem; border-radius: 50%;
+  background: var(--blue-600); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .65rem; font-weight: 800; flex-shrink: 0;
+}
+
+/* ── Carte enfant sélectionné ── */
+.enfant-card {
+  background: #fff;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg, 12px);
+  box-shadow: var(--shadow-md, 0 2px 8px rgba(0,0,0,.06));
+  padding: 1.4rem;
+  margin-bottom: 1.25rem;
+}
+
+.enfant-card-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding-bottom: 1.1rem;
+  margin-bottom: 1.1rem;
+  border-bottom: 1px solid var(--gray-100);
+}
+.enfant-card-header h2 { margin: 0 0 .3rem; font-size: 1.15rem; color: var(--gray-900); }
+
+.enfant-card-avatar {
+  width: 3.4rem; height: 3.4rem; border-radius: 50%;
+  background: var(--blue-600); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 1.1rem; flex-shrink: 0;
+  border: 2px solid var(--blue-200);
+}
+
+.recu-matricule {
+  font-size: .68rem; font-weight: 700; color: var(--blue-700);
+  background: var(--blue-50); border: 1px solid var(--blue-200);
+  border-radius: 999px; padding: .1rem .55rem; margin-right: .4rem;
+}
+.class-chip {
+  display: inline-flex; align-items: center;
+  font-size: .72rem; font-weight: 600; color: var(--blue-700);
+  background: var(--blue-50); border: 1px solid var(--blue-200);
+  border-radius: 999px; padding: .15rem .55rem;
+}
+
+.enfant-card-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: .9rem;
+}
+.enfant-card-info { display: flex; flex-direction: column; gap: .25rem; }
+.enfant-card-info span {
+  font-size: .7rem; font-weight: 600; color: var(--gray-500);
+  text-transform: uppercase; letter-spacing: .02em;
+}
+.enfant-card-info strong { font-size: .9rem; color: var(--gray-900); }
+
+/* ── Cartes "bientôt disponible" (futures fonctionnalités) ── */
+.parent-bientot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: .9rem;
+}
+.parent-bientot-card {
+  background: #fff;
+  border: 1px dashed var(--gray-300);
+  border-radius: var(--radius-lg, 12px);
+  padding: 1.3rem 1rem;
+  text-align: center;
+  color: var(--gray-400);
+}
+.parent-bientot-icon { font-size: 1.8rem; margin-bottom: .5rem; }
+.parent-bientot-card strong { display: block; color: var(--gray-700, var(--gray-900)); font-size: .88rem; margin-bottom: .2rem; }
+.parent-bientot-card span { font-size: .72rem; }
+
+@media (max-width: 640px) {
+  .enfant-card-header { flex-direction: column; align-items: flex-start; text-align: left; }
+}
+
+/* ── Section frais (dashboard) ── */
+.parent-frais-section {
+  background: #fff;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg, 12px);
+  box-shadow: var(--shadow-md, 0 2px 8px rgba(0,0,0,.06));
+  padding: 1.4rem;
+  margin-bottom: 1.25rem;
+}
+.recu-tranches-title { font-size: .95rem; font-weight: 700; color: var(--gray-900); margin: 0 0 .9rem; }
+
+.paiement-statut-grid {
+  display: flex;
+  gap: .9rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+.paiement-statut-bloc {
+  flex: 1; min-width: 140px;
+  background: var(--gray-50);
+  border-radius: .6rem;
+  padding: .8rem .9rem;
+  display: flex; flex-direction: column; gap: .3rem;
+}
+.paiement-statut-bloc span { font-size: .7rem; color: var(--gray-500); }
+.paiement-statut-bloc strong { font-size: 1.02rem; color: var(--gray-900); }
+.paiement-statut-restant { background: var(--red-50, #fef2f2); }
+.paiement-statut-restant strong { color: var(--red-600, #dc2626); }
+.paiement-statut-ok { background: var(--green-100); }
+.paiement-statut-ok strong { color: var(--green-700); }
+
+.data-table-wrap { overflow-x: auto; border: 1px solid var(--gray-200); border-radius: .7rem; margin-bottom: .9rem; }
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table thead th {
+  text-align: left; font-size: .7rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .03em; color: #fff; background: var(--blue-700, var(--blue-600));
+  padding: .6rem .9rem;
+}
+.data-table tbody td { padding: .6rem .9rem; font-size: .84rem; color: var(--gray-900); border-bottom: 1px solid var(--gray-100); }
+.data-table tbody tr:last-child td { border-bottom: none; }
+.data-table tbody tr:nth-child(even) { background: var(--blue-50); }
+
+.msg-statut {
+  display: inline-flex; align-items: center; gap: .3rem;
+  font-size: .7rem; font-weight: 600; padding: .18rem .5rem; border-radius: 999px;
+}
+.msg-statut-lu { background: var(--green-100); color: var(--green-700); }
+.msg-statut-non-lu { background: var(--blue-50); color: var(--blue-700); }
+.tag-retard {
+  display: inline-flex; align-items: center; font-size: .68rem; font-weight: 700;
+  color: var(--red-700, #b91c1c); background: var(--red-100, #fee2e2);
+  border: 1px solid var(--red-300, #fecaca); border-radius: 999px; padding: .1rem .5rem;
+}

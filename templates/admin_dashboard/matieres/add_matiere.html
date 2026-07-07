@@ -1,0 +1,74 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}{% if matiere %}Modifier la matière{% else %}Ajouter une matière{% endif %}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/matieres/list_matiere.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/matieres/add_matiere.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/matieres/detail.css' %}">
+{% endblock %}
+
+{% block content %}
+
+  <div class="form-page-header">
+    <h1 class="form-page-title">
+      <span class="title-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="12" rx="1.5"/><path d="M9 20h6M12 16v4"/></svg>
+      </span>
+      {% if matiere %}Modifier la matière{% else %}Ajouter une matière{% endif %}
+    </h1>
+    <a href="{% url 'list_matiere' %}" class="btn btn-ghost btn-sm">Retour à la liste</a>
+  </div>
+
+  <!-- ---------- Messages ---------- -->
+  {% if messages %}
+    <div class="form-messages">
+      {% for message in messages %}
+        <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+          <span>{{ message }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- ---------- Formulaire ---------- -->
+  <form method="post" class="form-card" novalidate>
+    {% csrf_token %}
+
+    <h2 class="form-section-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="12" rx="1.5"/><path d="M9 20h6M12 16v4"/></svg>
+      Informations de la matière
+    </h2>
+
+    <div class="form-field">
+      <label for="nom_matiere">Nom de la matière <span class="required">*</span></label>
+      <input type="text" id="nom_matiere" name="nom_matiere" placeholder="Ex. Mathématiques" value="{{ matiere.nom_matiere|default:'' }}" required>
+    </div>
+
+    <div class="form-field">
+      <label for="groupe">Groupe de matières <span class="required">*</span></label>
+      <select id="groupe" name="groupe" required>
+        <option value="scientifique" {% if matiere.groupe == 'scientifique' %}selected{% endif %}>Matières Scientifiques</option>
+        <option value="litteraire" {% if matiere.groupe == 'litteraire' %}selected{% endif %}>Matières Littéraires</option>
+        <option value="autre" {% if not matiere or matiere.groupe == 'autre' %}selected{% endif %}>Autres Matières</option>
+      </select>
+      <p class="field-hint">Utilisé pour regrouper les matières sur le bulletin de notes.</p>
+    </div>
+
+    <div class="form-field">
+      <label for="description">Description (optionnel)</label>
+      <textarea id="description" name="description" rows="4" placeholder="Quelques mots sur le contenu de cette matière...">{{ matiere.description|default:'' }}</textarea>
+    </div>
+
+    <div class="form-actions">
+      <a href="{% url 'list_matiere' %}" class="btn btn-ghost">Annuler</a>
+      <button type="submit" class="btn btn-primary">
+        {% if matiere %}Enregistrer les modifications{% else %}Enregistrer la matière{% endif %}
+      </button>
+    </div>
+
+  </form>
+
+{% endblock %}

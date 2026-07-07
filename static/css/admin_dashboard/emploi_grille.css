@@ -1,0 +1,407 @@
+/* ============================================================
+   emploi_grille.css — EduGestion
+   Thème : Blanc & Bleu
+   Cible : grille emploi du temps (jour × créneau)
+   ============================================================ */
+
+:root {
+  --blue-50:  #eff6ff;
+  --blue-100: #dbeafe;
+  --blue-200: #bfdbfe;
+  --blue-400: #60a5fa;
+  --blue-500: #3b82f6;
+  --blue-600: #2563eb;
+  --blue-700: #1d4ed8;
+
+  --gray-50:  #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-900: #111827;
+
+  --amber-50:  #fffbeb;
+  --amber-200: #fde68a;
+  --amber-600: #d97706;
+
+  --red-50:   #fef2f2;
+  --red-300:  #fca5a5;
+  --red-600:  #dc2626;
+
+  --green-50:  #f0fdf4;
+  --green-300: #86efac;
+  --green-700: #15803d;
+
+  --space-md: 1.25rem;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+
+  --shadow-md: 0 4px 16px rgba(37,99,235,.08), 0 1px 4px rgba(0,0,0,.05);
+  --shadow-focus: 0 0 0 3px rgba(59,130,246,.25);
+
+  --transition: 150ms ease;
+}
+
+/* ── En-tête de page ── */
+.form-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  gap: 1rem;
+}
+
+.form-page-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin: 0;
+}
+
+.form-page-title .title-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  background: var(--blue-50);
+  border: 1.5px solid var(--blue-200);
+  border-radius: var(--radius-md);
+  color: var(--blue-600);
+  flex-shrink: 0;
+}
+
+.form-page-title .title-icon svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+/* ── Messages flash ── */
+.form-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.7rem 1rem;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: 1px solid transparent;
+}
+
+.alert svg {
+  width: 1.05rem;
+  height: 1.05rem;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.alert-success {
+  background: var(--green-50);
+  border-color: var(--green-300);
+  color: var(--green-700);
+}
+
+.alert-error {
+  background: var(--red-50);
+  border-color: var(--red-300);
+  color: var(--red-600);
+}
+
+/* ── Wrapper scrollable ── */
+.emploi-table-wrap {
+  background: #ffffff;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ── Table grille ── */
+.emploi-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+  min-width: 640px;
+}
+
+/* En-tête jours */
+.emploi-table thead tr {
+  background: var(--blue-600);
+}
+
+.emploi-table thead th {
+  padding: 0.7rem 0.75rem;
+  text-align: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  border-right: 1px solid rgba(255,255,255,.15);
+}
+
+.emploi-table thead th:last-child {
+  border-right: none;
+}
+
+/* Colonne horaire */
+.emploi-col-heure {
+  background: var(--blue-50) !important;
+  color: var(--blue-700) !important;
+  font-weight: 700 !important;
+  font-size: 0.75rem !important;
+  white-space: nowrap;
+  text-align: center !important;
+  width: 90px;
+  min-width: 80px;
+  border-right: 2px solid var(--blue-200) !important;
+}
+
+/* Lignes du corps */
+.emploi-table tbody tr {
+  border-bottom: 1px solid var(--gray-100);
+  transition: background var(--transition);
+}
+
+.emploi-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.emploi-table tbody tr:hover:not(.emploi-row-pause) {
+  background: var(--blue-50);
+}
+
+.emploi-table tbody td {
+  padding: 0.5rem 0.6rem;
+  vertical-align: top;
+  border-right: 1px solid var(--gray-100);
+}
+
+.emploi-table tbody td:last-child {
+  border-right: none;
+}
+
+/* ── Ligne de pause ── */
+.emploi-row-pause {
+  background: var(--amber-50) !important;
+}
+
+.emploi-row-pause .emploi-col-heure {
+  background: var(--amber-50) !important;
+  color: var(--amber-600) !important;
+  border-right-color: var(--amber-200) !important;
+}
+
+.emploi-pause-cell {
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.78rem;
+  color: var(--amber-600);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 0.55rem !important;
+  background: var(--amber-50);
+  border: none !important;
+}
+
+/* ── Cellule emploi du temps ── */
+.emploi-cellule {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+/* Selects dans la grille */
+.emploi-cellule select {
+  width: 100%;
+  padding: 0.3rem 1.8rem 0.3rem 0.5rem;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  color: var(--gray-700);
+  background: var(--gray-50);
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.45rem center;
+  cursor: pointer;
+  transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+  outline: none;
+  line-height: 1.4;
+}
+
+.emploi-cellule select:hover {
+  border-color: var(--blue-400);
+  background-color: #ffffff;
+}
+
+.emploi-cellule select:focus {
+  border-color: var(--blue-500);
+  background-color: #ffffff;
+  box-shadow: var(--shadow-focus);
+}
+
+/* Select matière : légèrement plus visible */
+.emploi-cellule select:first-child {
+  font-weight: 600;
+  color: var(--gray-900);
+  border-color: var(--blue-200);
+  background-color: var(--blue-50);
+}
+
+.emploi-cellule select:first-child:hover {
+  border-color: var(--blue-400);
+  background-color: var(--blue-100);
+}
+
+.emploi-cellule select:first-child:focus {
+  border-color: var(--blue-500);
+  background-color: #ffffff;
+  box-shadow: var(--shadow-focus);
+}
+
+/* ── État vide ── */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 1.5rem;
+  gap: 0.75rem;
+  text-align: center;
+}
+
+.empty-emoji {
+  font-size: 2.75rem;
+  line-height: 1;
+}
+
+.empty-state p {
+  font-size: 0.9rem;
+  color: var(--gray-500);
+  margin: 0;
+}
+
+/* ── Actions ── */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--space-md);
+}
+
+/* ── Boutons ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1.2rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  text-decoration: none;
+  transition:
+    background var(--transition),
+    border-color var(--transition),
+    color var(--transition),
+    box-shadow var(--transition),
+    transform var(--transition);
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+.btn:active { transform: translateY(1px); }
+
+.btn-primary {
+  background: var(--blue-600);
+  border-color: var(--blue-600);
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background: var(--blue-700);
+  border-color: var(--blue-700);
+  box-shadow: 0 2px 8px rgba(37,99,235,.35);
+}
+
+.btn-primary:focus-visible {
+  box-shadow: var(--shadow-focus);
+  outline: none;
+}
+
+.btn-ghost {
+  background: #ffffff;
+  border-color: var(--gray-300);
+  color: var(--gray-700);
+}
+
+.btn-ghost:hover {
+  background: var(--gray-50);
+  border-color: var(--blue-400);
+  color: var(--blue-600);
+}
+
+.btn-sm {
+  padding: 0.4rem 0.9rem;
+  font-size: 0.8rem;
+}
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .form-page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .form-actions {
+    justify-content: stretch;
+  }
+
+  .form-actions .btn {
+    width: 100%;
+  }
+  .emploi-appel-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.18rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: opacity 150ms ease;
+  white-space: nowrap;
+}
+.emploi-appel-btn:hover { opacity: 0.8; }
+ 
+.emploi-appel-todo {
+  background: #dbeafe;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+ 
+.emploi-appel-done {
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #86efac;
+}
+}

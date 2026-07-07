@@ -1,0 +1,117 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Clôturer la semaine{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/emploi_classes.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/list_eleve.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/add_eleve.css' %}">
+<link rel="stylesheet" href="{% static 'css/secretaire/eleves/list_eleve.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="form-page-header">
+  <h1 class="form-page-title">
+    <span class="title-icon">🔒</span>
+    Clôturer la semaine
+  </h1>
+  <a href="{% url 'emploi_du_temps_classes' %}" class="btn btn-ghost btn-sm">Annuler</a>
+</div>
+
+<div class="cloture-card">
+  <div class="cloture-icon">⚠️</div>
+  <h2>Confirmer la clôture</h2>
+  <p>
+    Vous êtes sur le point de clôturer la semaine
+    <strong>du {{ semaine.date_debut|date:"d/m/Y" }} au {{ semaine.date_fin|date:"d/m/Y" }}</strong>.
+  </p>
+
+  <div class="cloture-consequences">
+    <div class="cc-item">
+      <span class="cc-check">✓</span>
+      L'emploi du temps de cette semaine sera verrouillé (lecture seule)
+    </div>
+    <div class="cc-item">
+      <span class="cc-check">✓</span>
+      Les présences de la semaine seront partagées à <strong>tous les élèves</strong>
+    </div>
+    <div class="cc-item">
+      <span class="cc-check">✓</span>
+      Une nouvelle semaine sera créée automatiquement (copie de celle-ci)
+    </div>
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="cloture-actions">
+      <a href="{% url 'emploi_du_temps_classes' %}" class="btn btn-ghost">Annuler</a>
+      <button type="submit" class="btn btn-danger">
+        🔒 Confirmer la clôture
+      </button>
+    </div>
+  </form>
+</div>
+
+<style>
+.cloture-card {
+  background: #ffffff;
+  border: 1.5px solid var(--red-300);
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 560px;
+  margin: 0 auto;
+  text-align: center;
+  box-shadow: var(--shadow-md);
+}
+
+.cloture-icon { font-size: 3rem; margin-bottom: 0.5rem; }
+
+.cloture-card h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin-bottom: 0.5rem;
+}
+
+.cloture-card p {
+  font-size: 0.875rem;
+  color: var(--gray-600);
+  line-height: 1.6;
+  margin-bottom: 1.25rem;
+}
+
+.cloture-consequences {
+  text-align: left;
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.cc-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  font-size: 0.85rem;
+  color: var(--gray-700);
+}
+
+.cc-check {
+  color: var(--green-600);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.cloture-actions {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+}
+</style>
+
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends 'secretaire_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Envoyer un message{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/add_eleve.css' %}">
+<link rel="stylesheet" href="{% static 'css/secretaire/messages/envoyer_message.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="form-page-header">
+  <h1 class="form-page-title">
+    <span class="title-icon" aria-hidden="true">✉</span>
+    Envoyer un message
+  </h1>
+  <a href="{% url 'secretaire_messages' %}" class="btn btn-ghost btn-sm">Retour à la messagerie</a>
+</div>
+
+{% if messages %}
+  <div class="form-messages">
+    {% for message in messages %}
+      <div class="alert {% if message.tags == 'error' or message.tags == 'warning' %}alert-error{% else %}alert-success{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span>{{ message }}</span>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<form method="post" class="form-card" novalidate>
+  {% csrf_token %}
+
+  <h2 class="form-section-title">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.2 2.7-5.5 6-5.5s6 2.3 6 5.5"/></svg>
+    Destinataire
+  </h2>
+
+  <div class="form-field">
+    <label for="eleve_id">Élève <span class="required">*</span></label>
+    <select id="eleve_id" name="eleve_id" required>
+      <option value="">— Choisir un élève —</option>
+      {% for e in eleves %}
+        <option value="{{ e.id }}" {% if eleve_preselect and eleve_preselect.id == e.id %}selected{% endif %}>
+          {{ e.nom }} {{ e.prenom }} {% if e.classe %}({{ e.classe }}){% endif %}
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="form-grid-2" style="margin-top:.5rem;">
+    <label style="display:flex; align-items:center; gap:.5rem; font-weight:500; cursor:pointer;">
+      <input type="checkbox" name="envoyer_eleve" value="1" checked style="width:1.1rem; height:1.1rem;">
+      Envoyer à l'élève (espace personnel)
+    </label>
+    <label style="display:flex; align-items:center; gap:.5rem; font-weight:500; cursor:pointer;">
+      <input type="checkbox" name="envoyer_parent" value="1" checked style="width:1.1rem; height:1.1rem;">
+      Envoyer au parent (e-mail)
+    </label>
+  </div>
+
+  <h2 class="form-section-title" style="margin-top: 1.25rem;">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+    Contenu
+  </h2>
+
+  <div class="form-field">
+    <label for="sujet">Sujet <span class="required">*</span></label>
+    <input type="text" id="sujet" name="sujet" placeholder="Sujet du message" required>
+  </div>
+
+  <div class="form-field">
+    <label for="contenu">Message</label>
+    <textarea id="contenu" name="contenu" rows="5" placeholder="Écrivez votre message..."></textarea>
+  </div>
+
+  <div class="form-actions">
+    <a href="{% url 'secretaire_messages' %}" class="btn btn-ghost">Annuler</a>
+    <button type="submit" class="btn btn-primary">Envoyer</button>
+  </div>
+</form>
+
+{% endblock %}

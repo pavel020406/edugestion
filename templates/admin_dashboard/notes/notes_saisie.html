@@ -1,0 +1,625 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Notes — {{ classe }} — {{ matiere }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/notes/note_saisie.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- ── En-tête ── -->
+<div class="form-page-header">
+  <h1 class="form-page-title">
+    <span class="title-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M9 11l3 3L22 4"/>
+        <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+      </svg>
+    </span>
+    {{ matiere.nom_matiere }}
+    <span style="font-weight:400; color:var(--gray-400); font-size:.9rem;">· {{ classe }}</span>
+  </h1>
+  <a href="{% url 'notes_matieres' classe.id %}" class="btn btn-ghost btn-sm">
+    ← Retour aux matières
+  </a>
+</div>
+
+<!-- ── Messages flash ── -->
+{% if messages %}
+  <div class="form-messages">
+    {% for message in messages %}
+      <div class="alert {% if message.tags == 'error' %}alert-error{% elif message.tags == 'warning' %}alert-warning{% else %}alert-success{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/>
+        </svg>
+        <span>{{ message }}</span>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<!-- ── Onglets trimestre ── -->
+<div class="trim-tabs">
+  {% for st in statut_trimestres %}
+    {% if st.accessible %}
+      <a href="?trimestre={{ st.code }}"
+         class="trim-tab {% if st.actif %}actif{% endif %} {% if st.verrouille %}verrouille{% endif %}">
+        <span>{{ st.libelle }}</span>
+        {% if st.verrouille %}
+          <span class="trim-lock-icon">🔒</span>
+        {% else %}
+          <span class="trim-lock-icon">🔓</span>
+        {% endif %}
+      </a>
+    {% else %}
+      <span class="trim-tab bloque"
+            title="Verrouillez les trimestres précédents d'abord">
+        <span>{{ st.libelle }}</span>
+        <span class="trim-lock-icon">🔒</span>
+      </span>
+    {% endif %}
+  {% endfor %}
+</div>
+
+<!-- ── Barre progression ── -->
+<div class="progression-bar-wrap">
+  <div class="progression-info">
+    <span>Progression de saisie</span>
+    <span class="progression-chiffre">
+      {{ nb_saisies }} / {{ nb_saisies|add:nb_manquantes }} note(s)
+      {% if nb_manquantes == 0 %}
+        <span class="chip-complet">✓ Complet</span>
+      {% else %}
+        <span class="chip-incomplet">{{ nb_manquantes }} manquante(s)</span>
+      {% endif %}
+    </span>
+  </div>
+  <div class="progression-bar">
+    <div class="progression-fill {% if progression == 100 %}complet{% endif %}">
+    </div>
+  </div>
+</div>
+
+<!-- ── Barre verrou ── -->
+{% if est_verrouille %}
+  <div class="verrou-bar verrouille">
+    <div class="verrou-bar-text">
+      🔒 Notes {{ trimestre }} verrouillées
+      {% if verrou_info.verrouille_le %}
+        <small>
+          le {{ verrou_info.verrouille_le|date:"d/m/Y à H:i" }}
+          {% if verrou_info.verrouille_par %}
+            par {{ verrou_info.verrouille_par.get_full_name }}
+          {% endif %}
+        </small>
+      {% endif %}
+    </div>
+    <div class="verrou-bar-actions">
+      {% if est_admin %}
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="trimestre" value="{{ trimestre }}">
+          <input type="hidden" name="action"    value="deverrouiller">
+          <button type="submit" class="btn btn-ghost btn-sm"
+                  onclick="return confirm('Déverrouiller les notes du {{ trimestre }} ?\nElles pourront à nouveau être modifiées.')">
+            🔓 Déverrouiller (admin)
+          </button>
+        </form>
+      {% else %}
+        <span class="verrou-info-msg">Contactez l'administrateur pour modifier.</span>
+      {% endif %}
+    </div>
+  </div>
+{% else %}
+  <div class="verrou-bar ouvert">
+    <div class="verrou-bar-text">
+      🔓 Saisie ouverte — {{ trimestre }}
+    </div>
+    <div class="verrou-bar-actions">
+      {% if est_admin %}
+        {% if peut_verrouiller %}
+          <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="trimestre" value="{{ trimestre }}">
+            <input type="hidden" name="action"    value="verrouiller">
+            <button type="submit" class="btn btn-danger btn-sm"
+                    onclick="return confirm('Verrouiller les notes du {{ trimestre }} pour {{ matiere.nom_matiere }} ?\n\nCette action bloquera toute modification.\nSeul l\'administrateur pourra déverrouiller.')">
+              🔒 Verrouiller {{ trimestre }}
+            </button>
+          </form>
+        {% else %}
+          <div class="verrou-warning">
+            ⚠ {{ nb_manquantes }} note(s) manquante(s) — complétez avant de verrouiller
+          </div>
+        {% endif %}
+      {% else %}
+        {% if peut_verrouiller %}
+          <div class="verrou-warning">
+            ✓ Toutes les notes sont saisies — en attente de verrouillage par l'administrateur
+          </div>
+        {% else %}
+          <div class="verrou-warning">
+            ⚠ {{ nb_manquantes }} note(s) manquante(s)
+          </div>
+        {% endif %}
+      {% endif %}
+    </div>
+  </div>
+{% endif %}
+
+<!-- ══════════════════════════════════════════
+     TABLEAU DES NOTES
+     Toujours affiché, qu'il soit verrouillé ou non
+══════════════════════════════════════════ -->
+<form method="post" id="form-notes">
+  {% csrf_token %}
+  <input type="hidden" name="trimestre" value="{{ trimestre }}">
+  <input type="hidden" name="action"    value="enregistrer">
+
+  <div class="list-card">
+    <div class="list-card-header">
+      <h2>
+        Notes — {{ trimestre }}
+        {% if est_verrouille %}
+          <span class="badge-verrou">🔒 Verrouillé</span>
+        {% endif %}
+      </h2>
+      <span class="list-card-count">{{ lignes|length }} élève(s)</span>
+    </div>
+
+    <div class="data-table-wrap">
+      <table class="data-table notes-saisie-table">
+        <thead>
+          <tr>
+            <th class="th-num">#</th>
+            <th class="th-nom">Élève</th>
+            {% for code_eval, libelle in entetes_evaluations %}
+              <th class="th-note">{{ libelle }}</th>
+            {% endfor %}
+            <th class="th-moy">Moyenne</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ligne in lignes %}
+            <tr class="eleve-note-row" id="row-{{ ligne.eleve.id }}">
+
+              <td class="td-num">{{ forloop.counter }}</td>
+
+              <td class="td-nom">
+                <div class="eleve-note-avatar">
+                  <span class="eleve-avatar-sm">
+                    {{ ligne.eleve.prenom|first|upper }}{{ ligne.eleve.nom|first|upper }}
+                  </span>
+                  <div class="eleve-meta">
+                    <strong>{{ ligne.eleve.nom }} {{ ligne.eleve.prenom }}</strong>
+                    <small>{{ ligne.eleve.matricule }}</small>
+                  </div>
+                </div>
+              </td>
+
+              {% for code_eval, libelle, valeur in ligne.cellules %}
+                <td class="td-note">
+                  {% if est_verrouille %}
+                    {# ── Lecture seule pour TOUT LE MONDE, admin inclus ── #}
+                    <span class="note-display {% if valeur is not None and valeur >= 10 %}note-ok{% elif valeur is not None %}note-fail{% endif %}">
+                      {% if valeur is not None %}{{ valeur }}/20{% else %}<span class="note-vide">—</span>{% endif %}
+                    </span>
+                  {% else %}
+                    {# ── Éditable ── #}
+                    <input type="number"
+                           name="note_{{ ligne.eleve.id }}_{{ code_eval }}"
+                           value="{% if valeur is not None %}{{ valeur }}{% endif %}"
+                           min="0" max="20" step="0.25"
+                           class="note-input {% if valeur is not None and valeur >= 10 %}note-ok{% elif valeur is not None %}note-fail{% endif %}"
+                           data-eleve="{{ ligne.eleve.id }}"
+                         
+                           placeholder="—">
+                  {% endif %}
+                </td>
+              {% endfor %}
+
+              <td class="td-moy">
+                <span class="moy-display {% if ligne.moyenne is not None and ligne.moyenne >= 10 %}moy-ok{% elif ligne.moyenne is not None %}moy-fail{% endif %}"
+                      id="moy-{{ ligne.eleve.id }}">
+                  {% if ligne.moyenne is not None %}{{ ligne.moyenne }}{% else %}—{% endif %}
+                </span>
+              </td>
+
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="{{ entetes_evaluations|length|add:3 }}" class="empty-note-cell">
+                Aucun élève dans cette classe.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── Bouton enregistrer (masqué dès que verrouillé, admin inclus) ── -->
+  {% if not est_verrouille %}
+    <div class="form-actions" style="margin-top:1rem;">
+      <a href="{% url 'notes_matieres' classe.id %}" class="btn btn-ghost">Annuler</a>
+      <button type="submit" class="btn btn-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             style="width:1rem;height:1rem;">
+          <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v14a2 2 0 01-2 2z"/>
+          <path d="M17 21v-8H7v8M7 3v5h8"/>
+        </svg>
+        Enregistrer les notes
+      </button>
+    </div>
+  {% endif %}
+
+</form>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ── Coloration d'un input note ────────────────────────────
+function onNoteInput(input, eleveId) {
+  const val = parseFloat(input.value);
+  input.classList.remove('note-ok', 'note-fail');
+  if (!isNaN(val) && input.value !== '') {
+    input.classList.add(val >= 10 ? 'note-ok' : 'note-fail');
+  }
+  calculerMoyenne(eleveId);
+}
+
+// ── Calcul dynamique de la moyenne ───────────────────────
+function calculerMoyenne(eleveId) {
+  const row   = document.getElementById('row-' + eleveId);
+  const moyEl = document.getElementById('moy-' + eleveId);
+  if (!row || !moyEl) return;
+
+  // On prend tous les inputs de saisie visibles/actifs (pas les spans en lecture seule)
+  const inputs = row.querySelectorAll('.note-input');
+  let total = 0, count = 0;
+
+  inputs.forEach(function(inp) {
+    const val = parseFloat(inp.value);
+    if (!isNaN(val) && val >= 0 && val <= 20) {
+      total += val;
+      count++;
+    }
+  });
+
+  moyEl.classList.remove('moy-ok', 'moy-fail');
+  if (count === 0) {
+    moyEl.textContent = '—';
+  } else {
+    const moy = (total / count).toFixed(2);
+    moyEl.textContent = moy;
+    moyEl.classList.add(parseFloat(moy) >= 10 ? 'moy-ok' : 'moy-fail');
+  }
+}
+
+// ── Init au chargement ────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.eleve-note-row').forEach(function(row) {
+    const eleveId = row.id.replace('row-', '');
+    row.querySelectorAll('.note-input').forEach(function(inp) {
+      const val = parseFloat(inp.value);
+      if (!isNaN(val) && inp.value !== '') {
+        inp.classList.add(val >= 10 ? 'note-ok' : 'note-fail');
+      }
+    });
+    calculerMoyenne(eleveId);
+  });
+});
+</script>
+
+<style>
+/* ── Onglets trimestre ── */
+.trim-tabs {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.trim-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 1.1rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border: 1.5px solid var(--gray-300);
+  background: #ffffff;
+  color: var(--gray-600);
+  text-decoration: none;
+  transition: all 150ms ease;
+  cursor: pointer;
+}
+
+.trim-tab:not(.bloque):not(.verrouille):hover {
+  border-color: var(--blue-400);
+  color: var(--blue-700);
+  background: var(--blue-50);
+}
+
+.trim-tab.actif:not(.verrouille) {
+  background: var(--blue-600);
+  border-color: var(--blue-600);
+  color: #ffffff;
+}
+
+.trim-tab.verrouille:not(.actif) {
+  border-color: var(--red-300);
+  color: var(--red-600);
+  background: var(--red-50);
+}
+
+.trim-tab.actif.verrouille {
+  background: var(--red-600);
+  border-color: var(--red-600);
+  color: #ffffff;
+}
+
+.trim-tab.bloque {
+  border-color: var(--gray-200);
+  color: var(--gray-400);
+  background: var(--gray-50);
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.trim-lock-icon { font-size: 0.72rem; }
+
+/* ── Barre progression ── */
+.progression-bar-wrap {
+  margin-bottom: 1rem;
+}
+
+.progression-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--gray-600);
+  margin-bottom: 0.35rem;
+}
+
+.progression-chiffre {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.chip-complet {
+  background: var(--green-100);
+  color: var(--green-700);
+  border: 1px solid var(--green-300);
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.chip-incomplet {
+  background: var(--amber-100);
+  color: var(--amber-700);
+  border: 1px solid var(--amber-300);
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.progression-bar {
+  height: 6px;
+  background: var(--gray-200);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progression-fill {
+  height: 100%;
+  background: var(--blue-500);
+  border-radius: 999px;
+  transition: width 400ms ease;
+}
+
+.progression-fill.complet { background: var(--green-600); }
+
+/* ── Barre verrou ── */
+.verrou-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.verrou-bar.verrouille {
+  background: var(--red-50);
+  border: 1.5px solid var(--red-300);
+}
+
+.verrou-bar.ouvert {
+  background: var(--green-50);
+  border: 1.5px solid var(--green-300);
+}
+
+.verrou-bar-text {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: inherit;
+  flex-wrap: wrap;
+}
+
+.verrou-bar.verrouille .verrou-bar-text { color: var(--red-700); }
+.verrou-bar.ouvert     .verrou-bar-text { color: var(--green-700); }
+
+.verrou-bar-text small {
+  font-weight: 400;
+  font-size: 0.72rem;
+  opacity: 0.8;
+}
+
+.verrou-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.verrou-warning {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--amber-50);
+  border: 1px solid var(--amber-300);
+  color: var(--amber-700);
+  padding: 0.3rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.verrou-info-msg {
+  font-size: 0.78rem;
+  color: var(--red-600);
+  font-style: italic;
+}
+
+/* ── Tableau ── */
+.notes-saisie-table .th-num  { width: 36px; text-align: center; }
+.notes-saisie-table .th-nom  { text-align: left; min-width: 180px; }
+.notes-saisie-table .th-note { text-align: center; width: 90px; }
+.notes-saisie-table .th-moy  { text-align: center; width: 80px; }
+
+.notes-saisie-table .td-num  { text-align: center; color: var(--gray-400); font-size: .75rem; }
+.notes-saisie-table .td-nom  { text-align: left; padding-left: 1rem; }
+.notes-saisie-table .td-note { text-align: center; padding: .35rem .25rem; }
+.notes-saisie-table .td-moy  { text-align: center; }
+
+.data-table tbody tr:nth-child(even) { background: var(--gray-50); }
+.data-table tbody tr:hover { background: var(--blue-50) !important; }
+
+/* ── Input note éditable ── */
+.note-input {
+  width: 68px;
+  padding: 0.32rem 0.4rem;
+  border: 1.5px solid var(--gray-300);
+  border-radius: 5px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-align: center;
+  color: var(--gray-900);
+  background: var(--gray-50);
+  outline: none;
+  transition: border-color 150ms, box-shadow 150ms, background 150ms;
+}
+
+.note-input::-webkit-inner-spin-button,
+.note-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+
+.note-input:hover  { border-color: var(--blue-400); background: #fff; }
+.note-input:focus  { border-color: var(--blue-500); background: #fff; box-shadow: 0 0 0 3px rgba(59,130,246,.2); }
+.note-input.note-ok   { border-color: var(--green-300); background: var(--green-50); color: var(--green-700); }
+.note-input.note-fail { border-color: var(--red-300);   background: var(--red-50);   color: var(--red-700);   }
+
+.note-input-admin {
+  width: 68px;
+  border-style: dashed;
+}
+
+/* ── Note affichée (lecture seule) ── */
+.note-display {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 0.25rem 0.55rem;
+  border-radius: 5px;
+  min-width: 46px;
+  background: var(--gray-100);
+  color: var(--gray-500);
+}
+
+.note-display.note-ok   { background: var(--green-100); color: var(--green-700); }
+.note-display.note-fail { background: var(--red-100);   color: var(--red-700);   }
+.note-vide { color: var(--gray-300); font-weight: 400; }
+
+/* ── Moyenne ── */
+.moy-display {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.85rem;
+  padding: 0.25rem 0.55rem;
+  border-radius: 5px;
+  min-width: 46px;
+  background: var(--gray-100);
+  color: var(--gray-400);
+  transition: background 200ms, color 200ms;
+}
+
+.moy-display.moy-ok   { background: var(--green-100); color: var(--green-700); }
+.moy-display.moy-fail { background: var(--red-100);   color: var(--red-700);   }
+
+/* ── Avatar ── */
+.eleve-note-avatar { display: flex; align-items: center; gap: .55rem; }
+.eleve-avatar-sm {
+  width: 1.75rem; height: 1.75rem; border-radius: 50%;
+  background: var(--blue-600); color: #fff;
+  font-size: .62rem; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.eleve-meta { display: flex; flex-direction: column; }
+.eleve-meta strong { font-size: .85rem; color: var(--gray-900); }
+.eleve-meta small  { font-size: .68rem; color: var(--gray-400); }
+
+/* ── Badge verrou en-tête ── */
+.badge-verrou {
+  display: inline-flex; align-items: center;
+  padding: .15rem .55rem; background: var(--red-100);
+  color: var(--red-700); border: 1px solid var(--red-300);
+  border-radius: 999px; font-size: .68rem; font-weight: 700;
+  margin-left: .5rem;
+}
+
+/* ── Alert warning ── */
+.alert-warning {
+  background: var(--amber-50);
+  border-color: var(--amber-300);
+  color: var(--amber-700);
+}
+
+/* ── Cellule vide ── */
+.empty-note-cell {
+  text-align: center; padding: 2rem;
+  color: var(--gray-400); font-size: .875rem;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .note-input  { width: 54px; font-size: .75rem; }
+  .moy-display { min-width: 38px; font-size: .78rem; }
+  .verrou-bar  { flex-direction: column; align-items: flex-start; }
+}
+
+@media (max-width: 640px) {
+  .form-page-header { flex-direction: column; align-items: flex-start; }
+  .form-actions     { flex-direction: column-reverse; }
+  .form-actions .btn { width: 100%; }
+}
+</style>
+{% endblock %}

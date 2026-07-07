@@ -1,0 +1,144 @@
+/* ============================================================
+   parent/notes.css — notes, bulletins, accès bloqué
+   ============================================================ */
+
+/* ── Carte accès bloqué ── */
+.acces-bloque-card {
+  background: #fff;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg, 12px);
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  max-width: 500px;
+  margin: 0 auto;
+}
+.acces-bloque-icon { font-size: 2.8rem; margin-bottom: .9rem; }
+.acces-bloque-card h2 { margin: 0 0 .6rem; color: var(--gray-900); font-size: 1.1rem; }
+.acces-bloque-card p { color: var(--gray-500); font-size: .88rem; margin: 0 0 .6rem; }
+
+/* ── Sélecteur de trimestre ── */
+.notes-trimestres {
+  display: flex;
+  gap: .5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.1rem;
+}
+.notes-trim-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: .45rem 1rem;
+  border-radius: .55rem;
+  font-size: .85rem;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1.5px solid var(--gray-200);
+  background: #fff;
+  color: var(--gray-700, var(--gray-900));
+  cursor: pointer;
+  transition: border-color .15s ease, background .15s ease;
+}
+.notes-trim-btn:hover { border-color: var(--blue-400, var(--blue-600)); }
+.notes-trim-btn-actif {
+  background: var(--blue-600);
+  color: #fff;
+  border-color: var(--blue-600);
+}
+.notes-trim-btn-bloque {
+  background: var(--gray-100);
+  color: var(--gray-400);
+  border-color: var(--gray-200);
+  cursor: not-allowed;
+  font-size: .82rem;
+  padding: .4rem .85rem;
+  border-radius: .55rem;
+  font-weight: 600;
+}
+
+/* ── Carte notes ── */
+.notes-card {
+  background: #fff;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg, 12px);
+  box-shadow: var(--shadow-md, 0 2px 8px rgba(0,0,0,.06));
+  overflow: hidden;
+}
+.notes-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .5rem;
+  padding: .9rem 1.25rem;
+  border-bottom: 1px solid var(--gray-100);
+}
+.notes-card-header h2 { font-size: .95rem; font-weight: 700; color: var(--gray-900); margin: 0; }
+.notes-moyenne-generale {
+  font-size: .85rem;
+  color: var(--gray-500);
+}
+.notes-moyenne-generale strong { color: var(--blue-700, var(--blue-600)); font-size: 1rem; }
+
+/* ── Table ── */
+.data-table-wrap { overflow-x: auto; }
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table thead th {
+  text-align: left; font-size: .7rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .03em;
+  color: #fff; background: var(--blue-700, var(--blue-600));
+  padding: .65rem 1rem;
+}
+.data-table tbody td {
+  padding: .65rem 1rem; font-size: .84rem;
+  color: var(--gray-900); border-bottom: 1px solid var(--gray-100);
+  vertical-align: middle;
+}
+.data-table tbody tr:last-child td { border-bottom: none; }
+.data-table tbody tr:hover { background: var(--blue-50); }
+
+.note-badge {
+  display: inline-flex; align-items: center;
+  padding: .18rem .45rem; border-radius: 4px;
+  font-size: .78rem; font-weight: 700;
+}
+.note-ok   { background: var(--green-100); color: var(--green-700); }
+.note-fail { background: var(--red-100);   color: var(--red-700); }
+.note-ok-text   { color: var(--green-700); }
+.note-fail-text { color: var(--red-700); }
+
+/* ── Grille bulletins ── */
+.bulletins-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+.bulletin-card {
+  background: #fff;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg, 12px);
+  padding: 1.4rem;
+  text-align: center;
+}
+.bulletin-card-dispo { border-color: var(--blue-200); }
+.bulletin-card-bloque { background: var(--gray-50); }
+.bulletin-card-icon { font-size: 2rem; margin-bottom: .6rem; }
+.bulletin-card h3 { margin: 0 0 .4rem; font-size: 1rem; color: var(--gray-900); }
+.bulletin-card p { font-size: .82rem; color: var(--gray-500); margin: 0 0 .9rem; }
+
+/* ── Carte bientôt active (dashboard) ── */
+.parent-bientot-card-actif {
+  border-color: var(--blue-200);
+  background: var(--blue-50);
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow .15s ease, border-color .15s ease;
+}
+.parent-bientot-card-actif:hover {
+  border-color: var(--blue-600);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, .15);
+}
+.parent-bientot-card-actif strong { color: var(--blue-900, var(--blue-700)); }
+
+@media (max-width: 640px) {
+  .bulletins-grid { grid-template-columns: 1fr; }
+}

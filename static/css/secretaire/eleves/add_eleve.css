@@ -1,0 +1,23 @@
+/* ============================================================
+   eleves/add_eleve.css — boîte d'info frais en direct (inscription)
+   ============================================================ */
+
+.frais-niveau-info {
+  margin: -.6rem 0 1.1rem;
+  padding: .7rem .9rem;
+  border-radius: .6rem;
+  font-size: .85rem;
+}
+
+.frais-niveau-info-ok {
+  background: var(--sec-blue-50, #eff6ff);
+  border: 1px solid var(--sec-blue-100, #dbeafe);
+  color: var(--sec-blue-900, #1e3a8a);
+}
+.frais-niveau-info-ok strong { color: var(--sec-blue-700, #1d4ed8); }
+
+.frais-niveau-info-vide {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  color: #92400e;
+}

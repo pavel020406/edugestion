@@ -1,0 +1,52 @@
+{% extends 'dashboard_eleve/base_eleve.html' %}
+{% load static %}
+
+{% block page_title %}{{ msg.sujet }}{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard_eleve/eleve.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="form-page-header">
+  <h1 class="form-page-title">
+    <span class="title-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+    </span>
+    {{ msg.sujet }}
+  </h1>
+  <a href="{% url 'eleve_messages' %}" class="btn btn-ghost btn-sm">← Retour</a>
+</div>
+
+<div class="message-detail-card">
+  <div class="message-meta">
+    <div class="meta-item">
+      <span class="meta-label">De</span>
+      <strong>{% if msg.expediteur %}{{ msg.expediteur.first_name }} {{ msg.expediteur.last_name }}{% else %}Administration{% endif %}</strong>
+    </div>
+    <div class="meta-item">
+      <span class="meta-label">Date</span>
+      <strong>{{ msg.date_envoi|date:"l j F Y à H:i" }}</strong>
+    </div>
+    <div class="meta-item">
+      <span class="meta-label">Type</span>
+      <span class="badge-type msg-{{ msg.type_message }}">{{ msg.get_type_message_display }}</span>
+    </div>
+  </div>
+
+  <div class="message-body">
+    {{ msg.contenu|linebreaks }}
+  </div>
+
+  {% if msg.fichier_pdf %}
+    <div class="message-pj">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:1.1rem;height:1.1rem;color:var(--red-600);">
+        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/>
+      </svg>
+      <span>Pièce jointe PDF</span>
+      <a href="{% url 'eleve_message_pdf' msg.id %}" class="btn btn-danger btn-sm">
+        Télécharger le PDF
+      </a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

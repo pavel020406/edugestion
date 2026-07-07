@@ -1,0 +1,142 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Reçu de paiement{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/add_eleve.css' %}">
+<link rel="stylesheet" href="{% static 'css/secretaire/eleves/recu_paiement.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="form-page-header">
+  <h1 class="form-page-title">
+    <span class="title-icon" aria-hidden="true">✅</span>
+    Paiement enregistré
+  </h1>
+  <a href="{% url 'secretaire_detail_eleve' eleve.id %}" class="btn btn-ghost btn-sm">Retour à la fiche</a>
+</div>
+
+{% if messages %}
+  <div class="form-messages">
+    {% for message in messages %}
+      <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span>{{ message }}</span>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<div class="recu-card">
+
+  <div class="recu-eleve-header">
+    <div class="sec-avatar" style="width:3rem;height:3rem;font-size:1rem;">
+      {{ eleve.nom|first|upper }}{{ eleve.prenom|first|upper }}
+    </div>
+    <div>
+      <h2>{{ eleve.nom }} {{ eleve.prenom }}</h2>
+      <span class="recu-matricule">{{ eleve.matricule }}</span>
+      {% if eleve.classe %}<span class="class-chip">{{ eleve.classe }}</span>{% endif %}
+    </div>
+  </div>
+
+  <!-- ── Paiement actuel ── -->
+  <h3 class="recu-tranches-title">Paiement actuel — {{ paiement.date_paiement|date:"d/m/Y" }}</h3>
+  <div class="recu-montants">
+    <div class="recu-montant-bloc">
+      <span>Concerne</span>
+      <strong style="font-size:.9rem;">{{ paiement.libelle_contenu }}</strong>
+    </div>
+    <div class="recu-montant-bloc recu-montant-total">
+      <span>Montant reçu</span>
+      <strong>{{ paiement.montant }} FCFA</strong>
+    </div>
+  </div>
+
+  <a href="{% url 'secretaire_recu_paiement_pdf' paiement.id %}" class="btn btn-primary btn-sm" style="margin-bottom: 1.5rem;">
+    📄 Télécharger ce reçu (PDF)
+  </a>
+
+  <!-- ── État global ── -->
+  <h3 class="recu-tranches-title">État des paiements de l'élève</h3>
+  <div class="paiement-statut-grid">
+    <div class="paiement-statut-bloc">
+      <span>Total dû</span><strong>{{ statut.total_du }} FCFA</strong>
+    </div>
+    <div class="paiement-statut-bloc">
+      <span>Total payé</span><strong>{{ statut.total_paye }} FCFA</strong>
+    </div>
+    <div class="paiement-statut-bloc {% if statut.solde > 0 %}paiement-statut-restant{% else %}paiement-statut-ok{% endif %}">
+      <span>Solde restant</span><strong>{{ statut.solde }} FCFA</strong>
+    </div>
+  </div>
+
+  {% if statut.tranches_statut %}
+    <div class="data-table-wrap" style="margin-top:1rem;">
+      <table class="data-table">
+        <thead>
+          <tr><th>Échéance</th><th>Montant</th><th>Date limite</th><th>Statut</th></tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td>Frais d'inscription</td>
+          <td>{{ statut.frais.montant_inscription }} FCFA</td>
+          <td>—</td>
+          <td>
+            {% if statut.inscription_payee %}
+              <span class="msg-statut msg-statut-lu">✓ Payé</span>
+            {% else %}
+              <span class="msg-statut msg-statut-non-lu">En attente</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% for t in statut.tranches_statut %}
+          <tr>
+            <td>{{ t.tranche.libelle }}</td>
+            <td>{{ t.tranche.montant }} FCFA</td>
+            <td>{{ t.tranche.date_limite|date:"d/m/Y" }}</td>
+            <td>
+              {% if t.payee %}
+                <span class="msg-statut msg-statut-lu">✓ Payé</span>
+              {% elif t.en_retard %}
+                <span class="tag-retard">En retard</span>
+              {% else %}
+                <span class="msg-statut msg-statut-non-lu">En attente</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+
+  <!-- ── Historique des paiements ── -->
+  <h3 class="recu-tranches-title" style="margin-top:1.25rem;">Historique des paiements</h3>
+  <div class="data-table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr><th>Date</th><th>Concerne</th><th>Montant</th></tr>
+      </thead>
+      <tbody>
+      {% for p in historique %}
+        <tr {% if p.id == paiement.id %}style="background: var(--sec-blue-50);"{% endif %}>
+          <td>{{ p.date_paiement|date:"d/m/Y" }}</td>
+          <td>{{ p.libelle_contenu }}</td>
+          <td>{{ p.montant }} FCFA</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="form-actions" style="margin-top: 1.5rem;">
+    <a href="{% url 'secretaire_paiement_ajouter' eleve.id %}" class="btn btn-primary">➕ Enregistrer un autre paiement</a>
+    <a href="{% url 'secretaire_detail_eleve' eleve.id %}" class="btn btn-ghost">Retour à la fiche élève</a>
+  </div>
+
+</div>
+
+{% endblock %}

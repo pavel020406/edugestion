@@ -1,0 +1,30 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Tableau de bord{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/add_eleve.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/detail.css' %}">
+<link rel="stylesheet" href="{% static 'css/dashboard_enseignant/list.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/message.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="form-page-header">
+  <h1 class="form-page-title">
+    <span class="title-icon" aria-hidden="true">👨‍👩‍👧</span>
+    Tableau de bord parent
+  </h1>
+</div>
+
+<div class="empty-state" style="padding: 3rem 1.5rem;">
+  <div class="empty-emoji">🔗</div>
+  <p>Aucun enfant n'est encore lié à votre compte.</p>
+  <p style="font-size:.82rem; color: var(--gray-500);">
+    Contactez le secrétariat de l'établissement pour faire le lien entre votre compte et celui de votre enfant.
+  </p>
+</div>
+
+{% endblock %}

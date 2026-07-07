@@ -1,0 +1,55 @@
+/* ============================================================
+   eleves/paiements_retard.css — liste des élèves en retard
+   ============================================================ */
+
+.list-card {
+  background: #fff;
+  border: 1px solid var(--sec-blue-100);
+  border-radius: .9rem;
+  overflow: hidden;
+}
+.list-card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 1.25rem; border-bottom: 1px solid var(--sec-gray-100);
+}
+.list-card-header h2 { font-size: .95rem; font-weight: 700; color: var(--sec-blue-900); margin: 0; }
+.list-card-count {
+  font-size: .75rem; font-weight: 700; color: #b91c1c;
+  background: #fee2e2; border: 1px solid #fecaca;
+  border-radius: 999px; padding: .2rem .65rem;
+}
+
+.data-table-wrap { overflow-x: auto; }
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table thead th {
+  text-align: left; font-size: .72rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .03em; color: var(--sec-gray-500); background: var(--sec-gray-100);
+  padding: .7rem 1.1rem;
+}
+.data-table tbody td {
+  padding: .7rem 1.1rem; font-size: .85rem; color: var(--sec-gray-700);
+  border-bottom: 1px solid var(--sec-gray-100); vertical-align: middle;
+}
+.data-table tbody tr:hover { background: var(--sec-blue-50); }
+
+.sec-avatar {
+  width: 2.2rem; height: 2.2rem; border-radius: 50%;
+  background: var(--sec-blue-600); color: #fff;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: .8rem; margin-right: .6rem;
+}
+.sec-row-name { display: flex; align-items: center; }
+
+.tag-retard {
+  display: inline-flex; align-items: center; margin: .1rem .2rem .1rem 0;
+  font-size: .68rem; font-weight: 700;
+  color: #b91c1c; background: #fee2e2; border: 1px solid #fecaca;
+  border-radius: 999px; padding: .1rem .5rem;
+}
+
+.empty-state {
+  display: flex; flex-direction: column; align-items: center; gap: .6rem;
+  padding: 3rem 1.5rem; text-align: center;
+}
+.empty-emoji { font-size: 2.4rem; }
+.empty-state p { font-size: .9rem; color: var(--sec-gray-500); margin: 0; }

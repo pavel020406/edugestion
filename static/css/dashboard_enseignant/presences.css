@@ -1,0 +1,562 @@
+/* ============================================================
+   presences.css — EduGestion / Espace Enseignant
+   Thème : Blanc & Bleu
+   Cible : pages appel/présences enseignant
+   ============================================================ */
+
+:root {
+  --blue-50:  #eff6ff;
+  --blue-100: #dbeafe;
+  --blue-200: #bfdbfe;
+  --blue-300: #93c5fd;
+  --blue-400: #60a5fa;
+  --blue-500: #3b82f6;
+  --blue-600: #2563eb;
+  --blue-700: #1d4ed8;
+
+  --gray-50:  #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-900: #111827;
+
+  --green-50:  #f0fdf4;
+  --green-100: #dcfce7;
+  --green-300: #86efac;
+  --green-600: #16a34a;
+  --green-700: #15803d;
+
+  --red-50:   #fef2f2;
+  --red-100:  #fee2e2;
+  --red-300:  #fca5a5;
+  --red-600:  #dc2626;
+  --red-700:  #b91c1c;
+
+  --amber-50:  #fffbeb;
+  --amber-100: #fef3c7;
+  --amber-300: #fcd34d;
+  --amber-600: #d97706;
+  --amber-700: #b45309;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.06);
+  --shadow-md: 0 4px 16px rgba(37,99,235,.08), 0 1px 4px rgba(0,0,0,.05);
+  --shadow-hover: 0 6px 20px rgba(37,99,235,.14), 0 2px 6px rgba(0,0,0,.07);
+  --shadow-focus: 0 0 0 3px rgba(59,130,246,.25);
+  --transition: 150ms ease;
+}
+
+/* ── En-tête ── */
+.form-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  gap: 1rem;
+}
+
+.form-page-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin: 0;
+}
+
+.form-page-title .title-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  background: var(--blue-50);
+  border: 1.5px solid var(--blue-200);
+  border-radius: var(--radius-md);
+  color: var(--blue-600);
+  flex-shrink: 0;
+}
+
+.form-page-title .title-icon svg { width: 1.1rem; height: 1.1rem; }
+
+.page-hint {
+  font-size: 0.875rem;
+  color: var(--gray-500);
+  margin: 0 0 1.25rem 0;
+}
+
+/* ── Messages ── */
+.form-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.7rem 1rem;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: 1px solid transparent;
+}
+.alert svg { width: 1.05rem; height: 1.05rem; flex-shrink: 0; margin-top: 1px; }
+.alert-success { background: var(--green-50);  border-color: var(--green-300); color: var(--green-700); }
+.alert-error   { background: var(--red-50);    border-color: var(--red-300);   color: var(--red-600);   }
+
+/* ── Grille classes ── */
+.classe-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 0.9rem;
+}
+
+.classe-card {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 1rem 1.1rem;
+  background: #ffffff;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition), background var(--transition);
+}
+
+.classe-card:hover {
+  border-color: var(--blue-400);
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-2px);
+  background: var(--blue-50);
+}
+
+.avatar-chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius-md);
+  background: var(--blue-600);
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.classe-card:hover .avatar-chip { background: var(--blue-700); }
+
+.classe-card-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.classe-card-info strong { font-size: 0.9rem; font-weight: 700; color: var(--gray-900); }
+.classe-card-info small  { font-size: 0.75rem; color: var(--gray-500); }
+
+.card-arrow {
+  width: 1rem;
+  height: 1rem;
+  color: var(--gray-400);
+  flex-shrink: 0;
+  transition: color var(--transition), transform var(--transition);
+}
+.classe-card:hover .card-arrow { color: var(--blue-500); transform: translateX(2px); }
+
+/* ── Sélecteur de date ── */
+.date-selector {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  background: var(--blue-50);
+  border: 1.5px solid var(--blue-200);
+  border-radius: var(--radius-lg);
+  padding: 0.75rem 1.1rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.date-form {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.date-form label {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--blue-700);
+}
+
+.date-form input[type="date"] {
+  padding: 0.3rem 0.65rem;
+  border: 1.5px solid var(--blue-300);
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  color: var(--gray-900);
+  background: #ffffff;
+  outline: none;
+  cursor: pointer;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.date-form input[type="date"]:focus {
+  border-color: var(--blue-500);
+  box-shadow: var(--shadow-focus);
+}
+
+/* ── Liste des créneaux du jour ── */
+.creneau-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.creneau-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: #ffffff;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  padding: 0.85rem 1.2rem;
+  box-shadow: var(--shadow-md);
+  transition: border-color var(--transition);
+}
+
+.creneau-card:hover { border-color: var(--blue-300); }
+
+.creneau-card.verrouille {
+  border-color: var(--green-300);
+  background: var(--green-50);
+}
+
+.creneau-heure {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--blue-700);
+  background: var(--blue-50);
+  border: 1px solid var(--blue-200);
+  border-radius: var(--radius-sm);
+  padding: 0.22rem 0.6rem;
+  white-space: nowrap;
+  min-width: 88px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.creneau-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+.creneau-info strong { font-size: 0.9rem; color: var(--gray-900); }
+.creneau-info small  { font-size: 0.75rem; color: var(--gray-500); }
+
+.creneau-action {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+/* ── Barre info cours ── */
+.cours-info-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+  background: var(--blue-50);
+  border: 1.5px solid var(--blue-200);
+  border-radius: var(--radius-lg);
+  padding: 0.85rem 1.2rem;
+  margin-bottom: 1.25rem;
+  align-items: center;
+}
+
+.cours-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.ci-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--blue-600);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.cours-info-item strong { font-size: 0.88rem; color: var(--gray-900); }
+
+/* ── Badges ── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+.badge-locked  { background: var(--green-100); color: var(--green-700); border-color: var(--green-300); }
+.badge-pending { background: var(--amber-100); color: var(--amber-700); border-color: var(--amber-300); }
+.badge-present { background: var(--green-100); color: var(--green-700); border-color: var(--green-300); }
+.badge-absent  { background: var(--red-100);   color: var(--red-700);   border-color: var(--red-300);   }
+.badge-retard  { background: var(--amber-100); color: var(--amber-700); border-color: var(--amber-300); }
+
+/* ── Carte liste élèves ── */
+.list-card {
+  background: #ffffff;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.list-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1.4rem;
+  border-bottom: 1px solid var(--gray-200);
+  background: var(--gray-50);
+}
+
+.list-card-header h2 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin: 0;
+}
+
+.list-card-count {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--blue-600);
+  background: var(--blue-50);
+  border: 1px solid var(--blue-200);
+  border-radius: 999px;
+  padding: 0.2rem 0.75rem;
+}
+
+/* ── Actions rapides ── */
+.quick-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.25rem;
+  background: var(--gray-50);
+  border-bottom: 1px solid var(--gray-200);
+  flex-wrap: wrap;
+}
+
+.quick-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--gray-600);
+}
+
+/* ── Table élèves ── */
+.data-table-wrap { overflow-x: auto; }
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.data-table thead {
+  background: var(--blue-50);
+  border-bottom: 2px solid var(--blue-100);
+}
+
+.data-table thead th {
+  padding: 0.65rem 1rem;
+  text-align: left;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--blue-700);
+  white-space: nowrap;
+}
+
+.data-table tbody tr {
+  border-bottom: 1px solid var(--gray-100);
+  transition: filter var(--transition);
+}
+.data-table tbody tr:last-child { border-bottom: none; }
+.data-table tbody tr:hover      { filter: brightness(0.97); }
+
+.data-table tbody tr.statut-present { background: #ffffff; }
+.data-table tbody tr.statut-absent  { background: var(--red-50); }
+.data-table tbody tr.statut-retard  { background: var(--amber-50); }
+
+.data-table tbody td {
+  padding: 0.65rem 1rem;
+  color: var(--gray-700);
+  vertical-align: middle;
+}
+.data-table tbody td strong { color: var(--gray-900); font-weight: 600; }
+
+.th-statut, .td-statut { text-align: center; }
+
+/* ── Boutons radio stylés ── */
+.statut-group {
+  display: flex;
+  gap: 0.3rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.statut-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1.5px solid var(--gray-300);
+  background: var(--gray-100);
+  color: var(--gray-600);
+  transition: background var(--transition), border-color var(--transition), color var(--transition);
+  user-select: none;
+}
+
+.statut-present:hover { background: var(--green-50);  border-color: var(--green-300); color: var(--green-700); }
+.statut-absent:hover  { background: var(--red-50);    border-color: var(--red-300);   color: var(--red-700);   }
+.statut-retard:hover  { background: var(--amber-50);  border-color: var(--amber-300); color: var(--amber-700); }
+
+.statut-present.active { background: var(--green-100); border-color: var(--green-600); color: var(--green-700); }
+.statut-absent.active  { background: var(--red-100);   border-color: var(--red-600);   color: var(--red-700);   }
+.statut-retard.active  { background: var(--amber-100); border-color: var(--amber-600); color: var(--amber-700); }
+
+/* ── État vide ── */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3.5rem 1.5rem;
+  gap: 0.6rem;
+  text-align: center;
+}
+.empty-emoji { font-size: 2.5rem; line-height: 1; }
+.empty-state p { font-size: 0.875rem; color: var(--gray-500); margin: 0; }
+
+/* ── Actions formulaire ── */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+/* ── Boutons ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1.2rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  text-decoration: none;
+  transition: background var(--transition), border-color var(--transition),
+              color var(--transition), box-shadow var(--transition), transform var(--transition);
+  white-space: nowrap;
+  line-height: 1.4;
+}
+.btn:active { transform: translateY(1px); }
+
+.btn-primary {
+  background: var(--blue-600);
+  border-color: var(--blue-600);
+  color: #ffffff;
+}
+.btn-primary:hover {
+  background: var(--blue-700);
+  border-color: var(--blue-700);
+  box-shadow: 0 2px 8px rgba(37,99,235,.35);
+}
+
+.btn-ghost {
+  background: #ffffff;
+  border-color: var(--gray-300);
+  color: var(--gray-700);
+}
+.btn-ghost:hover {
+  background: var(--gray-50);
+  border-color: var(--blue-400);
+  color: var(--blue-600);
+}
+
+.btn-sm { padding: 0.4rem 0.9rem; font-size: 0.8rem; }
+
+/* ── Petits boutons tableau ── */
+.btn-xs {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.26rem 0.65rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  text-decoration: none;
+  transition: background var(--transition), border-color var(--transition), color var(--transition);
+  white-space: nowrap;
+}
+
+.btn-xs-edit    { background: var(--blue-50);  border-color: var(--blue-200);  color: var(--blue-700); }
+.btn-xs-edit:hover { background: var(--blue-100); border-color: var(--blue-400); }
+
+.btn-xs-primary {
+  background: var(--blue-600);
+  border-color: var(--blue-600);
+  color: #ffffff;
+}
+.btn-xs-primary:hover { background: var(--blue-700); }
+
+.btn-xs-present { background: var(--green-50); border-color: var(--green-300); color: var(--green-700); }
+.btn-xs-present:hover { background: var(--green-100); }
+
+.btn-xs-absent  { background: var(--red-50);   border-color: var(--red-300);   color: var(--red-700); }
+.btn-xs-absent:hover  { background: var(--red-100); }
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .form-page-header { flex-direction: column; align-items: flex-start; }
+  .classe-grid { grid-template-columns: 1fr; }
+  .creneau-card { flex-wrap: wrap; }
+  .cours-info-bar { gap: 0.5rem 1rem; }
+  .form-actions { flex-direction: column-reverse; }
+  .form-actions .btn { width: 100%; }
+  .statut-group { justify-content: flex-start; }
+  .date-selector { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+}

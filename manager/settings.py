@@ -21,17 +21,25 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure--uqxvh2k7)1#mjuoodr^f&rgz#vk4ymso0zf#j-al+4pi1h$ic'
+import os
+
+SECRET_KEY = os.environ.get(
+    "SECRET_KEY",
+    "django-insecure--uqxvh2k7)1#mjuoodr^f&rgz#vk4ymso0zf#j-al+4pi1h$ic"
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-AUTH_USER_MODEL = 'accueil.Utilisateur'
+DEBUG = os.environ.get("DEBUG", "True") == "True"
+
  
 # --- Redirections d'authentification ---
 LOGIN_URL = 'connexion'
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'connexion'
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.environ.get(
+    "ALLOWED_HOSTS",
+    "127.0.0.1,localhost"
+).split(",")
 AUTH_USER_MODEL = 'utilisateurs.Utilisateur'
 
 # Application definition
@@ -54,6 +62,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -130,7 +139,12 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+STATICFILES_STORAGE = (
+    "whitenoise.storage.CompressedManifestStaticFilesStorage"
+)
 STATICFILES_DIRS = [BASE_DIR / 'static']   
 
 STATIC_ROOT = BASE_DIR / 'staticfiles'

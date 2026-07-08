@@ -36,10 +36,12 @@ DEBUG = os.environ.get("DEBUG", "True") == "True"
 LOGIN_URL = 'connexion'
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'connexion'
-ALLOWED_HOSTS = os.environ.get(
-    "ALLOWED_HOSTS",
-    "127.0.0.1,localhost"
-).split(",")
+
+ALLOWED_HOSTS = [
+    "127.0.0.1",
+    "localhost",
+    "pavel020406.pythonanywhere.com",
+]
 AUTH_USER_MODEL = 'utilisateurs.Utilisateur'
 
 # Application definition
@@ -69,6 +71,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+     
    
 ]
 
@@ -86,6 +89,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                  'enseignant.context_processors.enseignant_connecte',
                   'secretaire.context_processors.notifications_topbar',
+                   'administrateur.context_processors.etablissement_context',  
             ],
         },
     },

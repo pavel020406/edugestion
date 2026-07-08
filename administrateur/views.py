@@ -30,11 +30,204 @@ from .models import (
 # ============================================================
 # PAGES PUBLIQUES
 # ============================================================
-
+from .models import Etablissement
+ 
+ 
+def get_etablissement():
+    """Renvoie l'établissement configuré (le premier, en mode mono-établissement)."""
+    return Etablissement.objects.first()
+ 
 def accueil(request):
-    return render(request, 'index.html')
+    if request.user.is_authenticated:
+        return redirect_selon_role(request.user)
+ 
+    etablissement = get_etablissement()
+ 
+    return render(request, 'index.html', {
+        'etablissement': etablissement,
+    })
+def setup_etablissement(request):
+    if request.method == 'POST':
+        nom                 = request.POST.get('nom', '').strip()
+        sigle               = request.POST.get('sigle', '').strip()
+        type_etablissement  = request.POST.get('type_etablissement', 'lycee')
+        ministere           = request.POST.get('ministere', 'minesec')
+        region              = request.POST.get('region', '').strip()
+        departement         = request.POST.get('departement', '').strip()
+        delegation_regionale = request.POST.get('delegation_regionale', '').strip()
+        delegation_departementale = request.POST.get('delegation_departementale', '').strip()
+        ville               = request.POST.get('ville', '').strip()
+        boite_postale       = request.POST.get('boite_postale', '').strip()
+        telephone           = request.POST.get('telephone', '').strip()
+        email               = request.POST.get('email', '').strip()
+        logo                = request.FILES.get('logo')
+ 
+        if not nom:
+            messages.error(request, "Le nom de l'établissement est obligatoire.")
+            return render(request, 'setup/setup_etablissement.html')
+ 
+        etablissement = Etablissement.objects.create(
+            nom=nom,
+            sigle=sigle or None,
+            type_etablissement=type_etablissement,
+            ministere=ministere,
+            region=region or None,
+            departement=departement or None,
+            delegation_regionale=delegation_regionale or None,
+            delegation_departementale=delegation_departementale or None,
+            ville=ville or None,
+            boite_postale=boite_postale or None,
+            telephone=telephone or None,
+            email=email or None,
+        )
+        if logo:
+            etablissement.logo = logo
+            etablissement.save()
+ 
+        messages.success(request, f"✓ Établissement « {nom} » créé. Créez maintenant le compte administrateur.")
+        return redirect('setup_admin')
+ 
+    return render(request, 'setup/setup_etablissement.html')
+ 
+ 
+# ============================================================
+# ÉTAPE 2 : Créer le compte administrateur
+# ============================================================
+ 
+def setup_admin(request):
+    etablissement = get_etablissement()
+    if not etablissement:
+        messages.warning(request, "Veuillez d'abord créer un établissement.")
+        return redirect('setup_etablissement')
+ 
+    # Si un admin existe déjà, cette étape n'a plus de raison d'être.
+    if Utilisateur.objects.filter(role='admin').exists():
+        return redirect('setup_secretaire')
+ 
+    if request.method == 'POST':
+        first_name = request.POST.get('first_name', '').strip()
+        last_name  = request.POST.get('last_name', '').strip()
+        username   = request.POST.get('username', '').strip()
+        email      = request.POST.get('email', '').strip()
+        password   = request.POST.get('password', '').strip()
+        password2  = request.POST.get('password2', '').strip()
+ 
+        if not first_name or not last_name or not username or not password:
+            messages.error(request, "Veuillez remplir tous les champs obligatoires.")
+            return render(request, 'setup/setup_admin.html', {'etablissement': etablissement})
+ 
+        if password != password2:
+            messages.error(request, "Les deux mots de passe ne correspondent pas.")
+            return render(request, 'setup/setup_admin.html', {'etablissement': etablissement})
+ 
+        if Utilisateur.objects.filter(username=username).exists():
+            messages.error(request, f"Le nom d'utilisateur « {username} » est déjà utilisé.")
+            return render(request, 'setup/setup_admin.html', {'etablissement': etablissement})
+ 
+        admin = Utilisateur(
+            username=username,
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            role='admin',
+        )
+        admin.set_password(password)
+        admin.is_staff = True
+        admin.is_superuser = True
+        admin.save()
+ 
+        messages.success(request, f"✓ Compte administrateur « {username} » créé avec succès.")
+        return redirect('setup_secretaire')
+ 
+    return render(request, 'setup/setup_admin.html', {'etablissement': etablissement})
+ 
+ 
+# ============================================================
+# ÉTAPE 3 : Créer le compte secrétaire (OPTIONNELLE — peut être passée)
+# ============================================================
+ 
+def setup_secretaire(request):
+    etablissement = get_etablissement()
+    if not etablissement:
+        return redirect('setup_etablissement')
+ 
+    if not Utilisateur.objects.filter(role='admin').exists():
+        return redirect('setup_admin')
+ 
+    if request.method == 'POST':
+        action = request.POST.get('action', 'creer')
+ 
+        if action == 'passer':
+            messages.info(request, "Étape passée. Vous pourrez créer un compte secrétaire plus tard depuis le dashboard.")
+            return redirect('connexion')
+ 
+        first_name = request.POST.get('first_name', '').strip()
+        last_name  = request.POST.get('last_name', '').strip()
+        username   = request.POST.get('username', '').strip()
+        email      = request.POST.get('email', '').strip()
+        password   = request.POST.get('password', '').strip()
+ 
+        if not first_name or not last_name or not username or not password:
+            messages.error(request, "Veuillez remplir tous les champs obligatoires, ou cliquez sur « Passer cette étape ».")
+            return render(request, 'setup/setup_secretaire.html', {'etablissement': etablissement})
+ 
+        if Utilisateur.objects.filter(username=username).exists():
+            messages.error(request, f"Le nom d'utilisateur « {username} » est déjà utilisé.")
+            return render(request, 'setup/setup_secretaire.html', {'etablissement': etablissement})
+ 
+        secretaire = Utilisateur(
+            username=username,
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            role='secretaire',
+        )
+        secretaire.set_password(password)
+        secretaire.save()
+ 
+        messages.success(request, f"✓ Compte secrétaire « {username} » créé. Vous pouvez maintenant vous connecter.")
+        return redirect('connexion')
+ 
+    return render(request, 'setup/setup_secretaire.html', {'etablissement': etablissement})
 
-
+login_required
+def admin_modifier_etablissement(request):
+    """Modifie les informations de l'établissement depuis le dashboard admin."""
+    if request.user.role != 'admin':
+        return redirect_selon_role(request.user)
+ 
+    etablissement = get_etablissement()
+    if not etablissement:
+        messages.error(request, "Aucun établissement configuré.")
+        return redirect('admin_periodes_trimestres')
+ 
+    if request.method == 'POST':
+        etablissement.nom                 = request.POST.get('nom', '').strip() or etablissement.nom
+        etablissement.sigle               = request.POST.get('sigle', '').strip() or None
+        etablissement.type_etablissement  = request.POST.get('type_etablissement', etablissement.type_etablissement)
+        etablissement.ministere           = request.POST.get('ministere', etablissement.ministere)
+        etablissement.region              = request.POST.get('region', '').strip() or None
+        etablissement.departement         = request.POST.get('departement', '').strip() or None
+        etablissement.delegation_regionale        = request.POST.get('delegation_regionale', '').strip() or None
+        etablissement.delegation_departementale   = request.POST.get('delegation_departementale', '').strip() or None
+        etablissement.ville               = request.POST.get('ville', '').strip() or None
+        etablissement.boite_postale       = request.POST.get('boite_postale', '').strip() or None
+        etablissement.telephone           = request.POST.get('telephone', '').strip() or None
+        etablissement.email               = request.POST.get('email', '').strip() or None
+ 
+        if not etablissement.nom:
+            messages.error(request, "Le nom de l'établissement est obligatoire.")
+            return redirect('admin_periodes_trimestres')
+ 
+        logo = request.FILES.get('logo')
+        if logo:
+            etablissement.logo = logo
+ 
+        etablissement.save()
+        messages.success(request, "✓ Informations de l'établissement mises à jour avec succès.")
+        return redirect('admin_periodes_trimestres')
+ 
+    return redirect('admin_periodes_trimestres')
 # ============================================================
 # AUTHENTIFICATION
 # ============================================================
@@ -1515,6 +1708,11 @@ def _get_appreciation_avec_absences(eleve, trimestre):
         'active_page'       : 'bulletins',
     })
  
+def _chevauchement(debut1, fin1, debut2, fin2):
+    """Deux périodes se chevauchent si l'une commence avant que l'autre finisse."""
+    return debut1 <= fin2 and debut2 <= fin1
+ 
+ 
 @login_required
 def admin_periodes_trimestres(request):
     """Page de configuration des dates de trimestre."""
@@ -1524,25 +1722,102 @@ def admin_periodes_trimestres(request):
     periodes = TrimestrePeriode.objects.all().order_by('trimestre')
  
     if request.method == 'POST':
-        for t_code in ['T1', 'T2', 'T3']:
-            date_debut = request.POST.get(f'debut_{t_code}')
-            date_fin   = request.POST.get(f'fin_{t_code}')
-            annee      = request.POST.get('annee', '2025-2026').strip()
+        annee = request.POST.get('annee', '2025-2026').strip()
  
-            if date_debut and date_fin:
-                TrimestrePeriode.objects.update_or_create(
-                    trimestre=t_code,
-                    defaults={
-                        'date_debut': date_debut,
-                        'date_fin'  : date_fin,
-                        'annee'     : annee,
-                    }
+        # ── 1. Parse toutes les dates saisies ──
+        saisies = {}   # {'T1': (date_debut, date_fin), ...}
+        erreurs = []
+ 
+        for t_code in ['T1', 'T2', 'T3']:
+            brut_debut = request.POST.get(f'debut_{t_code}', '').strip()
+            brut_fin   = request.POST.get(f'fin_{t_code}', '').strip()
+ 
+            if not brut_debut or not brut_fin:
+                continue  # trimestre non renseigné, on l'ignore (pas obligatoire)
+ 
+            try:
+                d_debut = datetime.strptime(brut_debut, '%Y-%m-%d').date()
+                d_fin   = datetime.strptime(brut_fin, '%Y-%m-%d').date()
+            except ValueError:
+                erreurs.append(f"Format de date invalide pour le {t_code}.")
+                continue
+ 
+            # ── 2. Début doit précéder la fin ──
+            if d_debut >= d_fin:
+                erreurs.append(
+                    f"{t_code} : la date de début ({d_debut.strftime('%d/%m/%Y')}) doit "
+                    f"précéder la date de fin ({d_fin.strftime('%d/%m/%Y')})."
                 )
+                continue
+ 
+            saisies[t_code] = (d_debut, d_fin)
+ 
+        # ── 3. Vérifie les chevauchements entre trimestres ──
+        codes = list(saisies.keys())
+        for i in range(len(codes)):
+            for j in range(i + 1, len(codes)):
+                c1, c2 = codes[i], codes[j]
+                d1, f1 = saisies[c1]
+                d2, f2 = saisies[c2]
+                if _chevauchement(d1, f1, d2, f2):
+                    erreurs.append(
+                        f"{c1} ({d1.strftime('%d/%m/%Y')} → {f1.strftime('%d/%m/%Y')}) "
+                        f"chevauche {c2} ({d2.strftime('%d/%m/%Y')} → {f2.strftime('%d/%m/%Y')})."
+                    )
+ 
+        # ── 4. Vérifie l'ordre chronologique T1 < T2 < T3 ──
+        ordre = ['T1', 'T2', 'T3']
+        codes_presents = [c for c in ordre if c in saisies]
+        for i in range(len(codes_presents) - 1):
+            c_avant, c_apres = codes_presents[i], codes_presents[i + 1]
+            if saisies[c_avant][1] > saisies[c_apres][0]:
+                erreurs.append(
+                    f"{c_avant} doit se terminer avant que {c_apres} ne commence "
+                    f"(l'ordre chronologique T1 → T2 → T3 doit être respecté)."
+                )
+ 
+        # ── 5. Si erreurs : on affiche tout sans rien enregistrer ──
+        if erreurs:
+            for e in erreurs:
+                messages.error(request, e)
+ 
+            # Reconstruit periodes_dict à partir de ce que l'utilisateur a saisi,
+            # pour ne pas lui faire perdre sa saisie même en cas d'erreur.
+            periodes_dict_saisie = {}
+            for t_code in ['T1', 'T2', 'T3']:
+                if t_code in saisies:
+                    d_debut, d_fin = saisies[t_code]
+                    periodes_dict_saisie[t_code] = type('Periode', (), {
+                        'date_debut': d_debut,
+                        'date_fin': d_fin,
+                        'annee': annee,
+                    })()
+                else:
+                    existante = TrimestrePeriode.objects.filter(trimestre=t_code).first()
+                    if existante:
+                        periodes_dict_saisie[t_code] = existante
+ 
+            return render(request, 'admin_dashboard/parametres/periodes_trimestres.html', {
+                'periodes_dict': periodes_dict_saisie,
+                'trimestres'   : [('T1', 'Trimestre 1'), ('T2', 'Trimestre 2'), ('T3', 'Trimestre 3')],
+                'active_page'  : 'parametres',
+            })
+ 
+        # ── 6. Tout est valide : on enregistre ──
+        for t_code, (d_debut, d_fin) in saisies.items():
+            TrimestrePeriode.objects.update_or_create(
+                trimestre=t_code,
+                defaults={
+                    'date_debut': d_debut,
+                    'date_fin'  : d_fin,
+                    'annee'     : annee,
+                }
+            )
  
         messages.success(request, "✓ Périodes des trimestres enregistrées avec succès.")
         return redirect('admin_periodes_trimestres')
  
-    # Prépare les données pour le formulaire
+    # ── GET ──
     periodes_dict = {p.trimestre: p for p in periodes}
  
     return render(request, 'admin_dashboard/parametres/periodes_trimestres.html', {
@@ -1550,6 +1825,7 @@ def admin_periodes_trimestres(request):
         'trimestres'   : [('T1', 'Trimestre 1'), ('T2', 'Trimestre 2'), ('T3', 'Trimestre 3')],
         'active_page'  : 'parametres',
     })
+    
  
 
 
@@ -2196,106 +2472,6 @@ def appel_creneaux(request, classe_id):
 
 from administrateur.models import SemaineScolaire
 
-semaine_en_cours = SemaineScolaire.semaine_en_cours()
-@login_required
-def appel_saisie(request, classe_id, creneau_id):
-    """
-    Étape 3 : saisie de l'appel pour un créneau et la date du jour.
-    - GET  : affiche la liste des élèves avec leur statut actuel
-    - POST : enregistre les présences et verrouille l'appel
-    """
-    classe   = get_object_or_404(Classe, id=classe_id)
-    creneau  = get_object_or_404(CreneauHoraire, id=creneau_id)
-    aujourd_hui = date.today()
-
-    # Vérifie que ce créneau correspond bien à un cours aujourd'hui
-    jours_python = ['lundi','mardi','mercredi','jeudi','vendredi','samedi','dimanche']
-    code_jour    = jours_python[aujourd_hui.weekday()]
-
-    emploi = EmploiDuTemps.objects.filter(
-        classe=classe, creneau=creneau
-    ).select_related('matiere', 'enseignant').first()
-
-    # Appel déjà verrouillé ?
-    deja_verrouille = AppelVerrouille.objects.filter(
-        classe=classe, creneau=creneau, date=aujourd_hui
-    ).exists()
-
-    eleves = classe.eleves.all().order_by('nom', 'prenom')
-
-    if request.method == 'POST':
-        if deja_verrouille:
-            messages.error(request, "Cet appel est déjà verrouillé. Contactez un administrateur pour le modifier.")
-            return redirect('appel_saisie', classe_id=classe_id, creneau_id=creneau_id)
-
-        # Récupère l'enseignant connecté si c'est un enseignant
-        enregistre_par = None
-        if hasattr(request.user, 'role') and request.user.role == 'enseignant':
-            try:
-                enregistre_par = Enseignant.objects.get(id=request.user.id)
-            except Enseignant.DoesNotExist:
-                pass
-
-        for eleve in eleves:
-            statut    = request.POST.get(f'statut_{eleve.id}', 'present')
-            justifiee = request.POST.get(f'justifiee_{eleve.id}') == '1'
-        
-            if statut not in ('present', 'absent', 'retard'):
-                statut = 'present'
-        
-            Presence.objects.update_or_create(
-                eleve=eleve, classe=classe, creneau=creneau, date=aujourd_hui,
-                defaults={
-                    'statut'        : statut,
-                    'justifiee'     : justifiee,
-                    'enregistre_par': enregistre_par,
-                    'semaine'       : semaine_en_cours,   # si tu as le lien semaine
-                },
-            )
-
-        # Verrouille l'appel
-        AppelVerrouille.objects.get_or_create(
-            classe=classe,
-            creneau=creneau,
-            date=aujourd_hui,
-            defaults={'verrouille_par': enregistre_par},
-        )
-
-        messages.success(request, f"Appel enregistré et verrouillé pour le {aujourd_hui.strftime('%d/%m/%Y')}.")
-        return redirect('appel_creneaux', classe_id=classe_id)
-
-    # GET : préremplit les statuts existants
-    presences_existantes = {
-    p.eleve_id: {
-        'statut': p.statut,
-        'justifiee': p.justifiee,
-    }
-    for p in Presence.objects.filter(
-        classe=classe,
-        creneau=creneau,
-        date=aujourd_hui
-    )
-    }
-
-    lignes = []
-    for eleve in eleves:
-     data = presences_existantes.get(eleve.id, {'statut': 'present', 'justifiee': False})
-     lignes.append({
-        'eleve'    : eleve,
-        'statut'   : data['statut'],
-        'justifiee': data['justifiee'],
-    })
-
-    return render(request, 'admin_dashboard/appels/appel_saisie.html', {
-        'classe'         : classe,
-        'creneau'        : creneau,
-        'emploi'         : emploi,
-        'lignes'         : lignes,
-        'aujourd_hui'    : aujourd_hui,
-        'deja_verrouille': deja_verrouille,
-        'active_page'    : 'appels',
-    })
-
 
 @login_required
 def appel_depuis_grille(request, classe_id, creneau_id):
@@ -2354,6 +2530,113 @@ def list_creneau(request):
     })
 
 
+@login_required
+def appel_saisie(request, classe_id, creneau_id):
+    """
+    Étape 3 : saisie de l'appel pour un créneau et la date du jour.
+    - GET  : affiche la liste des élèves avec leur statut actuel
+    - POST : enregistre les présences et verrouille l'appel
+    """
+    classe   = get_object_or_404(Classe, id=classe_id)
+    creneau  = get_object_or_404(CreneauHoraire, id=creneau_id)
+    aujourd_hui = date.today()
+    try:
+     semaine_en_cours = SemaineScolaire.semaine_en_cours()
+    except Exception:
+     semaine_en_cours = None
+
+    # Vérifie que ce créneau correspond bien à un cours aujourd'hui
+    jours_python = ['lundi','mardi','mercredi','jeudi','vendredi','samedi','dimanche']
+    code_jour    = jours_python[aujourd_hui.weekday()]
+
+    emploi = EmploiDuTemps.objects.filter(
+        classe=classe, creneau=creneau
+    ).select_related('matiere', 'enseignant').first()
+
+    # Appel déjà verrouillé ?
+    deja_verrouille = AppelVerrouille.objects.filter(
+        classe=classe, creneau=creneau, date=aujourd_hui
+    ).exists()
+
+    eleves = classe.eleves.all().order_by('nom', 'prenom')
+
+    if request.method == 'POST':
+        if deja_verrouille:
+            messages.error(request, "Cet appel est déjà verrouillé. Contactez un administrateur pour le modifier.")
+            return redirect('appel_saisie', classe_id=classe_id, creneau_id=creneau_id)
+
+        # Récupère l'enseignant connecté si c'est un enseignant
+        enregistre_par = None
+        if hasattr(request.user, 'role') and request.user.role == 'enseignant':
+            try:
+                enregistre_par = Enseignant.objects.get(id=request.user.id)
+            except Enseignant.DoesNotExist:
+                pass
+
+    for eleve in eleves:
+        statut    = request.POST.get(f'statut_{eleve.id}', 'present')
+        justifiee = request.POST.get(f'justifiee_{eleve.id}') == '1'
+    
+        if statut not in ('present', 'absent', 'retard'):
+            statut = 'present'
+    
+        # ── Correctif : la justification n'a de sens que pour une absence ──
+        if statut != 'absent':
+            justifiee = False
+    
+        Presence.objects.update_or_create(
+            eleve=eleve, classe=classe, creneau=creneau, date=aujourd_hui,
+            defaults={
+                'statut'        : statut,
+                'justifiee'     : justifiee,
+                'enregistre_par': enregistre_par,
+                'semaine'       : semaine_en_cours,
+            },
+        )
+
+
+        # Verrouille l'appel
+        AppelVerrouille.objects.get_or_create(
+            classe=classe,
+            creneau=creneau,
+            date=aujourd_hui,
+            defaults={'verrouille_par': enregistre_par},
+        )
+
+        messages.success(request, f"Appel enregistré et verrouillé pour le {aujourd_hui.strftime('%d/%m/%Y')}.")
+        return redirect('appel_creneaux', classe_id=classe_id)
+
+    # GET : préremplit les statuts existants
+    presences_existantes = {
+    p.eleve_id: {
+        'statut': p.statut,
+        'justifiee': p.justifiee,
+    }
+    for p in Presence.objects.filter(
+        classe=classe,
+        creneau=creneau,
+        date=aujourd_hui
+    )
+    }
+
+    lignes = []
+    for eleve in eleves:
+     data = presences_existantes.get(eleve.id, {'statut': 'present', 'justifiee': False})
+     lignes.append({
+        'eleve'    : eleve,
+        'statut'   : data['statut'],
+        'justifiee': data['justifiee'],
+    })
+
+    return render(request, 'admin_dashboard/appels/appel_saisie.html', {
+        'classe'         : classe,
+        'creneau'        : creneau,
+        'emploi'         : emploi,
+        'lignes'         : lignes,
+        'aujourd_hui'    : aujourd_hui,
+        'deja_verrouille': deja_verrouille,
+        'active_page'    : 'appels',
+    })
 
 
 

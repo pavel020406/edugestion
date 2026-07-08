@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Créer un établissement</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+  :root {
+    --bleu-fonce: #1D4ED8;
+    --bleu-moyen: #3B82F6;
+    --bleu-pale: #EFF6FF;
+    --bleu-ligne: #BFDBFE;
+  }
+  body { background: var(--bleu-pale); }
+  .setup-wrap { max-width: 720px; margin: 3rem auto; }
+  .setup-card {
+    background: #fff; border: 1px solid var(--bleu-ligne);
+    border-radius: 1rem; padding: 2rem;
+    box-shadow: 0 4px 20px rgba(29,78,216,.08);
+  }
+  .steps { display:flex; gap:.5rem; margin-bottom:1.5rem; }
+  .step {
+    flex:1; text-align:center; padding:.5rem; border-radius:.5rem;
+    font-size:.78rem; font-weight:700; color:#94A3B8; background:#F1F5F9;
+  }
+  .step.actif { background: var(--bleu-fonce); color:#fff; }
+  h1 { color: var(--bleu-fonce); font-size:1.3rem; }
+  label { font-weight:600; font-size:.85rem; }
+  .form-control, .form-select { border-color: var(--bleu-ligne); }
+  .form-control:focus, .form-select:focus {
+    border-color: var(--bleu-moyen); box-shadow:0 0 0 .2rem rgba(59,130,246,.25);
+  }
+  .btn-primary { background: var(--bleu-fonce); border-color: var(--bleu-fonce); }
+  .btn-primary:hover { background:#1746B3; border-color:#1746B3; }
+  .alert-danger { background:#FEE2E2; border:1px solid #DC2626; color:#991B1B; font-weight:600; }
+</style>
+</head>
+<body>
+<div class="setup-wrap">
+  <div class="steps">
+    <div class="step actif">1. Établissement</div>
+    <div class="step">2. Administrateur</div>
+    <div class="step">3. Secrétaire (optionnel)</div>
+  </div>
+
+  <div class="setup-card">
+    <h1>Créer votre établissement</h1>
+    <p class="text-muted small mb-4">Ces informations apparaîtront sur les bulletins et documents officiels.</p>
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-danger">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <div class="row g-3">
+        <div class="col-md-8">
+          <label>Nom de l'établissement *</label>
+          <input type="text" name="nom" class="form-control" required placeholder="Ex : Lycée Bilingue Sultan Ibrahim Njoya de Foumban">
+        </div>
+        <div class="col-md-4">
+          <label>Sigle</label>
+          <input type="text" name="sigle" class="form-control" placeholder="Ex : LBSINF">
+        </div>
+
+        <div class="col-md-6">
+          <label>Type d'établissement</label>
+          <select name="type_etablissement" class="form-select">
+            <option value="lycee">Lycée</option>
+            <option value="college">Collège</option>
+            <option value="ecole_primaire">École primaire</option>
+            <option value="bilingue">Établissement bilingue</option>
+            <option value="autre">Autre</option>
+          </select>
+        </div>
+        <div class="col-md-6">
+          <label>Ministère de tutelle</label>
+          <select name="ministere" class="form-select">
+            <option value="minesec">MINESEC (Enseignements Secondaires)</option>
+            <option value="minedub">MINEDUB (Éducation de Base)</option>
+            <option value="minsup">MINSUP (Enseignement Supérieur)</option>
+            <option value="prive">Privé</option>
+          </select>
+        </div>
+
+        <div class="col-md-6">
+          <label>Région</label>
+          <input type="text" name="region" class="form-control" placeholder="Ex : Ouest">
+        </div>
+        <div class="col-md-6">
+          <label>Département</label>
+          <input type="text" name="departement" class="form-control" placeholder="Ex : Noun">
+        </div>
+
+        <div class="col-md-6">
+          <label>Délégation régionale</label>
+          <input type="text" name="delegation_regionale" class="form-control" placeholder="Ex : Délégation Régionale de l'Ouest">
+        </div>
+        <div class="col-md-6">
+          <label>Délégation départementale</label>
+          <input type="text" name="delegation_departementale" class="form-control" placeholder="Ex : Délégation Départementale du Noun">
+        </div>
+
+        <div class="col-md-4">
+          <label>Ville</label>
+          <input type="text" name="ville" class="form-control" placeholder="Ex : Foumban">
+        </div>
+        <div class="col-md-4">
+          <label>Boîte postale</label>
+          <input type="text" name="boite_postale" class="form-control" placeholder="Ex : BP 63 Foumban">
+        </div>
+        <div class="col-md-4">
+          <label>Téléphone</label>
+          <input type="text" name="telephone" class="form-control" placeholder="Ex : 33 48 20 47">
+        </div>
+
+        <div class="col-md-8">
+          <label>Email</label>
+          <input type="email" name="email" class="form-control" placeholder="contact@etablissement.com">
+        </div>
+        <div class="col-md-4">
+          <label>Logo (optionnel)</label>
+          <input type="file" name="logo" class="form-control" accept="image/*">
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-end mt-4">
+        <button type="submit" class="btn btn-primary px-4">Continuer →</button>
+      </div>
+    </form>
+  </div>
+</div>
+</body>
+</html>

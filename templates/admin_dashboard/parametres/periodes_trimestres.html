@@ -6,12 +6,12 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/dashboard_enseignant/forms.css' %}">
-<link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/list_eleve.css' %}">
 <link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/add_eleve.css' %}">
 <link rel="stylesheet" href="{% static 'css/secretaire/eleves/list_eleve.css' %}">
 <link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/detail.css' %}">
 <link rel="stylesheet" href="{% static 'css/dashboard_enseignant/list.css' %}">
 <link rel="stylesheet" href="{% static 'css/admin_dashboard/message.css' %}">
+
 {% endblock %}
 
 {% block content %}
@@ -42,7 +42,128 @@
   </div>
 {% endif %}
 
-<!-- Info box -->
+<!-- ══════════════════════════════════════════════════════════
+     NOUVELLE SECTION : Informations de l'établissement
+══════════════════════════════════════════════════════════ -->
+<form method="post" action="{% url 'admin_modifier_etablissement' %}" enctype="multipart/form-data"
+      class="form-card" style="max-width:600px; margin-bottom:1.75rem;">
+  {% csrf_token %}
+
+  <h2 class="form-section-title">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+      <path d="M3 21h18M5 21V7l7-4 7 4v14M9 9h1M9 13h1M14 9h1M14 13h1"/>
+    </svg>
+    Informations de l'établissement
+  </h2>
+
+  <div style="display:flex; align-items:center; gap:1rem; margin-bottom:1.25rem;">
+    {% if etablissement.logo %}
+      <img src="{{ etablissement.logo.url }}" alt="Logo actuel"
+           style="width:56px;height:56px;border-radius:.6rem;object-fit:cover;border:1px solid var(--gray-200);">
+    {% else %}
+      <div style="width:56px;height:56px;border-radius:.6rem;background:var(--blue-600);color:#fff;
+                  display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.2rem;">
+        {{ etablissement.nom|slice:":1"|default:"E" }}
+      </div>
+    {% endif %}
+    <div class="form-field" style="flex:1; margin-bottom:0;">
+      <label for="logo">Logo</label>
+      <input type="file" id="logo" name="logo" accept="image/*">
+    </div>
+  </div>
+
+  <div class="form-grid-2" style="margin-bottom:.9rem;">
+    <div class="form-field">
+      <label for="nom">Nom de l'établissement <span class="required">*</span></label>
+      <input type="text" id="nom" name="nom" value="{{ etablissement.nom|default:'' }}" required>
+    </div>
+    <div class="form-field">
+      <label for="sigle">Sigle</label>
+      <input type="text" id="sigle" name="sigle" value="{{ etablissement.sigle|default:'' }}" placeholder="Ex : LBSINF">
+    </div>
+  </div>
+
+  <div class="form-grid-2" style="margin-bottom:.9rem;">
+    <div class="form-field">
+      <label for="type_etablissement">Type d'établissement</label>
+      <select id="type_etablissement" name="type_etablissement">
+        <option value="lycee"          {% if etablissement.type_etablissement == 'lycee' %}selected{% endif %}>Lycée</option>
+        <option value="college"        {% if etablissement.type_etablissement == 'college' %}selected{% endif %}>Collège</option>
+        <option value="ecole_primaire" {% if etablissement.type_etablissement == 'ecole_primaire' %}selected{% endif %}>École primaire</option>
+        <option value="bilingue"       {% if etablissement.type_etablissement == 'bilingue' %}selected{% endif %}>Établissement bilingue</option>
+        <option value="autre"          {% if etablissement.type_etablissement == 'autre' %}selected{% endif %}>Autre</option>
+      </select>
+    </div>
+    <div class="form-field">
+      <label for="ministere">Ministère de tutelle</label>
+      <select id="ministere" name="ministere">
+        <option value="minesec" {% if etablissement.ministere == 'minesec' %}selected{% endif %}>MINESEC</option>
+        <option value="minedub" {% if etablissement.ministere == 'minedub' %}selected{% endif %}>MINEDUB</option>
+        <option value="minsup"  {% if etablissement.ministere == 'minsup' %}selected{% endif %}>MINSUP</option>
+        <option value="prive"   {% if etablissement.ministere == 'prive' %}selected{% endif %}>Privé</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="form-grid-2" style="margin-bottom:.9rem;">
+    <div class="form-field">
+      <label for="region">Région</label>
+      <input type="text" id="region" name="region" value="{{ etablissement.region|default:'' }}">
+    </div>
+    <div class="form-field">
+      <label for="departement">Département</label>
+      <input type="text" id="departement" name="departement" value="{{ etablissement.departement|default:'' }}">
+    </div>
+  </div>
+
+  <div class="form-grid-2" style="margin-bottom:.9rem;">
+    <div class="form-field">
+      <label for="delegation_regionale">Délégation régionale</label>
+      <input type="text" id="delegation_regionale" name="delegation_regionale" value="{{ etablissement.delegation_regionale|default:'' }}">
+    </div>
+    <div class="form-field">
+      <label for="delegation_departementale">Délégation départementale</label>
+      <input type="text" id="delegation_departementale" name="delegation_departementale" value="{{ etablissement.delegation_departementale|default:'' }}">
+    </div>
+  </div>
+
+  <div class="form-grid-2" style="margin-bottom:.9rem;">
+    <div class="form-field">
+      <label for="ville">Ville</label>
+      <input type="text" id="ville" name="ville" value="{{ etablissement.ville|default:'' }}">
+    </div>
+    <div class="form-field">
+      <label for="boite_postale">Boîte postale</label>
+      <input type="text" id="boite_postale" name="boite_postale" value="{{ etablissement.boite_postale|default:'' }}">
+    </div>
+  </div>
+
+  <div class="form-grid-2" style="margin-bottom:1.25rem;">
+    <div class="form-field">
+      <label for="telephone">Téléphone</label>
+      <input type="text" id="telephone" name="telephone" value="{{ etablissement.telephone|default:'' }}">
+    </div>
+    <div class="form-field">
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" value="{{ etablissement.email|default:'' }}">
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <button type="submit" class="btn btn-primary">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           style="width:1rem;height:1rem;">
+        <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v14a2 2 0 01-2 2z"/>
+        <path d="M17 21v-8H7v8M7 3v5h8"/>
+      </svg>
+      Enregistrer les informations
+    </button>
+  </div>
+</form>
+
+<!-- ══════════════════════════════════════════════════════════
+     Section existante : Info box + formulaire des trimestres
+══════════════════════════════════════════════════════════ -->
 <div style="background:var(--blue-50);border:1px solid var(--blue-200);border-radius:10px;
             padding:.85rem 1.1rem;margin-bottom:1.25rem;font-size:.82rem;color:var(--gray-600);
             display:flex;gap:.5rem;align-items:flex-start;">

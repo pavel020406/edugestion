@@ -7,8 +7,11 @@ from . import views
 
 urlpatterns = [
     # Public
+    path('parametres/etablissement/', views.admin_modifier_etablissement, name='admin_modifier_etablissement'),
     path('', views.accueil, name='accueil'),
-
+    path('setup/etablissement/', views.setup_etablissement, name='setup_etablissement'),
+    path('setup/admin/',         views.setup_admin,         name='setup_admin'),
+    path('setup/secretaire/',    views.setup_secretaire,     name='setup_secretaire'),
     # Authentification
     path('connexion/', views.connexion, name='connexion'),
     path('deconnexion/', views.deconnexion, name='deconnexion'),

@@ -28,7 +28,20 @@
     --sec-gray-500: #64748b;
     --sec-gray-700: #334155;
   }
-
+.sidebar-brand-logo {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.4rem;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+  .sidebar-brand-text strong {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 160px;
+  }
   .topbar-right {
     display: flex;
     align-items: center;
@@ -78,24 +91,35 @@
   <!-- ============ SIDEBAR (unique, partagée par toutes les pages) ============ -->
   <aside class="sidebar">
 
-    <div class="sidebar-brand">
-      <span class="brand-mark" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M3 6.5L12 3l9 3.5-9 3.5-9-3.5z" stroke="#ffffff" stroke-width="1.6" stroke-linejoin="round"/>
-          <path d="M6.5 10v5.2c0 .5 2.4 2.3 5.5 2.3s5.5-1.8 5.5-2.3V10" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </span>
-      <div class="sidebar-brand-text">
-        <strong>EduGestion</strong>
-        <span>
-          {% if request.user.role == 'admin' %}Administration
-          {% elif request.user.role == 'enseignant' %}Espace enseignant
-          {% elif request.user.role == 'secretaire' %}Secrétariat
-          {% elif request.user.role == 'parent' %}Espace parent
-          {% else %}Espace{% endif %}
-        </span>
-      </div>
-    </div>
+   <div class="sidebar-brand">
+  {% if etablissement.logo %}
+    <img src="{{ etablissement.logo.url }}" alt="Logo" class="sidebar-brand-logo">
+  {% else %}
+    <span class="brand-mark" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M3 6.5L12 3l9 3.5-9 3.5-9-3.5z" stroke="#ffffff" stroke-width="1.6" stroke-linejoin="round"/>
+        <path d="M6.5 10v5.2c0 .5 2.4 2.3 5.5 2.3s5.5-1.8 5.5-2.3V10" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </span>
+  {% endif %}
+  <div class="sidebar-brand-text">
+    <strong>
+      {% if etablissement.sigle %}{{ etablissement.sigle }}
+      {% elif etablissement %}{{ etablissement.nom }}
+      {% else %}EduGestion{% endif %}
+    </strong>
+    <span>
+      {% if request.user.role == 'admin' %}Administration
+      {% elif request.user.role == 'enseignant' %}Espace enseignant
+      {% elif request.user.role == 'secretaire' %}Secrétariat
+      {% elif request.user.role == 'parent' %}Espace parent
+      {% else %}Espace{% endif %}
+    </span>
+  </div>
+</div>
+ 
+
+
 
     <div class="sidebar-user">
       <div class="avatar-chip" aria-hidden="true">{{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}</div>
@@ -175,6 +199,11 @@
        <a href="{% url 'admin_messages' %}" class="sidebar-link {% if active_page == 'messages' %}active{% endif %}">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 12a9 9 0 109-9"/><path d="M3 4v8h8"/><path d="M12 8v4l3 2"/></svg>
         Message
+      </a>
+      </a>
+       <a href="{% url 'admin_periodes_trimestres' %}" class="sidebar-link {% if active_page == 'messages' %}active{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 12a9 9 0 109-9"/><path d="M3 4v8h8"/><path d="M12 8v4l3 2"/></svg>
+        Parametres
       </a>
       {% endif %}
 

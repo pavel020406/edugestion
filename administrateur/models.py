@@ -927,3 +927,51 @@ def calculer_absences_eleve(eleve, trimestre):
         'periode'       : periode,
     }
  
+class Etablissement(models.Model):
+    """
+    Informations de l'établissement, telles qu'affichées sur l'en-tête
+    des bulletins (nom, région, département, coordonnées...).
+    """
+ 
+    MINISTERE_CHOICES = [
+        ('minesec', "Ministère des Enseignements Secondaires (MINESEC)"),
+        ('minedub', "Ministère de l'Éducation de Base (MINEDUB)"),
+        ('minsup', "Ministère de l'Enseignement Supérieur (MINSUP)"),
+        ('prive', "Établissement privé (hors tutelle ministérielle directe)"),
+    ]
+ 
+    TYPE_CHOICES = [
+        ('lycee', "Lycée"),
+        ('college', "Collège"),
+        ('ecole_primaire', "École primaire"),
+        ('bilingue', "Établissement bilingue"),
+        ('autre', "Autre"),
+    ]
+ 
+    # ── Identité ──
+    nom            = models.CharField(max_length=255)
+    sigle          = models.CharField(max_length=50, blank=True, null=True)
+    logo           = models.ImageField(upload_to='etablissement/logo/', blank=True, null=True)
+    type_etablissement = models.CharField(max_length=30, choices=TYPE_CHOICES, default='lycee')
+    ministere      = models.CharField(max_length=30, choices=MINISTERE_CHOICES, default='minesec')
+ 
+    # ── Localisation administrative (comme sur l'en-tête du bulletin) ──
+    region              = models.CharField(max_length=100, blank=True, null=True)
+    departement         = models.CharField(max_length=100, blank=True, null=True)
+    delegation_regionale    = models.CharField(max_length=150, blank=True, null=True)
+    delegation_departementale = models.CharField(max_length=150, blank=True, null=True)
+    ville               = models.CharField(max_length=100, blank=True, null=True)
+    boite_postale       = models.CharField(max_length=50, blank=True, null=True)
+ 
+    # ── Coordonnées ──
+    telephone = models.CharField(max_length=30, blank=True, null=True)
+    email     = models.EmailField(blank=True, null=True)
+ 
+    date_creation = models.DateTimeField(auto_now_add=True)
+ 
+    class Meta:
+        verbose_name = "Établissement"
+        verbose_name_plural = "Établissements"
+ 
+    def __str__(self):
+        return self.nom

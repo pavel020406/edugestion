@@ -17,7 +17,14 @@ class Utilisateur(AbstractUser):
         ('M', 'Masculin'),
         ('F', 'Féminin'),
     ]
- 
+    etablissement = models.ForeignKey(
+        'administrateur.Etablissement',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='utilisateurs',
+        help_text="L'établissement auquel appartient ce compte."
+    )
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='eleve')
     sexe = models.CharField(max_length=1, choices=SEXE_CHOICES, blank=True)
     date_ajout = models.DateTimeField(auto_now_add=True)

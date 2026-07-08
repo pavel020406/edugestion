@@ -5,11 +5,126 @@
 
 {% block extra_css %}
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
-
+<link rel="stylesheet" href="{% static 'css/dashboard_enseignant/notes/enseignant_notes_matieres.css' %}">
 {% endblock %}
 
 {% block content %}
+<style>
+  /* ==========================================================
+   Thème Bleu & Blanc — Sélection de matière (Étape 2/2)
+   ========================================================== */
+
+:root {
+  --bleu-fonce: #2563EB;
+  --bleu-badge: #2F5CE0;
+  --bleu-pale: #EFF4FF;
+  --fond-page: #F3F6FB;
+  --texte: #0F172A;
+  --texte-mute: #94A3B8;
+  --blanc: #FFFFFF;
+  --bordure: #EEF1F6;
+}
+
+.bs-scope {
+  background-color: var(--fond-page);
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+}
+
+.bs-scope h1.h3 {
+  color: var(--texte);
+  font-weight: 700;
+}
+
+.bs-scope .text-muted {
+  color: var(--texte-mute) !important;
+}
+
+.bs-scope .btn-outline-secondary {
+  color: var(--bleu-fonce);
+  border-color: var(--bleu-fonce);
+  background: var(--blanc);
+}
+.bs-scope .btn-outline-secondary:hover {
+  background: var(--bleu-fonce);
+  border-color: var(--bleu-fonce);
+  color: var(--blanc);
+}
+
+/* ---------- Carte matière ---------- */
+.bs-scope .matiere-card {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  background-color: var(--blanc);
+  border: 1px solid var(--bordure);
+  border-radius: 1rem;
+  padding: 1.1rem 1.2rem;
+  text-decoration: none;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+  transition: box-shadow 0.18s ease, transform 0.18s ease, border-color 0.18s ease;
+  height: 100%;
+}
+
+.bs-scope .matiere-card:hover {
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.12);
+  border-color: var(--bleu-pale);
+  transform: translateY(-2px);
+}
+
+/* ---------- Icône matière ---------- */
+.bs-scope .matiere-icone {
+  flex-shrink: 0;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 0.65rem;
+  background: linear-gradient(180deg, #3B6CF0 0%, var(--bleu-badge) 100%);
+  color: var(--blanc);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bs-scope .matiere-icone svg {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+/* ---------- Texte ---------- */
+.bs-scope .matiere-titre {
+  flex: 1;
+  min-width: 0;
+  color: var(--texte);
+  font-weight: 700;
+  font-size: 0.98rem;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---------- Chevron ---------- */
+.bs-scope .matiere-chevron {
+  flex-shrink: 0;
+  color: #CBD5E1;
+  transition: transform 0.18s ease, color 0.18s ease;
+}
+
+.bs-scope .matiere-card:hover .matiere-chevron {
+  color: var(--bleu-fonce);
+  transform: translateX(3px);
+}
+
+/* ---------- État vide ---------- */
+.bs-scope .matiere-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--texte-mute);
+  background-color: var(--blanc);
+  border-radius: 1rem;
+  border: 1px dashed var(--bordure);
+}
+</style>
 <div class="bs-scope">
 
   <div class="d-flex justify-content-between align-items-center mb-1">
@@ -22,17 +137,24 @@
     <div class="row g-3">
       {% for matiere in matieres %}
         <div class="col-12 col-md-6 col-lg-4">
-          <a href="{% url 'enseignant_notes_saisie' classe.id matiere.id %}" class="card text-decoration-none h-100 shadow-sm">
-            <div class="card-body">
-              <h2 class="h5 mb-0 text-dark">{{ matiere.nom_matiere }}</h2>
+          <a href="{% url 'enseignant_notes_saisie' classe.id matiere.id %}" class="matiere-card">
+            <div class="matiere-icone">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M7 3h7l4 4v13a1 1 0 01-1 1H7a1 1 0 01-1-1V4a1 1 0 011-1z"/>
+                <path d="M9 12h6M9 16h6M9 8h3"/>
+              </svg>
             </div>
+            <p class="matiere-titre">{{ matiere.nom_matiere }}</p>
+            <svg class="matiere-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
           </a>
         </div>
       {% endfor %}
     </div>
   {% else %}
-    <div class="text-center py-5">
-      <p class="text-muted">Aucune matière accessible pour cette classe.</p>
+    <div class="matiere-empty">
+      <p class="mb-0">Aucune matière accessible pour cette classe.</p>
     </div>
   {% endif %}
 

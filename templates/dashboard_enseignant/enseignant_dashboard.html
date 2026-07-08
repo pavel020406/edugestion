@@ -21,13 +21,7 @@
     <div>
       <h1 class="h3 mb-1">Bonjour, {{ enseignant.first_name }} 👋</h1>
       <p class="text-muted mb-0">Voici un aperçu de votre espace enseignant.</p>
-    </div>
-    {% if enseignant.photo_profil %}
-      <img src="{{ enseignant.photo_profil.url }}" alt="Photo de profil" class="bs-avatar-sm">
-    {% else %}
-      <div class="bs-avatar-placeholder-sm">{{ enseignant.first_name|first|upper }}</div>
-    {% endif %}
-  </div>
+   
 
   {% if messages %}
     {% for message in messages %}

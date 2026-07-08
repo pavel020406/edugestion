@@ -13,6 +13,8 @@
 
 <link rel="stylesheet" href="{% static 'css/style.css' %}">
 <link rel="stylesheet" href="{% static 'css/login/login.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/dashboard.css' %}">
+<link rel="stylesheet" href="{% static 'css/responsive.css' %}">  <!-- toujours en dernier -->
 </head>
 <body class="login-page">
 
@@ -51,6 +53,15 @@
       <h1>Connexion</h1>
       <p>Accédez au registre numérique de votre établissement.</p>
 
+      <!-- ── Messages Django (erreurs de connexion, etc.) ── -->
+      {% if messages %}
+        {% for message in messages %}
+          <p class="form-message {% if message.tags == 'error' %}error{% else %}success{% endif %}">
+            {{ message }}
+          </p>
+        {% endfor %}
+      {% endif %}
+
       <form method="post" action="{% url 'connexion' %}">
         {% csrf_token %}
 
@@ -64,10 +75,6 @@
           <input type="password" id="password" name="password" placeholder="••••••••" required>
         </div>
 
-        {% if form.errors %}
-          <p class="form-message error">Nom d'utilisateur ou mot de passe incorrect.</p>
-        {% endif %}
-
         <button type="submit" class="btn btn-primary btn-block">Se connecter</button>
       </form>
 
@@ -76,5 +83,6 @@
   </div>
 </main>
 
+<script src="{% static 'js/responsive.js' %}"></script>
 </body>
 </html>

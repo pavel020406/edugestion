@@ -38,14 +38,16 @@ def get_etablissement():
     return Etablissement.objects.first()
  
 def accueil(request):
+    """
+    Page publique — toujours la version générique EduGestion.
+    Ne montre JAMAIS les infos d'un établissement en particulier :
+    ce n'est qu'une fois connecté que l'utilisateur voit SON école
+    (dans le dashboard, via le context processor scopé sur request.user).
+    """
     if request.user.is_authenticated:
         return redirect_selon_role(request.user)
  
-    etablissement = get_etablissement()
- 
-    return render(request, 'index.html', {
-        'etablissement': etablissement,
-    })
+    return render(request, 'index.html')
 def setup_etablissement(request):
     if request.method == 'POST':
         nom                 = request.POST.get('nom', '').strip()
@@ -130,6 +132,7 @@ def setup_admin(request):
             last_name=last_name,
             email=email,
             role='admin',
+            etablissement=etablissement,   
         )
         admin.set_password(password)
         admin.is_staff = True
@@ -181,6 +184,7 @@ def setup_secretaire(request):
             last_name=last_name,
             email=email,
             role='secretaire',
+            etablissement=etablissement,
         )
         secretaire.set_password(password)
         secretaire.save()

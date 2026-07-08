@@ -2542,12 +2542,12 @@ def appel_saisie(request, classe_id, creneau_id):
     creneau  = get_object_or_404(CreneauHoraire, id=creneau_id)
     aujourd_hui = date.today()
     try:
-     semaine_en_cours = SemaineScolaire.semaine_en_cours()
+        semaine_en_cours = SemaineScolaire.semaine_en_cours()
     except Exception:
-     semaine_en_cours = None
+        semaine_en_cours = None
 
     # Vérifie que ce créneau correspond bien à un cours aujourd'hui
-    jours_python = ['lundi','mardi','mercredi','jeudi','vendredi','samedi','dimanche']
+    jours_python = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche']
     code_jour    = jours_python[aujourd_hui.weekday()]
 
     emploi = EmploiDuTemps.objects.filter(
@@ -2574,29 +2574,29 @@ def appel_saisie(request, classe_id, creneau_id):
             except Enseignant.DoesNotExist:
                 pass
 
-    for eleve in eleves:
-        statut    = request.POST.get(f'statut_{eleve.id}', 'present')
-        justifiee = request.POST.get(f'justifiee_{eleve.id}') == '1'
-    
-        if statut not in ('present', 'absent', 'retard'):
-            statut = 'present'
-    
-        # ── Correctif : la justification n'a de sens que pour une absence ──
-        if statut != 'absent':
-            justifiee = False
-    
-        Presence.objects.update_or_create(
-            eleve=eleve, classe=classe, creneau=creneau, date=aujourd_hui,
-            defaults={
-                'statut'        : statut,
-                'justifiee'     : justifiee,
-                'enregistre_par': enregistre_par,
-                'semaine'       : semaine_en_cours,
-            },
-        )
+        # ── Tout ce bloc était mal indenté : maintenant bien À L'INTÉRIEUR du if POST ──
+        for eleve in eleves:
+            statut    = request.POST.get(f'statut_{eleve.id}', 'present')
+            justifiee = request.POST.get(f'justifiee_{eleve.id}') == '1'
 
+            if statut not in ('present', 'absent', 'retard'):
+                statut = 'present'
 
-        # Verrouille l'appel
+            # ── La justification n'a de sens que pour une absence ──
+            if statut != 'absent':
+                justifiee = False
+
+            Presence.objects.update_or_create(
+                eleve=eleve, classe=classe, creneau=creneau, date=aujourd_hui,
+                defaults={
+                    'statut'        : statut,
+                    'justifiee'     : justifiee,
+                    'enregistre_par': enregistre_par,
+                    'semaine'       : semaine_en_cours,
+                },
+            )
+
+        # Verrouille l'appel (une seule fois, pas à chaque élève)
         AppelVerrouille.objects.get_or_create(
             classe=classe,
             creneau=creneau,
@@ -2607,27 +2607,27 @@ def appel_saisie(request, classe_id, creneau_id):
         messages.success(request, f"Appel enregistré et verrouillé pour le {aujourd_hui.strftime('%d/%m/%Y')}.")
         return redirect('appel_creneaux', classe_id=classe_id)
 
-    # GET : préremplit les statuts existants
+    # ── GET : préremplit les statuts existants ──
     presences_existantes = {
-    p.eleve_id: {
-        'statut': p.statut,
-        'justifiee': p.justifiee,
-    }
-    for p in Presence.objects.filter(
-        classe=classe,
-        creneau=creneau,
-        date=aujourd_hui
-    )
+        p.eleve_id: {
+            'statut': p.statut,
+            'justifiee': p.justifiee,
+        }
+        for p in Presence.objects.filter(
+            classe=classe,
+            creneau=creneau,
+            date=aujourd_hui
+        )
     }
 
     lignes = []
     for eleve in eleves:
-     data = presences_existantes.get(eleve.id, {'statut': 'present', 'justifiee': False})
-     lignes.append({
-        'eleve'    : eleve,
-        'statut'   : data['statut'],
-        'justifiee': data['justifiee'],
-    })
+        data = presences_existantes.get(eleve.id, {'statut': 'present', 'justifiee': False})
+        lignes.append({
+            'eleve'    : eleve,
+            'statut'   : data['statut'],
+            'justifiee': data['justifiee'],
+        })
 
     return render(request, 'admin_dashboard/appels/appel_saisie.html', {
         'classe'         : classe,
@@ -2638,8 +2638,6 @@ def appel_saisie(request, classe_id, creneau_id):
         'deja_verrouille': deja_verrouille,
         'active_page'    : 'appels',
     })
-
-
 
 from eleve.models import Message, AccesEleve
 from utilisateurs.models import Utilisateur

@@ -3,7 +3,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">   
 <title>{% block page_title %}Tableau de bord{% endblock %} — EduGestion</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,6 +12,7 @@
 
 <link rel="stylesheet" href="{% static 'css/style.css' %}">
 <link rel="stylesheet" href="{% static 'css/admin_dashboard/dashboard.css' %}">
+<link rel="stylesheet" href="{% static 'css/responsive.css' %}">  <!-- toujours en dernier -->
 <style>
   /* ============================================================
      Topbar (profil + cloche de messages) — rôles admin & secrétaire
@@ -28,7 +29,20 @@
     --sec-gray-500: #64748b;
     --sec-gray-700: #334155;
   }
-
+.sidebar-brand-logo {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.4rem;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+  .sidebar-brand-text strong {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 160px;
+  }
   .topbar-right {
     display: flex;
     align-items: center;
@@ -72,29 +86,43 @@
 {% block extra_css %}{% endblock %}
 </head>
 <body class="dashboard-page">
+  <button class="dashboard-menu-toggle">☰</button>
+  <div class="sidebar-overlay"></div>
 
 <div class="dashboard-layout">
 
   <!-- ============ SIDEBAR (unique, partagée par toutes les pages) ============ -->
   <aside class="sidebar">
 
-    <div class="sidebar-brand">
-      <span class="brand-mark" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M3 6.5L12 3l9 3.5-9 3.5-9-3.5z" stroke="#ffffff" stroke-width="1.6" stroke-linejoin="round"/>
-          <path d="M6.5 10v5.2c0 .5 2.4 2.3 5.5 2.3s5.5-1.8 5.5-2.3V10" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </span>
-      <div class="sidebar-brand-text">
-        <strong>EduGestion</strong>
-        <span>
-          {% if request.user.role == 'admin' %}Administration
-          {% elif request.user.role == 'enseignant' %}Espace enseignant
-          {% elif request.user.role == 'secretaire' %}Secrétariat
-          {% else %}Espace{% endif %}
-        </span>
-      </div>
-    </div>
+   <div class="sidebar-brand">
+  {% if etablissement.logo %}
+    <img src="{{ etablissement.logo.url }}" alt="Logo" class="sidebar-brand-logo">
+  {% else %}
+    <span class="brand-mark" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M3 6.5L12 3l9 3.5-9 3.5-9-3.5z" stroke="#ffffff" stroke-width="1.6" stroke-linejoin="round"/>
+        <path d="M6.5 10v5.2c0 .5 2.4 2.3 5.5 2.3s5.5-1.8 5.5-2.3V10" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </span>
+  {% endif %}
+  <div class="sidebar-brand-text">
+    <strong>
+      {% if etablissement.sigle %}{{ etablissement.sigle }}
+      {% elif etablissement %}{{ etablissement.nom }}
+      {% else %}EduGestion{% endif %}
+    </strong>
+    <span>
+      {% if request.user.role == 'admin' %}Administration
+      {% elif request.user.role == 'enseignant' %}Espace enseignant
+      {% elif request.user.role == 'secretaire' %}Secrétariat
+      {% elif request.user.role == 'parent' %}Espace parent
+      {% else %}Espace{% endif %}
+    </span>
+  </div>
+</div>
+ 
+
+
 
     <div class="sidebar-user">
       <div class="avatar-chip" aria-hidden="true">{{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}</div>
@@ -104,7 +132,7 @@
     <nav class="sidebar-nav" aria-label="Navigation du tableau de bord">
 
       <p class="sidebar-group-label">Principal</p>
-      <a href="{% if request.user.role == 'enseignant' %}{% url 'dashboard_enseignant' %}{% elif request.user.role == 'secretaire' %}{% url 'dashboard_secretaire' %}{% else %}{% url 'dashboard' %}{% endif %}"
+      <a href="{% if request.user.role == 'enseignant' %}{% url 'dashboard_enseignant' %}{% elif request.user.role == 'secretaire' %}{% url 'dashboard_secretaire' %}{% elif request.user.role == 'parent' %}{% url 'dashboard_parent' %}{% else %}{% url 'dashboard' %}{% endif %}"
          class="sidebar-link {% if active_page == 'dashboard' %}active{% endif %}">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
         Tableau de bord
@@ -175,6 +203,11 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 12a9 9 0 109-9"/><path d="M3 4v8h8"/><path d="M12 8v4l3 2"/></svg>
         Message
       </a>
+      </a>
+       <a href="{% url 'admin_periodes_trimestres' %}" class="sidebar-link {% if active_page == 'messages' %}active{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 12a9 9 0 109-9"/><path d="M3 4v8h8"/><path d="M12 8v4l3 2"/></svg>
+        Parametres
+      </a>
       {% endif %}
 
       {% if request.user.role == 'enseignant' %}
@@ -225,6 +258,30 @@
       <a href="{% url 'secretaire_profil' %}" class="sidebar-link {% if active_page == 'profil' %}active{% endif %}">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6"/></svg>
         Mon profil
+      </a>
+      {% endif %}
+
+      {% if request.user.role == 'parent' %}
+      <p class="sidebar-group-label">Espace parent</p>
+      <a href="{% url 'dashboard_parent' %}" class="sidebar-link {% if active_page == 'dashboard' %}active{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.2 2.7-5.5 6-5.5s6 2.3 6 5.5"/></svg>
+        Mon enfant
+      </a>
+      <a href="{% url 'parent_notes' %}" class="sidebar-link {% if active_page == 'notes' %}active{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 20V10M11 20V4M17 20v-7"/></svg>
+        Notes &amp; Bulletins
+      </a>
+      <a href="{% url 'parent_emploi_du_temps' %}" class="sidebar-link {% if active_page == 'emploi' %}active{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 3v3M16 3v3"/></svg>
+        Emploi du temps
+      </a>
+      <a href="{% url 'parent_messages' %}" class="sidebar-link {% if active_page == 'messages' %}active{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        Messagerie
+      </a>
+      <a href="{% url 'parent_frais_niveaux' %}" class="sidebar-link {% if active_page == 'frais' %}active{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 9.5h4.5a1.5 1.5 0 010 3H10a1.5 1.5 0 000 3h4.5"/></svg>
+        Tarifs de l'établissement
       </a>
       {% endif %}
 
@@ -298,7 +355,10 @@
 
 </div>
 
-{% block extra_js %}{% endblock %}
+{% block extra_js %}
+{% endblock %}
+<script src="{% static 'js/responsive.js' %}"></script>
 
 </body>
+
 </html>

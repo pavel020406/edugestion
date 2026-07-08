@@ -39,6 +39,12 @@
       font-weight: bold;
       text-transform: uppercase;
     }
+    .entete-logo {
+      display: block;
+      margin: 0 auto 2px auto;
+      max-height: 32px;
+      max-width: 32px;
+    }
     .entete-sep {
       border-bottom: 1.5px solid #000;
       margin-bottom: 2px;
@@ -256,26 +262,49 @@
       RÉPUBLIQUE DU CAMEROUN<br>
       Paix – Travail – Patrie<br>
       --------<br>
-      MINISTÈRE DES ENSEIGNEMENTS SECONDAIRES<br>
+      {% if etablissement.ministere == 'minedub' %}
+        MINISTÈRE DE L'ÉDUCATION DE BASE
+      {% elif etablissement.ministere == 'minsup' %}
+        MINISTÈRE DE L'ENSEIGNEMENT SUPÉRIEUR
+      {% elif etablissement.ministere == 'prive' %}
+        ÉTABLISSEMENT PRIVÉ
+      {% else %}
+        MINISTÈRE DES ENSEIGNEMENTS SECONDAIRES
+      {% endif %}
+      <br>
       --------<br>
-      DÉLÉGATION RÉGIONALE DU ___________<br>
+      DÉLÉGATION RÉGIONALE {% if etablissement.delegation_regionale %}{{ etablissement.delegation_regionale|upper }}{% else %}DU ___________{% endif %}<br>
       --------<br>
-      DÉLÉGATION DÉPARTEMENTALE DU ___________
+      DÉLÉGATION DÉPARTEMENTALE {% if etablissement.delegation_departementale %}{{ etablissement.delegation_departementale|upper }}{% else %}DU ___________{% endif %}
     </td>
     <td class="centre">
-      <span class="etablissement">LYCÉE ___________________________</span><br>
-      BP : ___ | Tél : ___________<br>
-      Email : ___________
+      {% if etablissement.logo %}
+        <img src="{{ etablissement.logo.path }}" class="entete-logo" alt="Logo">
+      {% endif %}
+      <span class="etablissement">
+        {% if etablissement %}{{ etablissement.nom }}{% else %}LYCÉE ___________________________{% endif %}
+      </span><br>
+      BP : {{ etablissement.boite_postale|default:"___" }} | Tél : {{ etablissement.telephone|default:"___________" }}<br>
+      Email : {{ etablissement.email|default:"___________" }}
     </td>
     <td class="droite">
       REPUBLIC OF CAMEROON<br>
       Peace – Work – Fatherland<br>
       --------<br>
-      MINISTRY OF SECONDARY EDUCATION<br>
+      {% if etablissement.ministere == 'minedub' %}
+        MINISTRY OF BASIC EDUCATION
+      {% elif etablissement.ministere == 'minsup' %}
+        MINISTRY OF HIGHER EDUCATION
+      {% elif etablissement.ministere == 'prive' %}
+        PRIVATE INSTITUTION
+      {% else %}
+        MINISTRY OF SECONDARY EDUCATION
+      {% endif %}
+      <br>
       --------<br>
-      REGIONAL DELEGATION FOR THE ___________<br>
+      REGIONAL DELEGATION FOR {% if etablissement.region %}THE {{ etablissement.region|upper }}{% else %}THE ___________{% endif %}<br>
       --------<br>
-      DIVISIONAL DELEGATION FOR THE ___________
+      DIVISIONAL DELEGATION FOR {% if etablissement.departement %}THE {{ etablissement.departement|upper }}{% else %}THE ___________{% endif %}
     </td>
   </tr>
 </table>

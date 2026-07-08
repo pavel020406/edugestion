@@ -38,17 +38,15 @@ def get_etablissement():
     return Etablissement.objects.first()
  
 def accueil(request):
-    """
-    Page publique — toujours la version générique EduGestion.
-    Ne montre JAMAIS les infos d'un établissement en particulier :
-    ce n'est qu'une fois connecté que l'utilisateur voit SON école
-    (dans le dashboard, via le context processor scopé sur request.user).
-    """
     if request.user.is_authenticated:
         return redirect_selon_role(request.user)
- 
     return render(request, 'index.html')
 def setup_etablissement(request):
+    # ── Verrou : une seule école possible pour toute l'installation ──
+    if Etablissement.objects.exists():
+        messages.info(request, "Un établissement est déjà configuré pour cette plateforme.")
+        return redirect('accueil')
+ 
     if request.method == 'POST':
         nom                 = request.POST.get('nom', '').strip()
         sigle               = request.POST.get('sigle', '').strip()
@@ -90,7 +88,6 @@ def setup_etablissement(request):
         return redirect('setup_admin')
  
     return render(request, 'setup/setup_etablissement.html')
- 
  
 # ============================================================
 # ÉTAPE 2 : Créer le compte administrateur

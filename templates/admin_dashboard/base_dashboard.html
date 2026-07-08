@@ -12,9 +12,7 @@
 
 <link rel="stylesheet" href="{% static 'css/style.css' %}">
 <link rel="stylesheet" href="{% static 'css/admin_dashboard/dashboard.css' %}">
-<link rel="stylesheet" href="{% static 'css/style.css' %}">
-<link rel="stylesheet" href="{% static 'css/admin_dashboard/dashboard.css' %}">
-<link rel="stylesheet" href="{% static 'css/responsive.css' %}">  <!-- toujours en dernier -->
+<link rel="stylesheet" href="{% static 'css/responsive.css' %}">>  <!-- toujours en dernier -->
 <style>
   /* ============================================================
      Topbar (profil + cloche de messages) — rôles admin & secrétaire
@@ -88,6 +86,8 @@
 {% block extra_css %}{% endblock %}
 </head>
 <body class="dashboard-page">
+  <button class="dashboard-menu-toggle">☰</button>
+  <div class="sidebar-overlay"></div>
 
 <div class="dashboard-layout">
 
@@ -355,46 +355,26 @@
 
 </div>
 
-{% block extra_js %}
 
-{% endblock %}
+
+
 <script>
 document.addEventListener("DOMContentLoaded", function () {
+    const btn = document.querySelector(".dashboard-menu-toggle");
+    const sidebar = document.querySelector(".sidebar");
+    const overlay = document.querySelector(".sidebar-overlay");
 
-    // Création automatique du bouton menu sur mobile
-    if (!document.querySelector(".sidebar-toggle")) {
-        const btn = document.createElement("button");
-        btn.className = "sidebar-toggle";
-        btn.innerHTML = "☰";
-        document.body.appendChild(btn);
-
+    if (btn && sidebar && overlay) {
         btn.addEventListener("click", function () {
-            document.querySelector(".sidebar").classList.toggle("show");
+            sidebar.classList.toggle("sidebar-open");
+            overlay.classList.toggle("active");
+        });
+
+        overlay.addEventListener("click", function () {
+            sidebar.classList.remove("sidebar-open");
+            overlay.classList.remove("active");
         });
     }
-
-    // Fermer le menu lorsqu'on clique à l'extérieur
-    document.addEventListener("click", function (e) {
-        const sidebar = document.querySelector(".sidebar");
-        const toggle = document.querySelector(".sidebar-toggle");
-
-        if (
-            window.innerWidth <= 992 &&
-            sidebar.classList.contains("show") &&
-            !sidebar.contains(e.target) &&
-            !toggle.contains(e.target)
-        ) {
-            sidebar.classList.remove("show");
-        }
-    });
-
-    // Réinitialiser l'état lorsqu'on revient sur grand écran
-    window.addEventListener("resize", function () {
-        if (window.innerWidth > 992) {
-            document.querySelector(".sidebar").classList.remove("show");
-        }
-    });
-
 });
 </script>
 

@@ -278,18 +278,35 @@ def deconnexion(request):
 # DASHBOARDS
 # ============================================================
 
+from secretaire.models import eleves_en_retard
+ 
+ 
 @login_required
 def dashboard(request):
     if request.user.role != 'admin':
         return redirect_selon_role(request.user)
-
+ 
+    # ── Taux de présence du jour ──
+    presences_du_jour = Presence.objects.filter(date=date.today())
+    total_presences_jour = presences_du_jour.count()
+    if total_presences_jour > 0:
+        nb_presents = presences_du_jour.filter(statut='present').count()
+        taux_presence = round((nb_presents / total_presences_jour) * 100)
+    else:
+        taux_presence = None  # aucun appel fait aujourd'hui pour l'instant
+ 
+    # ── Paiements en retard ──
+    nb_paiements_retard = len(eleves_en_retard())
+ 
     contexte = {
-        'active_page': 'dashboard',
-        'total_eleves': Eleve.objects.count(),
-        'total_classes': Classe.objects.count(),
+        'active_page'        : 'dashboard',
+        'total_eleves'       : Eleve.objects.count(),
+        'total_classes'      : Classe.objects.count(),
+        'total_enseignants'  : Enseignant.objects.count(),
+        'taux_presence'      : taux_presence,
+        'nb_paiements_retard': nb_paiements_retard,
     }
     return render(request, 'admin_dashboard/admin_dashboard.html', contexte)
-
 
 # ============================================================
 # ÉLÈVES
@@ -2642,7 +2659,83 @@ def appel_saisie(request, classe_id, creneau_id):
 from eleve.models import Message, AccesEleve
 from utilisateurs.models import Utilisateur
  
- 
+
+
+
+# ============================================================
+# administrateur/views.py — AJOUT
+# ============================================================
+
+from django.core.paginator import Paginator
+from django.db.models import Q
+from datetime import datetime
+from secretaire.models import Paiement, TranchePaiement, FraisNiveau, statut_paiements_eleve
+
+
+@login_required
+def secretaire_historique_paiements(request):
+    """
+    Historique global de TOUS les paiements enregistrés (toutes classes,
+    tous élèves), avec recherche, filtres par classe/période, et total
+    encaissé sur la sélection affichée. Accessible à l'admin et au secrétariat.
+    """
+    if request.user.role not in ('admin', 'secretaire'):
+        return redirect_selon_role(request.user)
+
+    paiements = Paiement.objects.select_related(
+        'eleve', 'eleve__classe', 'enregistre_par'
+    ).prefetch_related('tranches').all()
+
+    # ── Filtres ──
+    search      = request.GET.get('search', '').strip()
+    classe_id   = request.GET.get('classe', '').strip()
+    date_debut  = request.GET.get('date_debut', '').strip()
+    date_fin    = request.GET.get('date_fin', '').strip()
+
+    if search:
+        paiements = paiements.filter(
+            Q(eleve__nom__icontains=search) |
+            Q(eleve__prenom__icontains=search) |
+            Q(eleve__matricule__icontains=search)
+        )
+
+    if classe_id:
+        paiements = paiements.filter(eleve__classe_id=classe_id)
+
+    if date_debut:
+        try:
+            d = datetime.strptime(date_debut, '%Y-%m-%d').date()
+            paiements = paiements.filter(date_paiement__gte=d)
+        except ValueError:
+            pass
+
+    if date_fin:
+        try:
+            d = datetime.strptime(date_fin, '%Y-%m-%d').date()
+            paiements = paiements.filter(date_paiement__lte=d)
+        except ValueError:
+            pass
+
+    # ── Total encaissé sur la sélection filtrée (avant pagination) ──
+    total_periode = sum(float(p.montant) for p in paiements)
+    nb_paiements  = paiements.count()
+
+    # ── Pagination ──
+    paginator   = Paginator(paiements, 30)
+    page_number = request.GET.get('page')
+    page_obj    = paginator.get_page(page_number)
+
+    return render(request, 'secretaire_dashboard/eleves/historique_paiements.html', {
+        'page_obj'      : page_obj,
+        'total_periode' : total_periode,
+        'nb_paiements'  : nb_paiements,
+        'classes'       : Classe.objects.all().order_by('niveau'),
+        'search'        : search,
+        'classe_id'     : classe_id,
+        'date_debut'    : date_debut,
+        'date_fin'      : date_fin,
+        'active_page'   : 'historique_paiements',
+    })
 # ── Correspondance type_message → type_contenu AccesEleve ──
 TYPE_MESSAGE_TO_ACCES = {
     'notes'   : 'notes',
@@ -2651,7 +2744,21 @@ TYPE_MESSAGE_TO_ACCES = {
     'presence': 'presence',
 }
  
- 
+# ============================================================
+# administrateur/views.py — AJOUT
+# ============================================================
+
+@login_required
+def admin_historiques(request):
+    """Page centrale regroupant les différents historiques disponibles."""
+    if request.user.role != 'admin':
+        return redirect_selon_role(request.user)
+
+    return render(request, 'admin_dashboard/historiques/admin_historiques.html', {
+        'active_page': 'historiques',
+    })
+
+
 @login_required
 def admin_messages(request):
     """Liste de tous les messages envoyés par l'admin."""
@@ -2661,7 +2768,7 @@ def admin_messages(request):
     search      = request.GET.get('search', '')
     type_filtre = request.GET.get('type', '')
  
-    msgs = Message.objects.select_related('destinataire', 'eleve', 'expediteur').all()
+    msgs = Message.objects.select_related('destinataire', 'eleve', 'expediteur').all().order_by('-date_envoi')
  
     if search:
         msgs = msgs.filter(sujet__icontains=search) | \
@@ -2679,19 +2786,20 @@ def admin_messages(request):
             trimestre  = None
             acces_actif = AccesEleve.a_acces(msg.eleve, type_acces, trimestre)
         msgs_avec_acces.append({'msg': msg, 'acces_actif': acces_actif})
+ 
     msgs_recus_parents = Message.objects.filter(
-    destinataire=request.user,
-    expediteur__role='parent',
-).select_related('expediteur', 'eleve').order_by('-date_envoi')
+        destinataire=request.user,
+        expediteur__role='parent',
+    ).select_related('expediteur', 'eleve').order_by('-date_envoi')
  
     return render(request, 'admin_dashboard/messages/admin_messages.html', {
-        'messages_list'      : msgs,
-        'total'              : msgs.count(),
-        'type_filtre'        : type_filtre,
-        'search'             : search,
-        'type_choices'       : Message.TYPE_CHOICES,
-        'active_page'        : 'messages',
-        'messages_recus_parents': msgs_recus_parents,
+        'msgs_avec_acces'        : msgs_avec_acces,   # ← CORRIGÉ : c'est bien ça qu'on utilise au template
+        'total'                  : msgs.count(),
+        'type_filtre'            : type_filtre,
+        'search'                 : search,
+        'type_choices'           : Message.TYPE_CHOICES,
+        'active_page'            : 'messages',
+        'messages_recus_parents' : msgs_recus_parents,
     })
  
  
@@ -2776,6 +2884,58 @@ def admin_envoyer_message(request, eleve_id=None):
     })
  
  
+
+@login_required
+def admin_repondre_message(request, message_id):
+    """
+    Permet à l'admin de répondre à un message reçu (d'un parent ou d'un élève).
+    La réponse est envoyée à l'EXPÉDITEUR du message original (pas forcément
+    l'élève lui-même — ça peut être son parent).
+    """
+    if request.user.role != 'admin':
+        return redirect_selon_role(request.user)
+ 
+    message_original = get_object_or_404(Message, id=message_id)
+ 
+    if request.method == 'POST':
+        contenu     = request.POST.get('contenu', '').strip()
+        sujet       = request.POST.get('sujet', '').strip()
+        fichier_pdf = request.FILES.get('fichier_pdf')
+ 
+        if not contenu:
+            messages.error(request, "Le message ne peut pas être vide.")
+            return render(request, 'admin_dashboard/messages/admin_repondre_message.html', {
+                'message_original': message_original,
+                'active_page'     : 'messages',
+            })
+ 
+        reponse = Message(
+            expediteur   = request.user,
+            destinataire = message_original.expediteur,
+            eleve        = message_original.eleve,
+            type_message = message_original.type_message,
+            sujet        = sujet or f"Re: {message_original.sujet}",
+            contenu      = contenu,
+            reponse_a    = message_original,   # nécessite le champ ci-dessous
+        )
+        if fichier_pdf:
+            reponse.fichier_pdf = fichier_pdf
+        reponse.save()
+ 
+        messages.success(
+            request,
+            f"✓ Réponse envoyée à {message_original.expediteur.get_full_name()}."
+        )
+        return redirect('admin_messages')
+ 
+    # ── GET : pré-remplit le sujet avec "Re: ..." ──
+    return render(request, 'admin_dashboard/messages/admin_repondre_message.html', {
+        'message_original': message_original,
+        'sujet_prerempli' : f"Re: {message_original.sujet}",
+        'active_page'     : 'messages',
+    })
+
+
 @login_required
 def admin_publier_acces(request, eleve_id):
     """

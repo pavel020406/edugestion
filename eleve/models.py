@@ -29,6 +29,14 @@ class Message(models.Model):
         'administrateur.Eleve', on_delete=models.CASCADE,
         null=True, blank=True, related_name='messages',
     )
+    reponse_a = models.ForeignKey(
+        'self',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='reponses',
+        help_text="Message d'origine auquel celui-ci répond (vide si c'est un message initial)."
+    )
 
     type_message = models.CharField(max_length=20, choices=TYPE_CHOICES, default='general')
     sujet        = models.CharField(max_length=200)

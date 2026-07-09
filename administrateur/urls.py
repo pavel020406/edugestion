@@ -93,5 +93,13 @@ urlpatterns = [
     path('messages/<int:message_id>/supprimer/',     views.admin_supprimer_message,  name='admin_supprimer_message'),
     path('eleves/<int:eleve_id>/acces/',          views.admin_gestion_acces,  name='admin_gestion_acces'),
     path('eleves/<int:eleve_id>/acces/publier/',  views.admin_publier_acces,  name='admin_publier_acces'),
+  
+    path(
+    'messages/<int:message_id>/repondre/',
+    views.admin_repondre_message,
+    name='admin_repondre_message'
+),
+     path('paiements/historique/', views.secretaire_historique_paiements, name='secretaire_historique_paiements'),
+     path('historiques/', views.admin_historiques, name='admin_historiques'),
      path('classes/<int:classe_id>/acces/', views.admin_acces_classe, name='admin_acces_classe'),
 ]

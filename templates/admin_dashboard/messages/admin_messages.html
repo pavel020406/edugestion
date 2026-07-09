@@ -1,140 +1,249 @@
 {% extends 'admin_dashboard/base_dashboard.html' %}
 {% load static %}
 
-{% block page_title %}Messagerie{% endblock %}
+{% block page_title %}Messages{% endblock %}
+
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/dashboard_enseignant/message.css' %}">
+<style>
+  :root {
+    --bleu-fonce: #1D4ED8;
+    --bleu-pale: #EFF6FF;
+    --bleu-ligne: #BFDBFE;
+    --texte: #0F172A;
+    --texte-mute: #64748B;
+  }
+
+  .msg-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:.5rem; }
+  .msg-header h1 { color:var(--bleu-fonce); font-size:1.3rem; margin:0; }
+
+  .btn-nouveau {
+    background:var(--bleu-fonce); color:#fff; border:none; border-radius:.5rem;
+    padding:.55rem 1.1rem; font-weight:600; font-size:.85rem; text-decoration:none;
+    display:inline-flex; align-items:center; gap:.4rem;
+  }
+  .btn-nouveau:hover { background:#1746B3; color:#fff; }
+
+  .msg-filtres {
+    background:#F8FAFC; border:1px solid #E2E8F0; border-radius:.7rem;
+    padding:.9rem 1rem; margin-bottom:1.5rem;
+    display:flex; gap:.75rem; flex-wrap:wrap; align-items:end;
+  }
+  .msg-filtres label { display:block; font-size:.72rem; font-weight:600; color:#334155; margin-bottom:.25rem; }
+  .msg-filtres input, .msg-filtres select {
+    padding:.45rem .6rem; border:1px solid #CBD5E1; border-radius:.5rem; font-size:.85rem; min-width:180px;
+  }
+  .msg-filtres .btn-filtrer {
+    background:var(--bleu-fonce); color:#fff; border:none; border-radius:.5rem;
+    padding:.5rem 1rem; font-weight:600; font-size:.85rem; cursor:pointer;
+  }
+  .msg-filtres .btn-reset {
+    background:#fff; color:#64748B; border:1px solid #CBD5E1; border-radius:.5rem;
+    padding:.5rem 1rem; font-weight:600; font-size:.85rem; text-decoration:none;
+  }
+
+  .msg-section-title {
+    font-size:.95rem; font-weight:700; color:var(--texte); margin:1.5rem 0 .75rem 0;
+    display:flex; align-items:center; gap:.5rem;
+  }
+  .msg-count-badge {
+    background:var(--bleu-pale); color:var(--bleu-fonce); border:1px solid var(--bleu-ligne);
+    border-radius:999px; padding:.05rem .55rem; font-size:.72rem; font-weight:700;
+  }
+
+  table.msg-table { width:100%; border-collapse:collapse; background:#fff; border:1px solid #E2E8F0; border-radius:.7rem; overflow:hidden; }
+  table.msg-table th { background:var(--bleu-pale); color:var(--bleu-fonce); font-size:.72rem; text-transform:uppercase; padding:.6rem .7rem; text-align:left; }
+  table.msg-table td { padding:.6rem .7rem; font-size:.82rem; border-top:1px solid #F1F5F9; vertical-align:top; }
+  table.msg-table tr:hover td { background:#F8FAFC; }
+
+  .msg-eleve small, .msg-sujet small { display:block; color:#94A3B8; font-size:.72rem; }
+  .msg-sujet strong { color:var(--texte); }
+  .msg-contenu-apercu { color:#64748B; font-size:.78rem; max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+  .badge-type {
+    display:inline-block; padding:.15rem .55rem; border-radius:999px;
+    font-size:.68rem; font-weight:700; background:#F1F5F9; color:#475569;
+  }
+  .badge-acces-actif { background:#DCFCE7; color:#15803D; border:1px solid #86EFAC; }
+  .badge-acces-inactif { background:#F1F5F9; color:#94A3B8; border:1px solid #E2E8F0; }
+  .badge-acces {
+    display:inline-block; padding:.15rem .55rem; border-radius:999px;
+    font-size:.68rem; font-weight:700;
+  }
+
+  .msg-actions { display:flex; gap:.4rem; flex-wrap:wrap; }
+  .btn-mini {
+    display:inline-flex; align-items:center; gap:.3rem;
+    padding:.3rem .6rem; border-radius:.4rem; font-size:.72rem; font-weight:600;
+    text-decoration:none; border:1px solid transparent; cursor:pointer;
+  }
+  .btn-mini-repondre { background:var(--bleu-pale); color:var(--bleu-fonce); border-color:var(--bleu-ligne); }
+  .btn-mini-repondre:hover { background:var(--bleu-fonce); color:#fff; }
+  .btn-mini-supprimer { background:#FEF2F2; color:#B91C1C; border-color:#FCA5A5; }
+  .btn-mini-supprimer:hover { background:#DC2626; color:#fff; }
+
+  .msg-empty { text-align:center; padding:2.5rem 1rem; color:#94A3B8; background:#fff; border:1px dashed #E2E8F0; border-radius:.7rem; }
+
+  .msg-nonlu { position:relative; }
+  .msg-nonlu::before {
+    content:""; position:absolute; left:-10px; top:50%; transform:translateY(-50%);
+    width:7px; height:7px; border-radius:50%; background:#DC2626;
+  }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="form-page-header">
-  <h1 class="form-page-title">
-    <span class="title-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-        <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-      </svg>
-    </span>
-    Messagerie
-  </h1>
-  <a href="{% url 'admin_envoyer_message' %}" class="btn btn-primary btn-sm">
-    + Nouveau message
+
+<div class="msg-header">
+  <h1>Messages</h1>
+  <a href="{% url 'admin_envoyer_message' %}" class="btn-nouveau">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+    Nouveau message
   </a>
 </div>
 
-{% if messages %}
-  <div class="form-messages">
-    {% for message in messages %}
-      <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/>
-        </svg>
-        <span>{{ message }}</span>
-      </div>
-    {% endfor %}
+<!-- ── Filtres ── -->
+<form method="get" class="msg-filtres">
+  <div>
+    <label>Recherche</label>
+    <input type="text" name="search" value="{{ search }}" placeholder="Sujet, nom, prénom élève...">
+  </div>
+  <div>
+    <label>Type</label>
+    <select name="type">
+      <option value="">Tous les types</option>
+      {% for code, libelle in type_choices %}
+        <option value="{{ code }}" {% if type_filtre == code %}selected{% endif %}>{{ libelle }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div style="display:flex; gap:.5rem;">
+    <button type="submit" class="btn-filtrer">Filtrer</button>
+    <a href="{% url 'admin_messages' %}" class="btn-reset">Réinitialiser</a>
+  </div>
+</form>
+
+<!-- ══════════════════════════════════════════════════
+     MESSAGES REÇUS DES PARENTS
+══════════════════════════════════════════════════ -->
+<div class="msg-section-title">
+  📥 Messages reçus des parents
+  <span class="msg-count-badge">{{ messages_recus_parents|length }}</span>
+</div>
+
+{% if messages_recus_parents %}
+  <div style="overflow-x:auto;">
+    <table class="msg-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>De</th>
+          <th>Concernant</th>
+          <th>Sujet / message</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for msg in messages_recus_parents %}
+          <tr>
+            <td>{{ msg.date_envoi|date:"d/m/Y H:i" }}</td>
+            <td class="msg-eleve">
+              {{ msg.expediteur.get_full_name }}
+              <small>Parent</small>
+            </td>
+            <td class="msg-eleve">
+              {% if msg.eleve %}
+                {{ msg.eleve.nom }} {{ msg.eleve.prenom }}
+                <small>{{ msg.eleve.matricule }}</small>
+              {% else %}—{% endif %}
+            </td>
+            <td class="msg-sujet">
+              <strong>{{ msg.sujet }}</strong>
+              <div class="msg-contenu-apercu">{{ msg.contenu|truncatechars:80 }}</div>
+            </td>
+            <td class="msg-actions">
+              <a href="{% url 'admin_repondre_message' msg.id %}" class="btn-mini btn-mini-repondre">
+                ↩ Répondre
+              </a>
+              <form method="post" action="{% url 'admin_supprimer_message' msg.id %}" onsubmit="return confirm('Supprimer ce message ?');">
+                {% csrf_token %}
+                <button type="submit" class="btn-mini btn-mini-supprimer">Supprimer</button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <div class="msg-empty">Aucun message reçu des parents pour le moment.</div>
+{% endif %}
+
+<!-- ══════════════════════════════════════════════════
+     MESSAGES ENVOYÉS PAR L'ADMIN
+══════════════════════════════════════════════════ -->
+<div class="msg-section-title">
+  📤 Messages envoyés
+  <span class="msg-count-badge">{{ total }}</span>
+</div>
+
+{% if msgs_avec_acces %}
+  <div style="overflow-x:auto;">
+    <table class="msg-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Destinataire</th>
+          <th>Type</th>
+          <th>Sujet</th>
+          <th>Accès publié</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in msgs_avec_acces %}
+          <tr>
+            <td>{{ item.msg.date_envoi|date:"d/m/Y H:i" }}</td>
+            <td class="msg-eleve">
+              {% if item.msg.eleve %}
+                {{ item.msg.eleve.nom }} {{ item.msg.eleve.prenom }}
+                <small>{{ item.msg.eleve.matricule }}</small>
+              {% else %}
+                {{ item.msg.destinataire.get_full_name }}
+              {% endif %}
+            </td>
+            <td><span class="badge-type">{{ item.msg.get_type_message_display }}</span></td>
+            <td class="msg-sujet">
+              <strong>{{ item.msg.sujet }}</strong>
+              <div class="msg-contenu-apercu">{{ item.msg.contenu|truncatechars:80 }}</div>
+            </td>
+            <td>
+              {% if item.acces_actif %}
+                <span class="badge-acces badge-acces-actif">✓ Actif</span>
+              {% else %}
+                <span class="badge-acces badge-acces-inactif">— Aucun</span>
+              {% endif %}
+            </td>
+            <td class="msg-actions">
+              {% if item.msg.eleve %}
+                <a href="{% url 'admin_gestion_acces' item.msg.eleve.id %}" class="btn-mini btn-mini-repondre">
+                  Gérer accès
+                </a>
+              {% endif %}
+              <form method="post" action="{% url 'admin_supprimer_message' item.msg.id %}" onsubmit="return confirm('Supprimer ce message ?');">
+                {% csrf_token %}
+                <button type="submit" class="btn-mini btn-mini-supprimer">Supprimer</button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <div class="msg-empty">
+    Aucun message envoyé pour l'instant.<br>
+    <a href="{% url 'admin_envoyer_message' %}" style="color:var(--bleu-fonce); font-weight:600;">Envoyer votre premier message →</a>
   </div>
 {% endif %}
 
-<!-- Filtres -->
-<form method="get" class="filter-bar">
-  <input type="text" name="search" value="{{ search }}"
-         placeholder="Rechercher par sujet ou élève…" class="filter-input">
-  <select name="type" class="filter-select">
-    <option value="">Tous les types</option>
-    {% for code, libelle in type_choices %}
-      <option value="{{ code }}" {% if type_filtre == code %}selected{% endif %}>
-        {{ libelle }}
-      </option>
-    {% endfor %}
-  </select>
-  <button type="submit" class="btn btn-ghost btn-sm">Filtrer</button>
-  {% if search or type_filtre %}
-    <a href="{% url 'admin_messages' %}" class="btn btn-ghost btn-sm">Réinitialiser</a>
-  {% endif %}
-</form>
-
-<div class="list-card">
-  <div class="list-card-header">
-    <h2>Messages envoyés</h2>
-    <span class="list-card-count">{{ total }} message(s)</span>
-  </div>
-
-  {% if messages_list %}
-    <div class="data-table-wrap">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Type</th>
-            <th>Sujet</th>
-            <th>Destinataire</th>
-            <th>Classe</th>
-            <th>Date</th>
-            <th>Lu</th>
-            <th>PJ</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for msg in messages_list %}
-            <tr>
-              <td>
-                <span class="badge-type msg-{{ msg.type_message }}">
-                  {{ msg.get_type_message_display }}
-                </span>
-              </td>
-              <td><strong>{{ msg.sujet }}</strong></td>
-              <td>
-                {% if msg.eleve %}
-                  {{ msg.eleve.nom }} {{ msg.eleve.prenom }}
-                {% else %}
-                  {{ msg.destinataire }}
-                {% endif %}
-              </td>
-              <td>
-                {% if msg.eleve and msg.eleve.classe %}
-                  <span class="class-chip">{{ msg.eleve.classe }}</span>
-                {% else %}—{% endif %}
-              </td>
-              <td style="white-space:nowrap; font-size:0.8rem;">
-                {{ msg.date_envoi|date:"d/m/Y H:i" }}
-              </td>
-              <td>
-                {% if msg.lu %}
-                  <span class="badge badge-present">✓ Lu</span>
-                {% else %}
-                  <span class="badge badge-pending">Non lu</span>
-                {% endif %}
-              </td>
-              <td>
-                {% if msg.fichier_pdf %}
-                  <span class="badge" style="background:var(--red-50);color:var(--red-600);border-color:var(--red-300);">PDF</span>
-                {% else %}—{% endif %}
-              </td>
-              <td>
-                <div class="action-buttons">
-                  <a href="{% url 'admin_envoyer_message_eleve' msg.eleve.id %}"
-                     class="btn-xs btn-xs-edit" title="Renvoyer">Renvoyer</a>
-                  <form method="post"
-                        action="{% url 'admin_supprimer_message' msg.id %}"
-                        style="display:inline;"
-                        onsubmit="return confirm('Supprimer ce message ?');">
-                    {% csrf_token %}
-                    <button type="submit" class="btn-xs btn-xs-delete">Supprimer</button>
-                  </form>
-                </div>
-              </td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  {% else %}
-    <div class="empty-state">
-      <div class="empty-emoji">📭</div>
-      <p>Aucun message envoyé pour l'instant.</p>
-      <a href="{% url 'admin_envoyer_message' %}" class="btn btn-primary btn-sm">
-        + Envoyer le premier message
-      </a>
-    </div>
-  {% endif %}
-</div>
 {% endblock %}

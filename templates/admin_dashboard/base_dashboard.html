@@ -195,10 +195,10 @@
         </span>
         {% if admin_retard_count %}<span class="topbar-bell-badge" style="position:static;">{{ admin_retard_count }}</span>{% endif %}
       </a>
-      <a href="#" class="sidebar-link {% if active_page == 'historiques' %}active{% endif %}">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 12a9 9 0 109-9"/><path d="M3 4v8h8"/><path d="M12 8v4l3 2"/></svg>
-        Historiques
-      </a>
+      <a href="{% url 'admin_historiques' %}" class="sidebar-link {% if active_page == 'historiques' %}active{% endif %}">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 12a9 9 0 109-9"/><path d="M3 4v8h8"/><path d="M12 8v4l3 2"/></svg>
+  Historiques
+</a>
        <a href="{% url 'admin_messages' %}" class="sidebar-link {% if active_page == 'messages' %}active{% endif %}">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 12a9 9 0 109-9"/><path d="M3 4v8h8"/><path d="M12 8v4l3 2"/></svg>
         Message

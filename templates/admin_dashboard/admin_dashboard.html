@@ -35,18 +35,34 @@
 
     <a href="{% url 'appel_classes' %}" class="quick-action">
       <span class="qa-icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6"/><path d="M19 8v4M21 10h-4" stroke-width="1.6"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
       </span>
-      <strong>Faire l'appel </strong>
-      <small>Faire l'appel</small>
+      <strong>Faire l'appel</strong>
+      <small>Saisir les présences du jour</small>
     </a>
 
     <a href="{% url 'bulletin_classes' %}" class="quick-action">
       <span class="qa-icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6"/><path d="M19 8v4M21 10h-4" stroke-width="1.6"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 3h7l4 4v13a1 1 0 01-1 1H7a1 1 0 01-1-1V4a1 1 0 011-1z"/><path d="M9 12h6M9 16h6M9 8h3"/></svg>
       </span>
-      <strong>Generer un bulletin </strong>
-      <small>Generer un bulletin</small>
+      <strong>Générer un bulletin</strong>
+      <small>Créer le bulletin d'un élève</small>
+    </a>
+
+    <a href="{% url 'emploi_du_temps_classes' %}" class="quick-action">
+      <span class="qa-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 3v3M16 3v3"/></svg>
+      </span>
+      <strong>Emploi du temps</strong>
+      <small>Gérer les créneaux par classe</small>
+    </a>
+
+    <a href="{% url 'secretaire_historique_paiements' %}" class="quick-action">
+      <span class="qa-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 9.5h4.5a1.5 1.5 0 010 3H10a1.5 1.5 0 000 3h4.5"/></svg>
+      </span>
+      <strong>Historique des paiements</strong>
+      <small>Consulter et filtrer les paiements</small>
     </a>
 
   </div>
@@ -73,18 +89,36 @@
 
     <div class="stat-card-empty">
       <span class="stat-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6"/></svg>
+      </span>
+      <div class="stat-card-value">{{ total_enseignants }}</div>
+      <div class="stat-card-label">Enseignants</div>
+    </div>
+
+    <div class="stat-card-empty">
+      <span class="stat-icon" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>
       </span>
-      <div class="stat-card-value">—</div>
-      <div class="stat-card-label">Taux de présence</div>
+      <div class="stat-card-value">
+        {% if taux_presence is not None %}{{ taux_presence }}%{% else %}—{% endif %}
+      </div>
+      <div class="stat-card-label">
+        Taux de présence
+        {% if taux_presence is None %}<small style="display:block;font-weight:400;">(aucun appel aujourd'hui)</small>{% endif %}
+      </div>
     </div>
 
     <div class="stat-card-empty">
       <span class="stat-icon" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 9.5h4.5a1.5 1.5 0 010 3H10a1.5 1.5 0 000 3h4.5"/></svg>
       </span>
-      <div class="stat-card-value">—</div>
-      <div class="stat-card-label">Paiements en attente</div>
+      <div class="stat-card-value">{{ nb_paiements_retard }}</div>
+      <div class="stat-card-label">
+        Élève(s) en retard de paiement
+        {% if nb_paiements_retard %}
+          <small style="display:block;"><a href="{% url 'secretaire_paiements_retard' %}">Voir la liste →</a></small>
+        {% endif %}
+      </div>
     </div>
 
   </div>

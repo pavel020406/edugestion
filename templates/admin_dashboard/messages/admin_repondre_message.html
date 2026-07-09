@@ -1,0 +1,157 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Répondre — {{ message_original.sujet }}{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+  :root {
+    --bleu-fonce: #1D4ED8;
+    --bleu-moyen: #3B82F6;
+    --bleu-pale: #EFF6FF;
+    --bleu-ligne: #BFDBFE;
+    --texte: #0F172A;
+    --texte-mute: #64748B;
+    --blanc: #FFFFFF;
+  }
+
+  .bs-scope { background-color: var(--blanc); color: var(--texte); }
+  .bs-scope h1.h3 { color: var(--bleu-fonce); font-weight: 700; }
+
+  .bs-scope .message-original {
+    background-color: var(--bleu-pale);
+    border: 1px solid var(--bleu-ligne);
+    border-left: 4px solid var(--bleu-fonce);
+    border-radius: 0.5rem;
+    padding: 1rem 1.2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .bs-scope .message-original .meta {
+    font-size: 0.8rem;
+    color: var(--texte-mute);
+    margin-bottom: 0.4rem;
+  }
+
+  .bs-scope .message-original .sujet {
+    font-weight: 700;
+    color: var(--bleu-fonce);
+    margin-bottom: 0.3rem;
+  }
+
+  .bs-scope .message-original .contenu {
+    color: var(--texte);
+    white-space: pre-wrap;
+  }
+
+  .bs-scope .card {
+    border: 1px solid var(--bleu-ligne);
+    border-radius: 0.6rem;
+  }
+
+  .bs-scope .form-control,
+  .bs-scope .form-select {
+    border: 1px solid var(--bleu-ligne);
+    color: var(--texte);
+  }
+
+  .bs-scope .form-control:focus,
+  .bs-scope .form-select:focus {
+    border-color: var(--bleu-moyen);
+    box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
+  }
+
+  .bs-scope .form-label {
+    font-weight: 600;
+    color: var(--texte);
+    font-size: 0.85rem;
+  }
+
+  .bs-scope .btn-primary {
+    background-color: var(--bleu-fonce);
+    border-color: var(--bleu-fonce);
+  }
+
+  .bs-scope .btn-primary:hover {
+    background-color: #1746B3;
+    border-color: #1746B3;
+  }
+
+  .bs-scope .btn-outline-secondary {
+    color: var(--bleu-fonce);
+    border-color: var(--bleu-fonce);
+  }
+
+  .bs-scope .alert-danger {
+    background-color: #FEE2E2;
+    border: 1px solid #DC2626;
+    color: #991B1B;
+    font-weight: 600;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="bs-scope">
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Répondre au message</h1>
+    <a href="{% url 'admin_messages' %}" class="btn btn-outline-secondary btn-sm">← Retour aux messages</a>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-success{% endif %}">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <!-- ── Message original (contexte) ── -->
+  <div class="message-original">
+    <div class="meta">
+      De <strong>{{ message_original.expediteur.get_full_name }}</strong>
+      {% if message_original.eleve %} — concernant {{ message_original.eleve.nom }} {{ message_original.eleve.prenom }}{% endif %}
+      · {{ message_original.date_envoi|date:"d/m/Y à H:i" }}
+    </div>
+    <div class="sujet">{{ message_original.sujet }}</div>
+    <div class="contenu">{{ message_original.contenu }}</div>
+    {% if message_original.fichier_pdf %}
+      <a href="{{ message_original.fichier_pdf.url }}" target="_blank" class="small">📎 Pièce jointe</a>
+    {% endif %}
+  </div>
+
+  <!-- ── Formulaire de réponse ── -->
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="mb-3">
+          <label class="form-label">Sujet</label>
+          <input type="text" name="sujet" class="form-control"
+                 value="{{ sujet_prerempli }}">
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Votre réponse</label>
+          <textarea name="contenu" rows="6" class="form-control" required
+                    placeholder="Écrivez votre réponse ici..."></textarea>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Pièce jointe (optionnel)</label>
+          <input type="file" name="fichier_pdf" class="form-control" accept="application/pdf">
+        </div>
+
+        <div class="d-flex justify-content-end gap-2">
+          <a href="{% url 'admin_messages' %}" class="btn btn-outline-secondary">Annuler</a>
+          <button type="submit" class="btn btn-primary">Envoyer la réponse</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

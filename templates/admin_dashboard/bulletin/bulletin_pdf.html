@@ -8,7 +8,7 @@
       margin: 0.5cm 0.6cm;
     }
 
-    * { margin: 0; padding: 0; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       font-family: Helvetica, Arial, sans-serif;
@@ -126,19 +126,19 @@
       font-weight: bold;
       line-height: 1.2;
     }
-    /* Largeurs fixes */
-    table.notes col.c-mat  { width: 95px; }
-    table.notes col.c-seq  { width: 22px; }
-    table.notes col.c-note { width: 22px; }
-    table.notes col.c-rang { width: 16px; }
-    table.notes col.c-coef { width: 16px; }
-    table.notes col.c-nxc  { width: 22px; }
-    table.notes col.c-men  { width: 38px; }
-    table.notes col.c-niv  { width: 45px; }
-    table.notes col.c-min  { width: 16px; }
-    table.notes col.c-moy  { width: 16px; }
-    table.notes col.c-max  { width: 16px; }
-    table.notes col.c-ens  { width: 52px; }
+    /* Largeurs en % (xhtml2pdf gère mal les colonnes en px trop étroites) */
+    table.notes col.c-mat  { width: 24%;   }
+    table.notes col.c-seq  { width: 5.5%;  }
+    table.notes col.c-note { width: 5.5%;  }
+    table.notes col.c-rang { width: 4%;    }
+    table.notes col.c-coef { width: 4%;    }
+    table.notes col.c-nxc  { width: 5.5%;  }
+    table.notes col.c-men  { width: 9.5%;  }
+    table.notes col.c-niv  { width: 11.3%; }
+    table.notes col.c-min  { width: 4%;    }
+    table.notes col.c-moy  { width: 4%;    }
+    table.notes col.c-max  { width: 4%;    }
+    table.notes col.c-ens  { width: 13.2%; }
 
     table.notes .col-matiere {
       text-align: left;
@@ -273,9 +273,9 @@
       {% endif %}
       <br>
       --------<br>
-      DÉLÉGATION RÉGIONALE {% if etablissement.delegation_regionale %}{{ etablissement.delegation_regionale|upper }}{% else %}DU ___________{% endif %}<br>
+       {% if etablissement.delegation_regionale %}{{ etablissement.delegation_regionale|upper }}{% else %}DU ___________{% endif %}<br>
       --------<br>
-      DÉLÉGATION DÉPARTEMENTALE {% if etablissement.delegation_departementale %}{{ etablissement.delegation_departementale|upper }}{% else %}DU ___________{% endif %}
+       {% if etablissement.delegation_departementale %}{{ etablissement.delegation_departementale|upper }}{% else %}DU ___________{% endif %}
     </td>
     <td class="centre">
       {% if etablissement.logo %}
@@ -370,19 +370,19 @@
   </colgroup>
   <thead>
     <tr>
-      <th class="col-matiere">MATIÈRES</th>
-      <th>Séq 1</th>
-      <th>Séq 2</th>
-      <th>Note</th>
-      <th>Rang</th>
-      <th>Coef</th>
-      <th>N×C</th>
-      <th>Mention</th>
-      <th>Niv. d'acquisition</th>
-      <th>Min</th>
-      <th>Moy</th>
-      <th>Max</th>
-      <th>ENSEIGNANT</th>
+      <th class="col-matiere" style="width:24%;">MATIÈRES</th>
+      <th style="width:5.5%;">Séq 1</th>
+      <th style="width:5.5%;">Séq 2</th>
+      <th style="width:5.5%;">Note</th>
+      <th style="width:4%;">Rang</th>
+      <th style="width:4%;">Coef</th>
+      <th style="width:5.5%;">N×C</th>
+      <th style="width:9.5%;">Mention</th>
+      <th style="width:11.3%;">Niv. d'acquisition</th>
+      <th style="width:4%;">Min</th>
+      <th style="width:4%;">Moy</th>
+      <th style="width:4%;">Max</th>
+      <th style="width:13.2%;">ENSEIGNANT</th>
     </tr>
   </thead>
   <tbody>

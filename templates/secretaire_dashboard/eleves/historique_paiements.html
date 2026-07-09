@@ -1,0 +1,166 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Historique des paiements{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin_dashboard/eleves/add_eleve.css' %}">
+<link rel="stylesheet" href="{% static 'css/secretaire/eleves/detail_eleve.css' %}">
+<link rel="stylesheet" href="{% static 'css/secretaire/eleves/paiement_form.css' %}">
+<style>
+  .hp-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:.5rem; }
+  .hp-totaux { display:flex; gap:.75rem; margin-bottom:1.25rem; flex-wrap:wrap; }
+  .hp-stat {
+    background:#fff; border:1px solid #E2E8F0; border-radius:.7rem;
+    padding:.75rem 1.1rem; min-width:160px;
+  }
+  .hp-stat .val { font-size:1.25rem; font-weight:800; color:#1D4ED8; }
+  .hp-stat .lbl { font-size:.75rem; color:#64748B; }
+
+  .hp-filtres {
+    background:#F8FAFC; border:1px solid #E2E8F0; border-radius:.7rem;
+    padding:1rem; margin-bottom:1.25rem;
+    display:grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap:.75rem; align-items:end;
+  }
+  .hp-filtres label { display:block; font-size:.75rem; font-weight:600; color:#334155; margin-bottom:.25rem; }
+  .hp-filtres input, .hp-filtres select {
+    width:100%; padding:.45rem .6rem; border:1px solid #CBD5E1; border-radius:.5rem; font-size:.85rem;
+  }
+  .hp-filtres .btn-filtrer {
+    background:#1D4ED8; color:#fff; border:none; border-radius:.5rem;
+    padding:.5rem 1rem; font-weight:600; font-size:.85rem; cursor:pointer;
+  }
+  .hp-filtres .btn-reset {
+    background:#fff; color:#64748B; border:1px solid #CBD5E1; border-radius:.5rem;
+    padding:.5rem 1rem; font-weight:600; font-size:.85rem; text-decoration:none; text-align:center;
+  }
+
+  table.hp-table { width:100%; border-collapse:collapse; background:#fff; border:1px solid #E2E8F0; border-radius:.7rem; overflow:hidden; }
+  table.hp-table th { background:#EFF6FF; color:#1D4ED8; font-size:.72rem; text-transform:uppercase; padding:.6rem .7rem; text-align:left; }
+  table.hp-table td { padding:.6rem .7rem; font-size:.82rem; border-top:1px solid #F1F5F9; }
+  table.hp-table tr:hover td { background:#F8FAFC; }
+  .hp-montant { font-weight:700; color:#15803D; }
+  .hp-eleve small { display:block; color:#94A3B8; font-size:.72rem; }
+
+  .hp-pagination { display:flex; gap:.4rem; justify-content:center; margin-top:1.25rem; }
+  .hp-pagination a, .hp-pagination span {
+    padding:.4rem .75rem; border-radius:.4rem; font-size:.8rem; text-decoration:none;
+    border:1px solid #E2E8F0; color:#334155;
+  }
+  .hp-pagination .active { background:#1D4ED8; color:#fff; border-color:#1D4ED8; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="hp-header">
+  <h1 class="form-page-title" style="margin:0;">
+    <span class="title-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 9.5h4.5a1.5 1.5 0 010 3H10a1.5 1.5 0 000 3h4.5"/>
+      </svg>
+    </span>
+    Historique des paiements
+  </h1>
+</div>
+
+<!-- ── Totaux sur la sélection filtrée ── -->
+<div class="hp-totaux">
+  <div class="hp-stat">
+    <div class="val">{{ total_periode|floatformat:0 }} FCFA</div>
+    <div class="lbl">Total encaissé (sélection actuelle)</div>
+  </div>
+  <div class="hp-stat">
+    <div class="val">{{ nb_paiements }}</div>
+    <div class="lbl">Paiement(s) trouvé(s)</div>
+  </div>
+</div>
+
+<!-- ── Filtres ── -->
+<form method="get" class="hp-filtres">
+  <div>
+    <label>Recherche élève</label>
+    <input type="text" name="search" value="{{ search }}" placeholder="Nom, prénom, matricule...">
+  </div>
+  <div>
+    <label>Classe</label>
+    <select name="classe">
+      <option value="">Toutes les classes</option>
+      {% for c in classes %}
+        <option value="{{ c.id }}" {% if classe_id == c.id|stringformat:"s" %}selected{% endif %}>{{ c }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div>
+    <label>Du</label>
+    <input type="date" name="date_debut" value="{{ date_debut }}">
+  </div>
+  <div>
+    <label>Au</label>
+    <input type="date" name="date_fin" value="{{ date_fin }}">
+  </div>
+  <div style="display:flex; gap:.5rem;">
+    <button type="submit" class="btn-filtrer">Filtrer</button>
+    <a href="{% url 'secretaire_historique_paiements' %}" class="btn-reset">Réinitialiser</a>
+  </div>
+</form>
+
+<!-- ── Tableau des paiements ── -->
+<div style="overflow-x:auto;">
+  <table class="hp-table">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Élève</th>
+        <th>Classe</th>
+        <th>Contenu</th>
+        <th>Montant</th>
+        <th>Enregistré par</th>
+        <th>Reçu</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for paiement in page_obj %}
+        <tr>
+          <td>{{ paiement.date_paiement|date:"d/m/Y" }}</td>
+          <td class="hp-eleve">
+            {{ paiement.eleve.nom }} {{ paiement.eleve.prenom }}
+            <small>{{ paiement.eleve.matricule }}</small>
+          </td>
+          <td>{{ paiement.eleve.classe|default:"—" }}</td>
+          <td>{{ paiement.libelle_contenu }}</td>
+          <td class="hp-montant">{{ paiement.montant|floatformat:0 }} FCFA</td>
+          <td>
+            {% if paiement.enregistre_par %}
+              {{ paiement.enregistre_par.first_name }} {{ paiement.enregistre_par.last_name }}
+            {% else %}—{% endif %}
+          </td>
+          <td>
+            <a href="{% url 'secretaire_recu_paiement' paiement.id %}" class="btn btn-ghost btn-sm">Voir</a>
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="7" style="text-align:center; padding:2rem; color:#94A3B8;">
+            Aucun paiement trouvé pour ces critères.
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- ── Pagination ── -->
+{% if page_obj.has_other_pages %}
+  <div class="hp-pagination">
+    {% if page_obj.has_previous %}
+      <a href="?page={{ page_obj.previous_page_number }}&search={{ search }}&classe={{ classe_id }}&date_debut={{ date_debut }}&date_fin={{ date_fin }}">← Précédent</a>
+    {% endif %}
+    <span class="active">Page {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}&search={{ search }}&classe={{ classe_id }}&date_debut={{ date_debut }}&date_fin={{ date_fin }}">Suivant →</a>
+    {% endif %}
+  </div>
+{% endif %}
+
+{% endblock %}

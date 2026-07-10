@@ -19,20 +19,26 @@ document.addEventListener('DOMContentLoaded', function () {
   const main    = document.querySelector('.dashboard-main');
   if (sidebar && main) {
 
-    // Bouton hamburger (créé dynamiquement, pas besoin de toucher au HTML)
-    const menuBtn = document.createElement('button');
-    menuBtn.className = 'dashboard-menu-toggle';
-    menuBtn.setAttribute('aria-label', 'Ouvrir le menu');
-    menuBtn.innerHTML = `
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M3 6h18M3 12h18M3 18h18" stroke-linecap="round"/>
-      </svg>`;
-    document.body.appendChild(menuBtn);
+    // Réutilise le bouton et l'overlay déjà présents dans le HTML.
+    // Ne les crée dynamiquement QUE s'ils n'existent pas déjà (sécurité).
+    let menuBtn = document.querySelector('.dashboard-menu-toggle');
+    if (!menuBtn) {
+      menuBtn = document.createElement('button');
+      menuBtn.className = 'dashboard-menu-toggle';
+      menuBtn.setAttribute('aria-label', 'Ouvrir le menu');
+      menuBtn.innerHTML = `
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 6h18M3 12h18M3 18h18" stroke-linecap="round"/>
+        </svg>`;
+      document.body.appendChild(menuBtn);
+    }
 
-    // Overlay sombre
-    const overlay = document.createElement('div');
-    overlay.className = 'sidebar-overlay';
-    document.body.appendChild(overlay);
+    let overlay = document.querySelector('.sidebar-overlay');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.className = 'sidebar-overlay';
+      document.body.appendChild(overlay);
+    }
 
     function ouvrirSidebar() {
       sidebar.classList.add('sidebar-open');

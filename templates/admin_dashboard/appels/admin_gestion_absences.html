@@ -1,0 +1,187 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Gestion des absences{% endblock %}
+
+{% block extra_css %}
+<style>
+  :root {
+    --bleu-fonce: #1D4ED8;
+    --bleu-pale: #EFF6FF;
+    --bleu-ligne: #BFDBFE;
+    --texte: #0F172A;
+    --texte-mute: #64748B;
+  }
+
+  .ga-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:.5rem; }
+  .ga-header h1 { color:var(--bleu-fonce); font-size:1.3rem; margin:0; }
+
+  .ga-stat {
+    display:inline-flex; align-items:center; gap:.4rem;
+    background:var(--bleu-pale); border:1px solid var(--bleu-ligne); color:var(--bleu-fonce);
+    border-radius:999px; padding:.3rem .8rem; font-size:.8rem; font-weight:700; margin-bottom:1.25rem;
+  }
+
+  .ga-filtres {
+    background:#F8FAFC; border:1px solid #E2E8F0; border-radius:.7rem;
+    padding:1rem; margin-bottom:1.25rem;
+    display:grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap:.75rem; align-items:end;
+  }
+  .ga-filtres label { display:block; font-size:.75rem; font-weight:600; color:#334155; margin-bottom:.25rem; }
+  .ga-filtres input, .ga-filtres select {
+    width:100%; padding:.45rem .6rem; border:1px solid #CBD5E1; border-radius:.5rem; font-size:.85rem;
+  }
+  .ga-filtres .checkbox-inline { display:flex; align-items:center; gap:.4rem; font-size:.82rem; color:#334155; font-weight:500; }
+  .ga-filtres .btn-filtrer {
+    background:var(--bleu-fonce); color:#fff; border:none; border-radius:.5rem;
+    padding:.5rem 1rem; font-weight:600; font-size:.85rem; cursor:pointer;
+  }
+  .ga-filtres .btn-reset {
+    background:#fff; color:#64748B; border:1px solid #CBD5E1; border-radius:.5rem;
+    padding:.5rem 1rem; font-weight:600; font-size:.85rem; text-decoration:none; text-align:center;
+  }
+
+  table.ga-table { width:100%; border-collapse:collapse; background:#fff; border:1px solid #E2E8F0; border-radius:.7rem; overflow:hidden; }
+  table.ga-table th { background:var(--bleu-pale); color:var(--bleu-fonce); font-size:.72rem; text-transform:uppercase; padding:.6rem .7rem; text-align:left; }
+  table.ga-table td { padding:.6rem .7rem; font-size:.85rem; border-top:1px solid #F1F5F9; vertical-align:middle; }
+  table.ga-table tr:hover td { background:#F8FAFC; }
+  .ga-eleve small { display:block; color:#94A3B8; font-size:.72rem; }
+
+  .ga-checkbox {
+    width:1.15rem; height:1.15rem; cursor:pointer; accent-color: var(--bleu-fonce);
+  }
+  .ga-row-justifiee td { background:#F0FDF4; }
+  .badge-justifiee { background:#DCFCE7; color:#15803D; border:1px solid #86EFAC; padding:.1rem .5rem; border-radius:999px; font-size:.68rem; font-weight:700; }
+  .badge-non-justifiee { background:#FEF2F2; color:#B91C1C; border:1px solid #FCA5A5; padding:.1rem .5rem; border-radius:999px; font-size:.68rem; font-weight:700; }
+
+  .ga-empty { text-align:center; padding:2.5rem 1rem; color:#94A3B8; background:#fff; border:1px dashed #E2E8F0; border-radius:.7rem; }
+
+  .ga-actions-bar {
+    display:flex; justify-content:space-between; align-items:center; margin-top:1rem;
+  }
+  .ga-select-tout { font-size:.82rem; color:var(--bleu-fonce); font-weight:600; cursor:pointer; background:none; border:none; padding:0; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="ga-header">
+  <h1>Gestion des absences</h1>
+</div>
+
+<div class="ga-stat">
+  🚫 {{ nb_total }} absence(s) correspondant aux critères actuels
+</div>
+
+<!-- ── Filtres ── -->
+<form method="get" class="ga-filtres" id="form-filtres">
+  <div>
+    <label>Recherche élève</label>
+    <input type="text" name="search" value="{{ search }}" placeholder="Nom, prénom, matricule...">
+  </div>
+  <div>
+    <label>Classe</label>
+    <select name="classe">
+      <option value="">Toutes les classes</option>
+      {% for c in classes %}
+        <option value="{{ c.id }}" {% if classe_id == c.id|stringformat:"s" %}selected{% endif %}>{{ c }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div>
+    <label>Du</label>
+    <input type="date" name="date_debut" value="{{ date_debut }}">
+  </div>
+  <div>
+    <label>Au</label>
+    <input type="date" name="date_fin" value="{{ date_fin }}">
+  </div>
+  <div class="checkbox-inline">
+    <input type="checkbox" name="non_justifiees" value="1" id="chk-non-just" {% if non_justifiees_only %}checked{% endif %}>
+    <label for="chk-non-just" style="margin:0;">Non justifiées uniquement</label>
+  </div>
+  <div style="display:flex; gap:.5rem;">
+    <button type="submit" class="btn-filtrer">Filtrer</button>
+    <a href="{% url 'admin_gestion_absences' %}" class="btn-reset">Réinitialiser</a>
+  </div>
+</form>
+
+<!-- ── Tableau des absences avec justification ── -->
+{% if absences %}
+  <form method="post" id="form-justification">
+    {% csrf_token %}
+
+    <div style="overflow-x:auto;">
+      <table class="ga-table">
+        <thead>
+          <tr>
+            <th style="width:36px;">
+              <input type="checkbox" class="ga-checkbox" id="chk-tout" title="Tout cocher/décocher">
+            </th>
+            <th>Date</th>
+            <th>Élève</th>
+            <th>Classe</th>
+            <th>Créneau</th>
+            <th>Statut</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for absence in absences %}
+            <tr class="{% if absence.justifiee %}ga-row-justifiee{% endif %}">
+              <td>
+                <input type="checkbox" name="justifiee" value="{{ absence.id }}"
+                       class="ga-checkbox ga-checkbox-ligne"
+                       {% if absence.justifiee %}checked{% endif %}>
+              </td>
+              <td>{{ absence.date|date:"d/m/Y" }}</td>
+              <td class="ga-eleve">
+                {{ absence.eleve.nom }} {{ absence.eleve.prenom }}
+                <small>{{ absence.eleve.matricule }}</small>
+              </td>
+              <td>{{ absence.classe }}</td>
+              <td>
+                {{ absence.creneau.get_jour_display }}
+                {{ absence.creneau.heure_debut|time:"H:i" }}–{{ absence.creneau.heure_fin|time:"H:i" }}
+              </td>
+              <td>
+                {% if absence.justifiee %}
+                  <span class="badge-justifiee">✓ Justifiée</span>
+                {% else %}
+                  <span class="badge-non-justifiee">Non justifiée</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="ga-actions-bar">
+      <button type="button" class="ga-select-tout" onclick="toutCocher(true)">Tout cocher</button>
+      <button type="submit" class="btn btn-primary">✓ Enregistrer les justifications</button>
+    </div>
+  </form>
+{% else %}
+  <div class="ga-empty">Aucune absence ne correspond à ces critères.</div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function toutCocher(etat) {
+    document.querySelectorAll('.ga-checkbox-ligne').forEach(function(cb) {
+      cb.checked = etat;
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    var chkTout = document.getElementById('chk-tout');
+    if (chkTout) {
+      chkTout.addEventListener('change', function () {
+        toutCocher(this.checked);
+      });
+    }
+  });
+</script>
+{% endblock %}

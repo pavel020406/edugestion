@@ -27,9 +27,10 @@
     </span>
     {{ classe }}
   </h1>
-  <div class="header-actions" style="display:flex;gap:.5rem;flex-wrap:wrap;">
-    <a href="{% url 'edit_classe' classe.id %}"   class="btn btn-primary btn-sm">✏ Modifier</a>
-    <a href="{% url 'list_classe' %}"             class="btn btn-ghost btn-sm">← Liste</a>
+ <div class="header-actions" style="display:flex;gap:.5rem;flex-wrap:wrap;">
+    <a href="{% url 'edit_classe' classe.id %}"                    class="btn btn-primary btn-sm">✏ Modifier</a>
+    <a href="{% url 'admin_gestion_acces_classe' classe.id %}"     class="btn btn-outline-secondary btn-sm">🔐 Gérer tous les accès</a>
+    <a href="{% url 'list_classe' %}"                              class="btn btn-ghost btn-sm">← Liste</a>
   </div>
 </div>
 

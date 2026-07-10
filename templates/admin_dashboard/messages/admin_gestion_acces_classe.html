@@ -1,0 +1,141 @@
+{% extends 'admin_dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Accès — {{ classe }}{% endblock %}
+
+{% block extra_css %}
+<style>
+  :root {
+    --bleu-fonce: #1D4ED8;
+    --bleu-pale: #EFF6FF;
+    --bleu-ligne: #BFDBFE;
+    --texte: #0F172A;
+    --texte-mute: #64748B;
+  }
+
+  .gac-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:.4rem; flex-wrap:wrap; gap:.5rem; }
+  .gac-header h1 { color:var(--bleu-fonce); font-size:1.3rem; margin:0; }
+  .gac-sub { color:var(--texte-mute); font-size:.85rem; margin-bottom:1.5rem; }
+
+  .gac-note {
+    background:var(--bleu-pale); border:1px solid var(--bleu-ligne); border-radius:.6rem;
+    padding:.75rem 1rem; font-size:.8rem; color:var(--bleu-fonce); margin-bottom:1.5rem;
+    display:flex; gap:.5rem; align-items:flex-start;
+  }
+
+  table.gac-table { width:100%; border-collapse:collapse; background:#fff; border:1px solid #E2E8F0; border-radius:.7rem; overflow:hidden; }
+  table.gac-table th { background:var(--bleu-pale); color:var(--bleu-fonce); font-size:.72rem; text-transform:uppercase; padding:.65rem .8rem; text-align:left; }
+  table.gac-table td { padding:.65rem .8rem; font-size:.85rem; border-top:1px solid #F1F5F9; vertical-align:middle; }
+  table.gac-table tr:hover td { background:#F8FAFC; }
+
+  .gac-progress-wrap { display:flex; align-items:center; gap:.6rem; }
+  .gac-progress-bar { flex:1; height:8px; background:#F1F5F9; border-radius:999px; overflow:hidden; min-width:90px; }
+  .gac-progress-fill { height:100%; background:#CBD5E1; border-radius:999px; }
+  .gac-progress-fill.complet { background:#15803D; }
+  .gac-progress-fill.partiel { background:#D97706; }
+  .gac-progress-txt { font-size:.75rem; font-weight:700; color:var(--texte-mute); white-space:nowrap; }
+  .gac-progress-txt.complet { color:#15803D; }
+
+  .gac-actions { display:flex; gap:.5rem; }
+  .btn-gac {
+    border:none; border-radius:.45rem; padding:.4rem .8rem; font-size:.78rem; font-weight:600; cursor:pointer;
+  }
+  .btn-gac-accorder { background:var(--bleu-fonce); color:#fff; }
+  .btn-gac-accorder:hover { background:#1746B3; }
+  .btn-gac-accorder:disabled { background:#CBD5E1; cursor:not-allowed; }
+  .btn-gac-revoquer { background:#FEF2F2; color:#B91C1C; border:1px solid #FCA5A5; }
+  .btn-gac-revoquer:hover { background:#DC2626; color:#fff; }
+  .btn-gac-revoquer:disabled { background:#F8FAFC; color:#CBD5E1; border-color:#E2E8F0; cursor:not-allowed; }
+
+  .gac-lien-individuel {
+    display:inline-block; margin-top:1.5rem; font-size:.85rem; color:var(--bleu-fonce); font-weight:600;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="gac-header">
+  <h1>Gestion des accès — {{ classe }}</h1>
+  <a href="{% url 'detail_classe' classe.id %}" class="btn btn-ghost btn-sm">← Retour à la classe</a>
+</div>
+<p class="gac-sub">{{ nb_eleves }} élève(s) dans cette classe</p>
+
+{% if messages %}
+  {% for message in messages %}
+    <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-success{% endif %}" style="margin-bottom:1rem; padding:.6rem 1rem; border-radius:.5rem; font-size:.85rem;
+      {% if message.tags == 'error' %}background:#FEE2E2;color:#991B1B;{% else %}background:#DCFCE7;color:#15803D;{% endif %}">
+      {{ message }}
+    </div>
+  {% endfor %}
+{% endif %}
+
+<div class="gac-note">
+  ℹ️ Ces actions s'appliquent à <strong>tous les élèves de la classe</strong> en une fois. Pour gérer l'accès d'un seul élève en particulier, utilise la gestion individuelle (lien en bas de page).
+</div>
+
+<div style="overflow-x:auto;">
+  <table class="gac-table">
+    <thead>
+      <tr>
+        <th>Type de contenu</th>
+        <th>Trimestre</th>
+        <th>Élèves avec accès</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for cellule in grille %}
+        <tr>
+          <td><strong>{{ cellule.type_libelle }}</strong></td>
+          <td>{{ cellule.trim_libelle }}</td>
+          <td>
+            <div class="gac-progress-wrap">
+              <div class="gac-progress-bar">
+                <div class="gac-progress-fill {% if cellule.complet %}complet{% elif cellule.nb_avec_acces > 0 %}partiel{% endif %}"
+                     style="width: {% if cellule.nb_total > 0 %}{% widthratio cellule.nb_avec_acces cellule.nb_total 100 %}{% else %}0{% endif %}%;">
+                </div>
+              </div>
+              <span class="gac-progress-txt {% if cellule.complet %}complet{% endif %}">
+                {{ cellule.nb_avec_acces }}/{{ cellule.nb_total }}
+              </span>
+            </div>
+          </td>
+          <td class="gac-actions">
+            <form method="post" style="display:inline;">
+              {% csrf_token %}
+              <input type="hidden" name="type_contenu" value="{{ cellule.type_code }}">
+              {% if cellule.trimestre %}<input type="hidden" name="trimestre" value="{{ cellule.trimestre }}">{% endif %}
+              <input type="hidden" name="action" value="accorder">
+              <button type="submit" class="btn-gac btn-gac-accorder" {% if cellule.complet %}disabled{% endif %}>
+                Accorder à tous
+              </button>
+            </form>
+            <form method="post" style="display:inline;">
+              {% csrf_token %}
+              <input type="hidden" name="type_contenu" value="{{ cellule.type_code }}">
+              {% if cellule.trimestre %}<input type="hidden" name="trimestre" value="{{ cellule.trimestre }}">{% endif %}
+              <input type="hidden" name="action" value="revoquer">
+              <button type="submit" class="btn-gac btn-gac-revoquer" {% if cellule.nb_avec_acces == 0 %}disabled{% endif %}>
+                Révoquer à tous
+              </button>
+            </form>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<a href="#" class="gac-lien-individuel" onclick="document.getElementById('liste-eleves-individuel').style.display='block'; this.style.display='none'; return false;">
+  Gérer l'accès d'un seul élève en particulier →
+</a>
+
+<div id="liste-eleves-individuel" style="display:none; margin-top:1rem;">
+  <div class="gac-note" style="background:#FFFBEB; border-color:#FCD34D; color:#92400E;">
+    Sélectionne l'élève concerné depuis la liste des élèves de la classe, puis utilise le bouton "Gérer les accès" sur sa fiche.
+  </div>
+  <a href="{% url 'detail_classe' classe.id %}" class="btn btn-outline-secondary btn-sm">Voir la liste des élèves de la classe</a>
+</div>
+
+{% endblock %}  

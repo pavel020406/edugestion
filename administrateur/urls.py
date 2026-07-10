@@ -99,6 +99,11 @@ urlpatterns = [
     views.admin_repondre_message,
     name='admin_repondre_message'
 ),
+    # administrateur/urls.py — AJOUT dans urlpatterns
+    # administrateur/urls.py — AJOUT dans urlpatterns
+
+    path('absences/', views.admin_gestion_absences, name='admin_gestion_absences'),
+     path('classes/<int:classe_id>/acces/', views.admin_gestion_acces_classe, name='admin_gestion_acces_classe'),
      path('paiements/historique/', views.secretaire_historique_paiements, name='secretaire_historique_paiements'),
      path('historiques/', views.admin_historiques, name='admin_historiques'),
      path('classes/<int:classe_id>/acces/', views.admin_acces_classe, name='admin_acces_classe'),

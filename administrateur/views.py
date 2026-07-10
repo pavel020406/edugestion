@@ -2759,6 +2759,188 @@ def admin_historiques(request):
     })
 
 
+# ============================================================
+# administrateur/views.py — AJOUT
+# (remplace/complète admin_acces_classe existante)
+# ============================================================
+
+@login_required
+def admin_gestion_acces_classe(request, classe_id):
+    """
+    Page de gestion des accès pour TOUTE une classe :
+    grille type × trimestre, avec le nombre d'élèves ayant déjà
+    l'accès actif, et des boutons accorder/révoquer pour toute la classe.
+    """
+    if request.user.role != 'admin':
+        return redirect_selon_role(request.user)
+
+    classe = get_object_or_404(Classe, id=classe_id)
+    eleves = list(classe.eleves.all())
+    nb_eleves = len(eleves)
+
+    if request.method == 'POST':
+        type_contenu = request.POST.get('type_contenu')
+        trimestre    = request.POST.get('trimestre') or None
+        action       = request.POST.get('action', 'accorder')
+
+        if type_contenu not in ['notes', 'bulletin', 'emploi', 'presence']:
+            messages.error(request, "Type de contenu invalide.")
+            return redirect('admin_gestion_acces_classe', classe_id=classe_id)
+
+        count = 0
+        for eleve in eleves:
+            if action == 'accorder':
+                AccesEleve.accorder(
+                    eleve        = eleve,
+                    type_contenu = type_contenu,
+                    trimestre    = trimestre if type_contenu in ('notes', 'bulletin') else None,
+                    active_par   = request.user,
+                )
+            else:
+                AccesEleve.revoquer(
+                    eleve        = eleve,
+                    type_contenu = type_contenu,
+                    trimestre    = trimestre if type_contenu in ('notes', 'bulletin') else None,
+                )
+            count += 1
+
+        verbe = "accordé" if action == 'accorder' else "révoqué"
+        messages.success(
+            request,
+            f"Accès « {type_contenu} » {verbe} pour {count} élève(s) de la classe {classe}."
+        )
+        return redirect('admin_gestion_acces_classe', classe_id=classe_id)
+
+    # ── GET : construit la grille avec le décompte d'élèves ayant accès ──
+    types      = [('notes', 'Notes'), ('bulletin', 'Bulletin'), ('emploi', 'Emploi du temps'), ('presence', 'Présences')]
+    trimestres = [('T1', 'Trimestre 1'), ('T2', 'Trimestre 2'), ('T3', 'Trimestre 3'), (None, '—')]
+
+    grille = []
+    for type_code, type_libelle in types:
+        if type_code in ('emploi', 'presence'):
+            nb_avec_acces = sum(
+                1 for e in eleves if AccesEleve.a_acces(e, type_code, None)
+            )
+            grille.append({
+                'type_code'    : type_code,
+                'type_libelle' : type_libelle,
+                'trimestre'    : None,
+                'trim_libelle' : '—',
+                'nb_avec_acces': nb_avec_acces,
+                'nb_total'     : nb_eleves,
+                'complet'      : nb_avec_acces == nb_eleves and nb_eleves > 0,
+            })
+        else:
+            for trim_code, trim_libelle in [('T1', 'T1'), ('T2', 'T2'), ('T3', 'T3')]:
+                nb_avec_acces = sum(
+                    1 for e in eleves if AccesEleve.a_acces(e, type_code, trim_code)
+                )
+                grille.append({
+                    'type_code'    : type_code,
+                    'type_libelle' : type_libelle,
+                    'trimestre'    : trim_code,
+                    'trim_libelle' : trim_libelle,
+                    'nb_avec_acces': nb_avec_acces,
+                    'nb_total'     : nb_eleves,
+                    'complet'      : nb_avec_acces == nb_eleves and nb_eleves > 0,
+                })
+
+    return render(request, 'admin_dashboard/messages/admin_gestion_acces_classe.html', {
+        'classe'      : classe,
+        'nb_eleves'   : nb_eleves,
+        'grille'      : grille,
+        'active_page' : 'messages',
+    })
+
+from django.urls import reverse
+@login_required
+def admin_gestion_absences(request):
+    """
+    Liste toutes les absences enregistrées, avec filtres (classe, élève,
+    période), et permet à l'admin de justifier/annuler la justification
+    en un seul enregistrement groupé.
+    """
+    if request.user.role != 'admin':
+        return redirect_selon_role(request.user)
+ 
+    absences = Presence.objects.filter(statut='absent').select_related(
+        'eleve', 'classe', 'creneau'
+    ).order_by('-date', 'classe__niveau')
+ 
+    # ── Filtres ──
+    classe_id    = request.GET.get('classe', '').strip()
+    search       = request.GET.get('search', '').strip()
+    date_debut   = request.GET.get('date_debut', '').strip()
+    date_fin     = request.GET.get('date_fin', '').strip()
+    non_justifiees_only = request.GET.get('non_justifiees') == '1'
+ 
+    if classe_id:
+        absences = absences.filter(classe_id=classe_id)
+ 
+    if search:
+        absences = absences.filter(
+            Q(eleve__nom__icontains=search) | Q(eleve__prenom__icontains=search) |
+            Q(eleve__matricule__icontains=search)
+        )
+ 
+    if date_debut:
+        try:
+            d = datetime.strptime(date_debut, '%Y-%m-%d').date()
+            absences = absences.filter(date__gte=d)
+        except ValueError:
+            pass
+ 
+    if date_fin:
+        try:
+            d = datetime.strptime(date_fin, '%Y-%m-%d').date()
+            absences = absences.filter(date__lte=d)
+        except ValueError:
+            pass
+ 
+    if non_justifiees_only:
+        absences = absences.filter(justifiee=False)
+ 
+    if request.method == 'POST':
+        ids_coches = set(request.POST.getlist('justifiee'))
+        # On ne touche qu'aux absences actuellement affichées (même filtres),
+        # pour ne jamais modifier une absence qu'on n'a pas sous les yeux.
+        ids_affiches = list(absences.values_list('id', flat=True))
+ 
+        nb_justifiees = 0
+        nb_annulees   = 0
+        for presence_id in ids_affiches:
+            doit_etre_justifiee = str(presence_id) in ids_coches
+            presence = Presence.objects.get(id=presence_id)
+            if presence.justifiee != doit_etre_justifiee:
+                presence.justifiee = doit_etre_justifiee
+                presence.save(update_fields=['justifiee'])
+                if doit_etre_justifiee:
+                    nb_justifiees += 1
+                else:
+                    nb_annulees += 1
+ 
+        messages.success(
+            request,
+            f"✓ {nb_justifiees} absence(s) justifiée(s), {nb_annulees} annulée(s)."
+        )
+        # Redirige en conservant les filtres actifs
+        params = request.GET.urlencode()
+        url = reverse('admin_gestion_absences')
+        return redirect(f"{url}?{params}" if params else url)
+ 
+    return render(request, 'admin_dashboard/appels/admin_gestion_absences.html', {
+        'absences'            : absences,
+        'classes'             : Classe.objects.all().order_by('niveau'),
+        'classe_id'           : classe_id,
+        'search'              : search,
+        'date_debut'          : date_debut,
+        'date_fin'            : date_fin,
+        'non_justifiees_only' : non_justifiees_only,
+        'nb_total'            : absences.count(),
+        'active_page'         : 'absences',
+    })
+
+
 @login_required
 def admin_messages(request):
     """Liste de tous les messages envoyés par l'admin."""

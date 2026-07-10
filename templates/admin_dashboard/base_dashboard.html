@@ -183,33 +183,35 @@
       {% endif %}
 
       {% if request.user.role == 'admin' %}
-      <p class="sidebar-group-label">Administration</p>
-      <a href="{% url 'frais_niveaux' %}" class="sidebar-link {% if active_page == 'frais' %}active{% endif %}">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 9.5h4.5a1.5 1.5 0 010 3H10a1.5 1.5 0 000 3h4.5"/></svg>
-        Frais &amp; Paiements
-      </a>
-      <a href="{% url 'secretaire_paiements_retard' %}" class="sidebar-link {% if active_page == 'retard' %}active{% endif %}" style="display:flex; align-items:center; justify-content:space-between;">
-        <span style="display:flex; align-items:center; gap:.6rem;">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          Paiements en retard
-        </span>
-        {% if admin_retard_count %}<span class="topbar-bell-badge" style="position:static;">{{ admin_retard_count }}</span>{% endif %}
-      </a>
-      <a href="{% url 'admin_historiques' %}" class="sidebar-link {% if active_page == 'historiques' %}active{% endif %}">
+<p class="sidebar-group-label">Administration</p>
+<a href="{% url 'frais_niveaux' %}" class="sidebar-link {% if active_page == 'frais' %}active{% endif %}">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 9.5h4.5a1.5 1.5 0 010 3H10a1.5 1.5 0 000 3h4.5"/></svg>
+  Frais &amp; Paiements
+</a>
+<a href="{% url 'secretaire_paiements_retard' %}" class="sidebar-link {% if active_page == 'retard' %}active{% endif %}" style="display:flex; align-items:center; justify-content:space-between;">
+  <span style="display:flex; align-items:center; gap:.6rem;">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    Paiements en retard
+  </span>
+  {% if admin_retard_count %}<span class="topbar-bell-badge" style="position:static;">{{ admin_retard_count }}</span>{% endif %}
+</a>
+<a href="{% url 'admin_gestion_absences' %}" class="sidebar-link {% if active_page == 'absences' %}active{% endif %}">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>
+  Gestion des absences
+</a>
+<a href="{% url 'admin_historiques' %}" class="sidebar-link {% if active_page == 'historiques' %}active{% endif %}">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 12a9 9 0 109-9"/><path d="M3 4v8h8"/><path d="M12 8v4l3 2"/></svg>
   Historiques
 </a>
-       <a href="{% url 'admin_messages' %}" class="sidebar-link {% if active_page == 'messages' %}active{% endif %}">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 12a9 9 0 109-9"/><path d="M3 4v8h8"/><path d="M12 8v4l3 2"/></svg>
-        Message
-      </a>
-      </a>
-       <a href="{% url 'admin_periodes_trimestres' %}" class="sidebar-link {% if active_page == 'messages' %}active{% endif %}">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 12a9 9 0 109-9"/><path d="M3 4v8h8"/><path d="M12 8v4l3 2"/></svg>
-        Parametres
-      </a>
-      {% endif %}
-
+<a href="{% url 'admin_messages' %}" class="sidebar-link {% if active_page == 'messages' %}active{% endif %}">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+  Messages
+</a>
+<a href="{% url 'admin_periodes_trimestres' %}" class="sidebar-link {% if active_page == 'parametres' %}active{% endif %}">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09A1.65 1.65 0 0015 4.6a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+  Paramètres
+</a>
+{% endif %}
       {% if request.user.role == 'enseignant' %}
       <p class="sidebar-group-label">Enseignement</p>
       <a href="{% url 'enseignant_mes_classes' %}" class="sidebar-link {% if active_page == 'mes_classes' %}active{% endif %}">

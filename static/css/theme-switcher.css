@@ -1,0 +1,96 @@
+/* ==========================================================
+   THEME-SWITCHER.CSS
+   À charger EN TOUT DERNIER dans le <head>, après tous les
+   autres CSS (y compris {% block extra_css %}), pour pouvoir
+   écraser les variables déclarées localement sur chaque page.
+   ========================================================== */
+
+/* ── Thème par défaut : Bleu & Blanc ── */
+:root,
+html[data-theme="bleu"] {
+  --bleu-fonce: #1D4ED8;
+  --bleu-moyen: #3B82F6;
+  --bleu-pale: #EFF6FF;
+  --bleu-ligne: #BFDBFE;
+  --texte: #0F172A;
+  --texte-mute: #64748B;
+  --blanc: #FFFFFF;
+  --fond-page: #F3F6FB;
+  --fond-carte: #FFFFFF;
+  --bordure: #E2E8F0;
+
+  /* Variables sidebar/topbar (base_dashboard.html) */
+  --sec-blue-50:  #eff6ff;
+  --sec-blue-100: #dbeafe;
+  --sec-blue-200: #bfdbfe;
+  --sec-blue-600: #2563eb;
+  --sec-blue-700: #1d4ed8;
+  --sec-blue-900: #1e3a8a;
+  --sec-gray-100: #f1f5f9;
+  --sec-gray-300: #cbd5e1;
+  --sec-gray-500: #64748b;
+  --sec-gray-700: #334155;
+}
+
+/* ── Thème alternatif : Noir & Orange ── */
+html[data-theme="orange"] {
+  --bleu-fonce: #EA580C;
+  --bleu-moyen: #FB923C;
+  --bleu-pale: #FFF7ED;
+  --bleu-ligne: #FED7AA;
+  --texte: #F1F5F9;
+  --texte-mute: #94A3B8;
+  --blanc: #1E1B16;
+  --fond-page: #17140F;
+  --fond-carte: #241F18;
+  --bordure: #3A3226;
+
+  --sec-blue-50:  #241F18;
+  --sec-blue-100: #3A3226;
+  --sec-blue-200: #4A3F2C;
+  --sec-blue-600: #EA580C;
+  --sec-blue-700: #C2410C;
+  --sec-blue-900: #7C2D12;
+  --sec-gray-100: #241F18;
+  --sec-gray-300: #3A3226;
+  --sec-gray-500: #A8A29E;
+  --sec-gray-700: #E7E5E4;
+}
+
+/* ── Application aux éléments de fond/texte génériques ── */
+html[data-theme="orange"] body.dashboard-page {
+  background: var(--fond-page);
+  color: var(--texte);
+}
+html[data-theme="orange"] .sidebar {
+  background: #1E1B16;
+  border-right: 1px solid var(--bordure);
+}
+html[data-theme="orange"] .dashboard-main {
+  background: var(--fond-page);
+  color: var(--texte);
+}
+html[data-theme="orange"] .list-card,
+html[data-theme="orange"] .form-card,
+html[data-theme="orange"] .setup-card {
+  background: var(--fond-carte) !important;
+  border-color: var(--bordure) !important;
+  color: var(--texte);
+}
+html[data-theme="orange"] table.data-table th,
+html[data-theme="orange"] table.hp-table th,
+html[data-theme="orange"] table.ga-table th,
+html[data-theme="orange"] table.msg-table th,
+html[data-theme="orange"] table.gac-table th {
+  background: var(--bleu-pale) !important;
+  color: var(--bleu-fonce) !important;
+}
+html[data-theme="orange"] table.data-table td,
+html[data-theme="orange"] table.hp-table td,
+html[data-theme="orange"] table.ga-table td,
+html[data-theme="orange"] table.msg-table td,
+html[data-theme="orange"] table.gac-table td {
+  background: var(--fond-carte);
+  color: var(--texte);
+  border-color: var(--bordure) !important;
+}

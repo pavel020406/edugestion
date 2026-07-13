@@ -2083,17 +2083,7 @@ def add_creneau(request, creneau_id=None):
 # EMPLOI DU TEMPS — par semaine, historique, clôture
 # ============================================================
  
-@login_required
-def emploi_du_temps_classes(request):
-    """Étape 1 : choix de la classe, avec sélecteur de semaine."""
-    classes = Classe.objects.select_related('salle').all()
-    semaine = _get_semaine_demandee(request)
- 
-    return render(request, 'admin_dashboard/emploi/emploi_classes.html', {
-        'classes'     : classes,
-        'semaine'     : semaine,
-        'active_page' : 'emploi',
-    })
+
 
  
  
@@ -2158,25 +2148,56 @@ def historique_semaines(request):
     })
 
 @login_required
+def emploi_du_temps_classes(request):
+    """Étape 1 : choix de la classe. Plus de sélecteur de semaine."""
+    classes = Classe.objects.select_related('salle').all()
+    return render(request, 'admin_dashboard/emploi/emploi_classes.html', {
+        'classes'     : classes,
+        'active_page' : 'emploi',
+    })
+ 
+from .models import EmploiVerrou 
+ 
+@login_required
 def emploi_du_temps_grille(request, classe_id):
-    """Grille jour × créneau pour une classe, pour une semaine donnée."""
+    """
+    Grille jour × créneau pour une classe, valable pour toute l'année.
+    Peut être verrouillée par l'admin une fois finalisée ; il faut
+    déverrouiller pour la remodifier ensuite.
+    """
     classe   = get_object_or_404(Classe, id=classe_id)
     creneaux = CreneauHoraire.objects.all()
     matieres_classe = classe.matieres.all()
     enseignants     = Enseignant.objects.all()
  
-    semaine = _get_semaine_demandee(request)
- 
-    # Dates réelles de cette semaine (lundi à samedi)
-    jours_ordonnes = [code for code, _ in CreneauHoraire.JOUR_CHOICES]
-    dates_semaine  = {}
-    for i, jour in enumerate(jours_ordonnes):
-        dates_semaine[jour] = semaine.date_debut + timedelta(days=i)
+    verrou = EmploiVerrou.objects.filter(classe=classe).first()
+    est_verrouille = verrou.verrouille if verrou else False
  
     if request.method == 'POST':
-        if semaine.cloturee:
-            messages.error(request, "Cette semaine est clôturée, modification impossible.")
-            return redirect(f"{request.path}?semaine_id={semaine.id}")
+        action = request.POST.get('action', 'enregistrer')
+ 
+        # ── Déverrouiller ──
+        if action == 'deverrouiller':
+            if verrou:
+                verrou.verrouille = False
+                verrou.save(update_fields=['verrouille'])
+            messages.success(request, f"✓ Emploi du temps de {classe} déverrouillé.")
+            return redirect(request.path)
+ 
+        # ── Verrouiller ──
+        if action == 'verrouiller':
+            verrou, _ = EmploiVerrou.objects.get_or_create(classe=classe)
+            verrou.verrouille     = True
+            verrou.verrouille_le  = timezone.now()
+            verrou.verrouille_par = request.user
+            verrou.save()
+            messages.success(request, f"✓ Emploi du temps de {classe} verrouillé pour l'année.")
+            return redirect(request.path)
+ 
+        # ── Enregistrer (bloqué si verrouillé) ──
+        if est_verrouille:
+            messages.error(request, "L'emploi du temps est verrouillé. Déverrouillez-le d'abord pour le modifier.")
+            return redirect(request.path)
  
         erreurs      = []
         affectations = {}
@@ -2192,13 +2213,12 @@ def emploi_du_temps_grille(request, classe_id):
                     'enseignant_id': enseignant_id or None,
                 }
  
-        # Conflit enseignant (au sein de la même semaine)
         for creneau_id, affect in affectations.items():
             ens_id = affect['enseignant_id']
             if not ens_id:
                 continue
             conflit = EmploiDuTemps.objects.filter(
-                semaine=semaine, creneau_id=creneau_id, enseignant_id=ens_id
+                creneau_id=creneau_id, enseignant_id=ens_id
             ).exclude(classe=classe).select_related('classe', 'creneau', 'enseignant').first()
             if conflit:
                 c   = CreneauHoraire.objects.get(id=creneau_id)
@@ -2211,7 +2231,7 @@ def emploi_du_temps_grille(request, classe_id):
         if erreurs:
             for e in erreurs:
                 messages.error(request, e)
-            return redirect(f"{request.path}?semaine_id={semaine.id}")
+            return redirect(request.path)
  
         for creneau in creneaux:
             if creneau.est_pause:
@@ -2219,32 +2239,39 @@ def emploi_du_temps_grille(request, classe_id):
             if creneau.id in affectations:
                 affect = affectations[creneau.id]
                 EmploiDuTemps.objects.update_or_create(
-                    semaine=semaine, classe=classe, creneau=creneau,
+                    classe=classe, creneau=creneau,
                     defaults={
                         'matiere_id'   : affect['matiere_id'],
                         'enseignant_id': affect['enseignant_id'],
                     },
                 )
             else:
-                EmploiDuTemps.objects.filter(
-                    semaine=semaine, classe=classe, creneau=creneau
-                ).delete()
+                EmploiDuTemps.objects.filter(classe=classe, creneau=creneau).delete()
  
-        messages.success(request, "Emploi du temps enregistré pour cette semaine.")
-        return redirect(f"{request.path}?semaine_id={semaine.id}")
+        messages.success(request, "Emploi du temps mis à jour avec succès.")
+        return redirect(request.path)
  
     # ── GET : construit la grille ──
     emplois_existants = {
         e.creneau_id: e
-        for e in EmploiDuTemps.objects.filter(semaine=semaine, classe=classe)
+        for e in EmploiDuTemps.objects.filter(classe=classe)
         .select_related('matiere', 'enseignant')
     }
  
+    # Le bouton "Appel" n'a de sens que pour le jour d'aujourd'hui
+    # (l'appel se fait au jour le jour, pas sur toute l'année)
+    aujourd_hui  = date.today()
+    jours_python = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche']
+    jour_actuel  = jours_python[aujourd_hui.weekday()]
+ 
+    appels_verrouilles_aujourdhui = set(
+        AppelVerrouille.objects.filter(classe=classe, date=aujourd_hui)
+        .values_list('creneau_id', flat=True)
+    )
+ 
     libelles_jours = dict(CreneauHoraire.JOUR_CHOICES)
-    entetes_jours  = [
-        {'code': j, 'libelle': libelles_jours[j], 'date': dates_semaine[j]}
-        for j in jours_ordonnes
-    ]
+    jours_ordonnes = [code for code, _ in CreneauHoraire.JOUR_CHOICES]
+    entetes_jours  = [{'code': j, 'libelle': libelles_jours[j]} for j in jours_ordonnes]
  
     plages = {}
     for c in creneaux:
@@ -2260,10 +2287,15 @@ def emploi_du_temps_grille(request, classe_id):
                 cellules.append(None)
                 continue
             emploi = emplois_existants.get(cr.id)
+            a_cours = emploi is not None and emploi.matiere_id is not None
             cellules.append({
                 'creneau_id'   : cr.id,
                 'matiere_id'   : emploi.matiere_id    if emploi else None,
                 'enseignant_id': emploi.enseignant_id if emploi else None,
+                'a_cours'      : a_cours,
+                # Bouton appel affiché SEULEMENT sur la colonne du jour actuel
+                'date'         : aujourd_hui if (jour == jour_actuel and a_cours) else None,
+                'verrouille'   : cr.id in appels_verrouilles_aujourdhui,
             })
         lignes_grille.append({
             'heure_debut': hd, 'heure_fin': hf,
@@ -2271,22 +2303,17 @@ def emploi_du_temps_grille(request, classe_id):
             'cellules'   : cellules,
         })
  
-    # Historique des semaines (pour le sélecteur)
-    semaines_historique = SemaineScolaire.objects.all().order_by('-date_debut')[:12]
- 
     return render(request, 'admin_dashboard/emploi/emploi_grille.html', {
-        'classe'              : classe,
-        'lignes_grille'       : lignes_grille,
-        'entetes_jours'       : entetes_jours,
-        'matieres_classe'     : matieres_classe,
-        'enseignants'         : enseignants,
-        'semaine'             : semaine,
-        'semaines_historique' : semaines_historique,
-        'active_page'         : 'emploi',
+        'classe'          : classe,
+        'lignes_grille'   : lignes_grille,
+        'entetes_jours'   : entetes_jours,
+        'jours_ordonnes'  : jours_ordonnes,
+        'matieres_classe' : matieres_classe,
+        'enseignants'     : enseignants,
+        'est_verrouille'  : est_verrouille,
+        'verrou_info'     : verrou,
+        'active_page'     : 'emploi',
     })
- 
-
- 
  
 @login_required
 def delete_creneau(request, creneau_id):

@@ -185,31 +185,23 @@ class ClasseMatiere(models.Model):
 
 
 class EmploiDuTemps(models.Model):
-    
-
-    classe = models.ForeignKey(Classe, on_delete=models.CASCADE, related_name='emploi_du_temps')
-    creneau = models.ForeignKey(CreneauHoraire, on_delete=models.CASCADE, related_name='emplois')
-    matiere = models.ForeignKey(Matiere, on_delete=models.SET_NULL, null=True, blank=True, related_name='emplois')
-    enseignant = models.ForeignKey(
-        Enseignant, on_delete=models.SET_NULL, null=True, blank=True,
-        related_name='emplois_du_temps'
-    )
-    semaine = models.ForeignKey(
-       'SemaineScolaire',
-       on_delete=models.CASCADE,
-       related_name='emplois_du_temps',
-        
-   )
-
+    classe     = models.ForeignKey(Classe, on_delete=models.CASCADE, related_name='emploi_du_temps')
+    creneau    = models.ForeignKey(CreneauHoraire, on_delete=models.CASCADE)
+    matiere    = models.ForeignKey(Matiere, on_delete=models.SET_NULL, null=True, blank=True)
+    enseignant = models.ForeignKey(Enseignant, on_delete=models.SET_NULL, null=True, blank=True)
+ 
+    # ── SUPPRIMÉ : le champ 'semaine' n'existe plus.
+    # L'emploi du temps est désormais fixe pour toute l'année,
+    # et modifiable par l'admin à tout moment (pas de notion
+    # de semaine ni de clôture le concernant).
+ 
     class Meta:
-        unique_together = ['semaine', 'classe', 'creneau']
-        ordering = ['creneau__jour', 'creneau__heure_debut']
-        verbose_name = "Case d'emploi du temps"
-        verbose_name_plural = "Emploi du temps"
-
+        unique_together = ('classe', 'creneau')
+        verbose_name = "Emploi du temps"
+        verbose_name_plural = "Emplois du temps"
+ 
     def __str__(self):
-        return f"{self.classe} — {self.creneau} — {self.matiere or 'Libre'}"
-
+        return f"{self.classe} — {self.creneau} — {self.matiere or 'libre'}"
 
 # ============================================================
 # MODIFICATION administrateur/models.py
@@ -755,19 +747,30 @@ class SemaineScolaire(models.Model):
  
         return semaine
  
-    def copier_emploi_depuis(self, autre_semaine):
-      
-        emplois_source = EmploiDuTemps.objects.filter(semaine=autre_semaine)
-        nouveaux = []
-        for e in emplois_source:
-            nouveaux.append(EmploiDuTemps(
-                semaine=self,
-                classe=e.classe,
-                creneau=e.creneau,
-                matiere=e.matiere,
-                enseignant=e.enseignant,
-            ))
-        EmploiDuTemps.objects.bulk_create(nouveaux)
+# ============================================================
+# administrateur/models.py — AJOUT
+# ============================================================
+
+class EmploiVerrou(models.Model):
+    """
+    Verrouillage de l'emploi du temps d'UNE classe, pour toute l'année.
+    Une fois verrouillé, plus personne ne peut modifier la grille sauf
+    l'admin qui déverrouille d'abord (même logique que NoteVerrou).
+    """
+    classe          = models.OneToOneField(Classe, on_delete=models.CASCADE, related_name='emploi_verrou')
+    verrouille      = models.BooleanField(default=False)
+    verrouille_le   = models.DateTimeField(null=True, blank=True)
+    verrouille_par  = models.ForeignKey(
+        'utilisateurs.Utilisateur', on_delete=models.SET_NULL,
+        null=True, blank=True, related_name='emplois_verrouilles'
+    )
+
+    class Meta:
+        verbose_name = "Verrou emploi du temps"
+        verbose_name_plural = "Verrous emploi du temps"
+
+    def __str__(self):
+        return f"Emploi du temps {self.classe} — {'verrouillé' if self.verrouille else 'ouvert'}"  
  
     def cloturer(self, utilisateur):
        

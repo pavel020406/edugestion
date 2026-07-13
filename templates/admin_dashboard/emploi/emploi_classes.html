@@ -37,30 +37,7 @@
   </div>
 {% endif %}
 
-<!-- ── Bandeau semaine en cours ── -->
-<div class="semaine-bandeau {% if semaine.cloturee %}semaine-cloturee{% endif %}">
-  <div class="semaine-info">
-    <span class="semaine-icon">{% if semaine.cloturee %}🔒{% else %}📆{% endif %}</span>
-    <div>
-      <strong>
-        Semaine du {{ semaine.date_debut|date:"d/m" }} au {{ semaine.date_fin|date:"d/m/Y" }}
-      </strong>
-      <span class="semaine-statut">
-        {% if semaine.cloturee %}
-          Clôturée le {{ semaine.cloturee_le|date:"d/m/Y à H:i" }}
-        {% else %}
-          En cours — modifiable
-        {% endif %}
-      </span>
-    </div>
-  </div>
 
-  {% if not semaine.cloturee %}
-    <a href="{% url 'cloturer_semaine' semaine.id %}" class="btn btn-danger btn-sm">
-      🔒 Clôturer la semaine
-    </a>
-  {% endif %}
-</div>
 
 <p class="bulletin-breadcrumb-hint">Choisissez une classe pour voir ou modifier son emploi du temps.</p>
 

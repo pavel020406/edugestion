@@ -2,6 +2,12 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+  <script>
+  (function () {
+    var theme = localStorage.getItem('edugestion-theme') || 'bleu';
+    document.documentElement.setAttribute('data-theme', theme);
+  })();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">   
 <title>{% block page_title %}Tableau de bord{% endblock %} — EduGestion</title>
@@ -12,7 +18,8 @@
 
 <link rel="stylesheet" href="{% static 'css/style.css' %}">
 <link rel="stylesheet" href="{% static 'css/admin_dashboard/dashboard.css' %}">
-<link rel="stylesheet" href="{% static 'css/responsive.css' %}">  <!-- toujours en dernier -->
+<link rel="stylesheet" href="{% static 'css/responsive.css' %}">  
+<link rel="stylesheet" href="{% static 'css/theme-switcher.css' %}">
 <style>
   /* ============================================================
      Topbar (profil + cloche de messages) — rôles admin & secrétaire
@@ -212,7 +219,6 @@
   Paramètres
 </a>
 {% endif %}
-
       {% if request.user.role == 'enseignant' %}
       <p class="sidebar-group-label">Enseignement</p>
       <a href="{% url 'enseignant_mes_classes' %}" class="sidebar-link {% if active_page == 'mes_classes' %}active{% endif %}">
@@ -291,11 +297,17 @@
     </nav>
     
     <div class="sidebar-footer">
-      <a href="{% url 'deconnexion' %}" class="sidebar-link sidebar-logout">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
-        Déconnexion
-      </a>
-    </div>
+  <button id="theme-toggle-btn" type="button" class="sidebar-link" style="width:100%; border:none; background:none; cursor:pointer; display:flex; align-items:center; gap:.6rem; text-align:left;">
+    <span class="theme-toggle-dot" style="width:14px; height:14px; border-radius:50%; background:#1D4ED8; flex-shrink:0; border:2px solid #fff; box-shadow:0 0 0 1px #E2E8F0;"></span>
+    <span style="flex:1;">Thème : <span class="theme-toggle-label">Bleu &amp; Blanc</span></span>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v18M16 3v18"/></svg>
+  </button>
+ 
+  <a href="{% url 'deconnexion' %}" class="sidebar-link sidebar-logout">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+    Déconnexion
+  </a>
+</div>
   </aside>
 
   <!-- ============ ZONE PRINCIPALE (remplie par chaque page) ============ -->
@@ -360,6 +372,7 @@
 
 {% block extra_js %}
 {% endblock %}
+<script src="{% static 'js/theme-switcher.js' %}"></script>
 <script src="{% static 'js/responsive.js' %}"></script>
 
 </body>

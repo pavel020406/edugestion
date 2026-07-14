@@ -17,9 +17,10 @@
       </svg>
     </span>
     Emploi du temps
+    <span style="font-weight:400; font-size:.85rem; color:var(--text-faint, #94A3B8);">(valable toute l'année)</span>
   </h1>
   <div class="header-actions" style="display:flex;gap:.5rem;flex-wrap:wrap;">
-    <a href="{% url 'historique_semaines' %}" class="btn btn-ghost btn-sm">📅 Historique</a>
+    <a href="{% url 'historique_semaines' %}" class="btn btn-ghost btn-sm">📅 Historique des présences</a>
     <a href="{% url 'list_creneau' %}" class="btn btn-ghost btn-sm">Gérer les créneaux</a>
   </div>
 </div>
@@ -37,14 +38,12 @@
   </div>
 {% endif %}
 
-
-
 <p class="bulletin-breadcrumb-hint">Choisissez une classe pour voir ou modifier son emploi du temps.</p>
 
 {% if classes %}
   <div class="bulletin-grid">
     {% for classe in classes %}
-      <a href="{% url 'emploi_du_temps_grille' classe.id %}?semaine_id={{ semaine.id }}" class="bulletin-card">
+      <a href="{% url 'emploi_du_temps_grille' classe.id %}" class="bulletin-card">
         <span class="avatar-chip" aria-hidden="true">{{ classe.get_niveau_display|first|upper }}</span>
         <div>
           <strong>{{ classe }}</strong>
@@ -59,46 +58,5 @@
     <p>Aucune classe pour l'instant</p>
   </div>
 {% endif %}
-
-<style>
-.semaine-bandeau {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: var(--blue-50);
-  border: 1.5px solid var(--blue-200);
-  border-radius: 14px;
-  padding: 0.9rem 1.25rem;
-  margin-bottom: 1.25rem;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.semaine-bandeau.semaine-cloturee {
-  background: var(--red-50);
-  border-color: var(--red-300);
-}
-
-.semaine-info {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.semaine-icon { font-size: 1.5rem; }
-
-.semaine-info strong {
-  display: block;
-  font-size: 0.92rem;
-  color: var(--gray-900);
-}
-
-.semaine-statut {
-  display: block;
-  font-size: 0.78rem;
-  color: var(--gray-500);
-  margin-top: 2px;
-}
-</style>
 
 {% endblock %}

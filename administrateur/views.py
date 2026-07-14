@@ -2107,36 +2107,37 @@ def _get_semaine_demandee(request):
 @login_required
 def cloturer_semaine(request, semaine_id):
     """
-    Clôture une semaine :
-    - Verrouille l'emploi du temps
-    - Partage les présences à tous les élèves
-    - Crée automatiquement la semaine suivante
+    Clôture une semaine.
     """
-    if request.user.role != 'admin':
+
+    if request.user.role != "admin":
         return redirect_selon_role(request.user)
- 
+
     semaine = get_object_or_404(SemaineScolaire, id=semaine_id)
- 
+
     if semaine.cloturee:
         messages.warning(request, "Cette semaine est déjà clôturée.")
-        return redirect('emploi_du_temps_classes')
- 
-    if request.method == 'POST':
-        nouvelle_semaine = semaine.cloturer(request.user)
+        return redirect("historique_semaines")
+
+    if request.method == "POST":
+        semaine.cloturee = True
+        semaine.save(update_fields=["cloturee"])
+
         messages.success(
             request,
-            f"✓ Semaine du {semaine.date_debut.strftime('%d/%m')} clôturée. "
-            f"Présences partagées à tous les élèves. "
-            f"Nouvelle semaine du {nouvelle_semaine.date_debut.strftime('%d/%m')} créée."
+            f"✓ La semaine du {semaine.date_debut.strftime('%d/%m/%Y')} a été clôturée avec succès."
         )
-        return redirect('emploi_du_temps_classes')
- 
-    return render(request, 'admin_dashboard/emploi/confirmer_cloture.html', {
-        'semaine'    : semaine,
-        'active_page': 'emploi',
-    })
- 
- 
+
+        return redirect("historique_semaines")
+
+    return render(
+        request,
+        "admin_dashboard/emploi/confirmer_cloture.html",
+        {
+            "semaine": semaine,
+            "active_page": "historiques",
+        },
+    )
  
 @login_required
 def historique_semaines(request):

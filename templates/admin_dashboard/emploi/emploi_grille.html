@@ -6,6 +6,22 @@
 {% block extra_css %}
 
 <link rel="stylesheet" href="{% static 'css/admin_dashboard/emploi_grille.css' %}">
+<style>
+  .verrou-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+  }
+  .verrou-bar.verrouille { background: #FEF2F2; border: 1.5px solid #FCA5A5; color: #B91C1C; }
+  .verrou-bar.ouvert     { background: #F0FDF4; border: 1.5px solid #86EFAC; color: #15803D; }
+  .verrou-bar-text { font-size: 0.875rem; font-weight: 600; }
+  .verrou-bar-text small { font-weight: 400; font-size: 0.72rem; opacity: 0.8; display: block; margin-top: 2px; }
+</style>
 
 {% endblock %}
 
@@ -17,6 +33,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 3v3M16 3v3"/></svg>
       </span>
       Emploi du temps — {{ classe }}
+      <span style="font-weight:400; font-size:.85rem; color:var(--text-faint, #94A3B8);">(valable toute l'année)</span>
     </h1>
     <a href="{% url 'emploi_du_temps_classes' %}" class="btn btn-ghost btn-sm">Retour aux classes</a>
   </div>
@@ -32,6 +49,41 @@
     </div>
   {% endif %}
 
+  <!-- ── Barre de verrouillage ── -->
+  {% if est_verrouille %}
+    <div class="verrou-bar verrouille">
+      <div class="verrou-bar-text">
+        🔒 Emploi du temps verrouillé
+        {% if verrou_info.verrouille_le %}
+          <small>
+            le {{ verrou_info.verrouille_le|date:"d/m/Y à H:i" }}
+            {% if verrou_info.verrouille_par %}par {{ verrou_info.verrouille_par.get_full_name }}{% endif %}
+          </small>
+        {% endif %}
+      </div>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="deverrouiller">
+        <button type="submit" class="btn btn-ghost btn-sm"
+                onclick="return confirm('Déverrouiller l\'emploi du temps de {{ classe }} ?')">
+          🔓 Déverrouiller pour modifier
+        </button>
+      </form>
+    </div>
+  {% else %}
+    <div class="verrou-bar ouvert">
+      <div class="verrou-bar-text">🔓 Modifiable — pensez à verrouiller une fois finalisé</div>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="verrouiller">
+        <button type="submit" class="btn btn-danger btn-sm"
+                onclick="return confirm('Verrouiller l\'emploi du temps de {{ classe }} pour toute l\'année ?')">
+          🔒 Verrouiller
+        </button>
+      </form>
+    </div>
+  {% endif %}
+
   {% if not lignes_grille %}
     <div class="empty-state">
       <div class="empty-emoji" aria-hidden="true">🕐</div>
@@ -40,24 +92,20 @@
     </div>
   {% else %}
 
-    <form method="post">
+    <form method="post" id="form-grille">
       {% csrf_token %}
+      <input type="hidden" name="action" value="enregistrer">
 
       <div class="emploi-table-wrap">
         <table class="emploi-table">
           <thead>
-  <tr>
-    <th class="emploi-col-heure">Horaire</th>
-    {% for jour in entetes_jours %}
-      <th>
-        {{ jour.libelle }}<br>
-        <span style="font-size:0.68rem; font-weight:400; opacity:0.85;">
-          {{ jour.date|date:"d/m" }}
-        </span>
-      </th>
-    {% endfor %}
-  </tr>
-</thead>
+            <tr>
+              <th class="emploi-col-heure">Horaire</th>
+              {% for jour in entetes_jours %}
+                <th>{{ jour.libelle }}</th>
+              {% endfor %}
+            </tr>
+          </thead>
           <tbody>
             {% for ligne in lignes_grille %}
               <tr class="{% if ligne.est_pause %}emploi-row-pause{% endif %}">
@@ -67,46 +115,45 @@
                   <td colspan="{{ jours_ordonnes|length }}" class="emploi-pause-cell">Pause</td>
                 {% else %}
                   {% for cellule in ligne.cellules %}
-  <td>
-    {% if cellule %}
-      <div class="emploi-cellule">
-        <select name="matiere_{{ cellule.creneau_id }}">
-          <option value="">-- Libre --</option>
-          {% for matiere in matieres_classe %}
-            <option value="{{ matiere.id }}" {% if cellule.matiere_id == matiere.id %}selected{% endif %}>
-              {{ matiere.nom_matiere }}
-            </option>
-          {% endfor %}
-        </select>
-        <select name="enseignant_{{ cellule.creneau_id }}">
-          <option value="">-- Aucun --</option>
-          {% for enseignant in enseignants %}
-            <option value="{{ enseignant.id }}" {% if cellule.enseignant_id == enseignant.id %}selected{% endif %}>
-              {{ enseignant.first_name }} {{ enseignant.last_name }}
-            </option>
-          {% endfor %}
-        </select>
- 
-        {# Bouton appel — visible seulement si un cours est programmé #}
-        {% if cellule.a_cours and cellule.date %}
-          <div style="margin-top:3px;">
-            {% if cellule.verrouille %}
-              <a href="{% url 'appel_depuis_grille' classe.id cellule.creneau_id %}"
-                 class="emploi-appel-btn emploi-appel-done"
-                 title="Appel déjà fait">✓ Appel fait</a>
-            {% else %}
-              <a href="{% url 'appel_depuis_grille' classe.id cellule.creneau_id %}"
-                 class="emploi-appel-btn emploi-appel-todo"
-                 title="Faire l'appel">📋 Appel</a>
-            {% endif %}
-          </div>
-        {% endif %}
- 
-      </div>
-    {% endif %}
-  </td>
-{% endfor %}
- 
+                    <td>
+                      {% if cellule %}
+                        <div class="emploi-cellule">
+                          <select name="matiere_{{ cellule.creneau_id }}" {% if est_verrouille %}disabled{% endif %}>
+                            <option value="">-- Libre --</option>
+                            {% for matiere in matieres_classe %}
+                              <option value="{{ matiere.id }}" {% if cellule.matiere_id == matiere.id %}selected{% endif %}>
+                                {{ matiere.nom_matiere }}
+                              </option>
+                            {% endfor %}
+                          </select>
+                          <select name="enseignant_{{ cellule.creneau_id }}" {% if est_verrouille %}disabled{% endif %}>
+                            <option value="">-- Aucun --</option>
+                            {% for enseignant in enseignants %}
+                              <option value="{{ enseignant.id }}" {% if cellule.enseignant_id == enseignant.id %}selected{% endif %}>
+                                {{ enseignant.first_name }} {{ enseignant.last_name }}
+                              </option>
+                            {% endfor %}
+                          </select>
+
+                          {# Bouton appel — uniquement sur la colonne du jour actuel, si un cours y est programmé #}
+                          {% if cellule.date %}
+                            <div style="margin-top:3px;">
+                              {% if cellule.verrouille %}
+                                <a href="{% url 'appel_depuis_grille' classe.id cellule.creneau_id %}"
+                                   class="emploi-appel-btn emploi-appel-done"
+                                   title="Appel déjà fait aujourd'hui">✓ Appel fait</a>
+                              {% else %}
+                                <a href="{% url 'appel_depuis_grille' classe.id cellule.creneau_id %}"
+                                   class="emploi-appel-btn emploi-appel-todo"
+                                   title="Faire l'appel aujourd'hui">📋 Appel</a>
+                              {% endif %}
+                            </div>
+                          {% endif %}
+
+                        </div>
+                      {% endif %}
+                    </td>
+                  {% endfor %}
                 {% endif %}
               </tr>
             {% endfor %}
@@ -114,9 +161,11 @@
         </table>
       </div>
 
-      <div class="form-actions" style="margin-top: var(--space-md);">
-        <button type="submit" class="btn btn-primary">Enregistrer l'emploi du temps</button>
-      </div>
+      {% if not est_verrouille %}
+        <div class="form-actions" style="margin-top: var(--space-md);">
+          <button type="submit" class="btn btn-primary">Enregistrer l'emploi du temps</button>
+        </div>
+      {% endif %}
     </form>
 
   {% endif %}

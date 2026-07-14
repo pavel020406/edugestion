@@ -16,7 +16,7 @@
     <span class="title-icon">🔒</span>
     Clôturer la semaine
   </h1>
-  <a href="{% url 'emploi_du_temps_classes' %}" class="btn btn-ghost btn-sm">Annuler</a>
+  <a href="{% url 'historique_semaines' %}" class="btn btn-ghost btn-sm">Annuler</a>
 </div>
 
 <div class="cloture-card">
@@ -30,22 +30,23 @@
   <div class="cloture-consequences">
     <div class="cc-item">
       <span class="cc-check">✓</span>
-      L'emploi du temps de cette semaine sera verrouillé (lecture seule)
-    </div>
-    <div class="cc-item">
-      <span class="cc-check">✓</span>
       Les présences de la semaine seront partagées à <strong>tous les élèves</strong>
     </div>
     <div class="cc-item">
       <span class="cc-check">✓</span>
-      Une nouvelle semaine sera créée automatiquement (copie de celle-ci)
+      Une nouvelle semaine sera créée automatiquement, pour la saisie des prochains appels
     </div>
   </div>
+
+  <p class="cloture-note">
+    ℹ️ L'emploi du temps est valable toute l'année
+    et se verrouille indépendamment, classe par classe, depuis sa propre page.
+  </p>
 
   <form method="post">
     {% csrf_token %}
     <div class="cloture-actions">
-      <a href="{% url 'emploi_du_temps_classes' %}" class="btn btn-ghost">Annuler</a>
+      <a href="{% url 'historique_semaines' %}" class="btn btn-ghost">Annuler</a>
       <button type="submit" class="btn btn-danger">
         🔒 Confirmer la clôture
       </button>
@@ -87,7 +88,7 @@
   border: 1px solid var(--gray-200);
   border-radius: 10px;
   padding: 1rem 1.25rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
@@ -105,6 +106,17 @@
   color: var(--green-600);
   font-weight: 700;
   flex-shrink: 0;
+}
+
+.cloture-note {
+  text-align: left;
+  font-size: 0.78rem;
+  color: var(--gray-500);
+  background: var(--blue-50, #EFF6FF);
+  border: 1px solid var(--blue-200, #BFDBFE);
+  border-radius: 8px;
+  padding: 0.7rem 0.9rem;
+  margin-bottom: 1.5rem;
 }
 
 .cloture-actions {

@@ -54,6 +54,7 @@ def dashboard_enseignant(request):
 from administrateur.models import SemaineScolaire
 
 semaine_en_cours = SemaineScolaire.semaine_en_cours()
+
 @login_required
 def enseignant_mes_classes(request):
     if request.user.role != 'enseignant':
@@ -62,14 +63,14 @@ def enseignant_mes_classes(request):
     enseignant = Enseignant.objects.get(id=request.user.id)
     classes = classes_accessibles(enseignant)
 
-    semaine = SemaineScolaire.semaine_en_cours()
+    
 
     lignes = []
 
     for classe in classes:
         creneau = (
             EmploiDuTemps.objects.filter(
-                semaine=semaine,
+                
                 classe=classe,
                 enseignant=enseignant
             )

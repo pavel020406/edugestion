@@ -45,7 +45,7 @@ ALLOWED_HOSTS = [
 ALLOWED_HOSTS = [
     "127.0.0.1",
     "localhost",
-    "sonpseudo.pythonanywhere.com",
+    "pavel0204.pythonanywhere.com",
 ]
 
 AUTH_USER_MODEL = 'utilisateurs.Utilisateur'

@@ -38,10 +38,16 @@ LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'connexion'
 
 ALLOWED_HOSTS = [
+     "127.0.0.1",
+     "localhost",
+     "pavel020406.pythonanywhere.com",
+]
+ALLOWED_HOSTS = [
     "127.0.0.1",
     "localhost",
-    "pavel020406.pythonanywhere.com",
+    "sonpseudo.pythonanywhere.com",
 ]
+
 AUTH_USER_MODEL = 'utilisateurs.Utilisateur'
 
 # Application definition

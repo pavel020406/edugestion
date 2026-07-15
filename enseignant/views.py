@@ -53,7 +53,8 @@ def dashboard_enseignant(request):
 
 from administrateur.models import SemaineScolaire
 
-semaine_en_cours = SemaineScolaire.semaine_en_cours()
+
+
 @login_required
 def enseignant_mes_classes(request):
     if request.user.role != 'enseignant':
